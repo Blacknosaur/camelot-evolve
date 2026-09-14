@@ -1,0 +1,60 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgres://camelot:camelot_local@postgres:5432/camelot
+      BETTER_AUTH_SECRET: local-only-secret-change-before-deploying
+      BETTER_AUTH_URL: http://localhost:3000
+      DEFAULT_STORAGE_PROFILE: minio
+      STORAGE_PROFILES_JSON: '{"minio":{"endpoint":"http://minio:9000","region":"us-east-1","bucket":"camelot","accessKeyId":"camelot","secretAccessKey":"camelot_local_storage","forcePathStyle":true}}'
+      PUBLIC_BASE_URL: http://localhost:3000
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    command: ["sh", "-c", "pnpm --filter @camelot/db migrate && pnpm --filter @camelot/api start"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: camelot
+      POSTGRES_USER: camelot
+      POSTGRES_PASSWORD: camelot_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - camelot_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U camelot -d camelot"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  minio:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: camelot
+      MINIO_ROOT_PASSWORD: camelot_local_storage
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - camelot_minio:/data
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-07-21T05-28-08Z
+    depends_on:
+      - minio
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["until mc alias set local http://minio:9000 camelot camelot_local_storage; do sleep 1; done; mc mb --ignore-existing local/camelot"]
+
+volumes:
+  camelot_postgres:
+  camelot_minio:

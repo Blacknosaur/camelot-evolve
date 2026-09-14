@@ -1,0 +1,19 @@
+node_modules/
+.turbo/
+dist/
+coverage/
+target/
+.DS_Store
+*.tsbuildinfo
+.env
+.env.local
+apps/api/.env
+packages/db/.env
+
+# iOS build artifacts
+clients/ios/build/
+clients/ios/build-device/
+clients/ios/DerivedData/
+*.xcuserstate
+xcuserdata/
+

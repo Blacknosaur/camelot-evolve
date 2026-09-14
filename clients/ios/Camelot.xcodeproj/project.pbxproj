@@ -1,0 +1,968 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05E1C16C89AF3D3B22038BBC /* CameraEventCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375434FC4971F03979CD3CA8 /* CameraEventCapture.swift */; };
+		08FF68EA02F5EC9FEA959698 /* EditorAnalysisUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F48C83CCD5565E016E98A99 /* EditorAnalysisUITests.swift */; };
+		0BB2D696F11C12A57E04BB96 /* CameraCaptureInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A7C01A724E04DC409467FD /* CameraCaptureInteractionTests.swift */; };
+		131126C9893A37C9AD1E3392 /* AnalysisEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00A28C21E728A346FBC523C /* AnalysisEngine.swift */; };
+		15774224965DE7374B592957 /* GameAnalysisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724825CEF0604A1B31F698CF /* GameAnalysisTests.swift */; };
+		15BFF62CA584F0406ACA283A /* GroundLandmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6087FB3222ECC79EB13B4F /* GroundLandmarkTests.swift */; };
+		16BBA218200A2A76C5EC160F /* AnalysisEngineDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7472CE16BCA44166D246B576 /* AnalysisEngineDeviceTests.swift */; };
+		17A3643907F10933368C67CB /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF615562DC52421903831E2 /* RootView.swift */; };
+		1C12B04E3A529F6082D1DE03 /* EditorGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75A1D34C70FD73F55C4BFE8 /* EditorGeometry.swift */; };
+		1D216148C113B4161A7AF023 /* AnalysisAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA1D788790987F56410BF72 /* AnalysisAnnotation.swift */; };
+		1EE68D70BD3488A20DB39EF4 /* AnnotationLoupe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F864709041DCAEFE999A74B /* AnnotationLoupe.swift */; };
+		21A676E1EAD3F4C02B0C1F5E /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74B24595D6DDA4243690519 /* App.swift */; };
+		2411FB65B6581B811B67DFF2 /* AnnotationViewport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3081DAE5E331B1CDA0A38E57 /* AnnotationViewport.swift */; };
+		2BDE977B8CD448FBA5B9A8E0 /* AnalysisFieldGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = E78EC01FA5BC5C8DF2F33EC9 /* AnalysisFieldGuide.swift */; };
+		2C1B9778FE558A19B4F3FB6C /* AnalysisVisualEffectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404C642C01BA4F124B5FDB89 /* AnalysisVisualEffectsTests.swift */; };
+		2CCAD1BAC4E4D85ED452E0A5 /* EditorSequencePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F296DE56CCEB0B417AF9CDA /* EditorSequencePreview.swift */; };
+		3293ADDB72A10FD09DD8BDDF /* BasketballDetector.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = B86326F64CE4A3C34F4A46FD /* BasketballDetector.mlpackage */; };
+		36492A8F10A689E8743490E7 /* ProjectDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183F4DB5EE7FC1D6649D50FF /* ProjectDetailView.swift */; };
+		39AEA768992E2BB479B45F74 /* FieldPlacementInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E644DAC0739B2A9BECD616 /* FieldPlacementInteractionTests.swift */; };
+		3CF0B726B4C1F907D01EB6D8 /* AnalysisLayerEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB4A42B198EB5023F50ECD5 /* AnalysisLayerEditing.swift */; };
+		3E4CA30D6896C5F30B267361 /* OnboardingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC17B45B045485BA3AD1E97 /* OnboardingUITests.swift */; };
+		4337EF4AF307D90955F855D1 /* AnalysisPlayerEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E2157597897F2DBF4F464 /* AnalysisPlayerEffects.swift */; };
+		4442E889312844BD704EA7A9 /* SelectedPlayerTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9079418E2BABF21C67BA615B /* SelectedPlayerTracking.swift */; };
+		488D6CA8CF4A661AD9E9F963 /* AnnotationCameraMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A9CEA50CEE4E2BBBD3864C /* AnnotationCameraMotion.swift */; };
+		4891B1F25294E391C2818CE6 /* AnalysisCompactUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61BCA85088CFA92F2ADD4A1E /* AnalysisCompactUITests.swift */; };
+		4A0119101F6F120D4FF85B83 /* AnalysisTrackingLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057E6F3E6C19A2D9FB83BD0D /* AnalysisTrackingLibrary.swift */; };
+		4CE4E6A5D9B18CA13FDEAFCE /* RecordingRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = E367E0BD2AB15043CB9E905C /* RecordingRecovery.swift */; };
+		4DB237A42169E2E831CD3611 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B98DA7FAD00660BADF41D9 /* APIClient.swift */; };
+		4F790B6A43CF6AE5DA3F665A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 29034215932A102F5DD7EB49 /* Assets.xcassets */; };
+		5286A0CE15DCB47A91466ED7 /* EditorSequenceMediaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C827F2CB7DB3195DBCF9FE /* EditorSequenceMediaTests.swift */; };
+		53697B2AF1DF939DA39CAF27 /* FieldPlacementTouchSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A3FD251A68C81E47E39072 /* FieldPlacementTouchSurface.swift */; };
+		55DE271065D6D6E95F2F702A /* PlayerTrackingIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8BBE2454C19346C77C8396 /* PlayerTrackingIdentityTests.swift */; };
+		5B9EC44E978211C7F2740484 /* AnalysisControlStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926D0178253C25D41EE2C987 /* AnalysisControlStyle.swift */; };
+		5D34D46FF6E0249AAEF9D9FD /* GroundCalibrationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB7FD778FCF539F64E37322 /* GroundCalibrationSheet.swift */; };
+		5FE8BEA75A123182C7634AC7 /* AnalysisEffectControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD476C8A6B2C25605840A344 /* AnalysisEffectControls.swift */; };
+		6007E3292C385E52249CFD6E /* AnalysisLayerTimelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1FCAABC1DD4A11625A38A52 /* AnalysisLayerTimelineTests.swift */; };
+		60D1426E5D2405D75ECAFD97 /* AnnotationRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C2D184CC65110FCAC68C4 /* AnnotationRenderer.swift */; };
+		6297B1E11DD74F5D72CC7067 /* AnnotationLoupeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147D9DFDCFF7B9CA8F4CB44E /* AnnotationLoupeTests.swift */; };
+		63A5FD4DC75200C3A64F5C6D /* ScreenshotWalkthroughTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371AF7D38767498CF2899565 /* ScreenshotWalkthroughTests.swift */; };
+		649E045650D4ADB8053FE623 /* AnalysisEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3558A38E725273B56244268 /* AnalysisEditingTests.swift */; };
+		64FAB2649CDAF9153A4D6756 /* AnalysisPlayerTracksSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A0FFC8C98DA6A807E61A15 /* AnalysisPlayerTracksSheet.swift */; };
+		653F8D472CA5D931EBF6DC40 /* AppAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFE55F9ABB90578EFE3A275 /* AppAppearance.swift */; };
+		6D2402D708763C15DA8A8BAC /* FieldLineDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A87C895F1020F68155A6D64 /* FieldLineDetection.swift */; };
+		71EC68B3CF99BF6D9368B1FC /* AnnotationTextLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F823623470694D9D0137AD /* AnnotationTextLayout.swift */; };
+		73108A73E9FA075214785428 /* EditorWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6452F6EC8F4DE5FF232A4DAE /* EditorWorkspace.swift */; };
+		737F3FBB2BABECC2518A6A24 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9421F6B63D17148E0668D /* CameraView.swift */; };
+		7942CFA8349C816EDD0D0037 /* CompositionPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B79AC2B39289BBED3C7524F9 /* CompositionPlayerView.swift */; };
+		7C12EE5671A86E187AA3CCF0 /* PlayerTrajectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202F64CA13EE91452E85BB5B /* PlayerTrajectory.swift */; };
+		7E1C3B27CEBEBCA144B12F1D /* PlayerTrajectoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C3095A7023029D5C7DB1A0 /* PlayerTrajectoryTests.swift */; };
+		830867C36A8232BA866EA340 /* GroundCalibrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B2F8F5AB412EFE9D758378 /* GroundCalibrationTests.swift */; };
+		87F6802C0A8D446D01CFEAE0 /* EditorEventWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859D2BF948B22F3077E82C5 /* EditorEventWorkflowTests.swift */; };
+		89448EBE3083F4604E114502 /* VideoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7038444B7377DEA297F47C9 /* VideoThumbnail.swift */; };
+		89BE487185326CB60D538849 /* AnalysisPartialFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1811FE22AEEF5B1A82874 /* AnalysisPartialFieldTests.swift */; };
+		8CD330393B6A51DD6C9554BC /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4F6E7DFB01CA8ED0C39DF5 /* AppState.swift */; };
+		8FB0327867EA411EA302E6CC /* AnalysisLoupePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6BC96E04126FA3FCBD931C /* AnalysisLoupePreview.swift */; };
+		91D13646714543548F2D98BC /* AnalysisTextControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76EC719B4D3C82DFB9A9FC93 /* AnalysisTextControls.swift */; };
+		93DAF90A1E58EEDE5F0B6043 /* EditorQuickTagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186EA8DE501BADD976A3138D /* EditorQuickTagTests.swift */; };
+		961019B52BA6BB8D479E4600 /* AnalysisLoupeControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE94039C7B48FF26F5AC153E /* AnalysisLoupeControls.swift */; };
+		9BD12DF5C11AE6909D4C54BD /* RecordingEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D09E0A9E68075A557569BB /* RecordingEditorView.swift */; };
+		A0BCBF1AF9015801AB7C7950 /* sequence-test.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = D893E0454DE534FAB6A58FA0 /* sequence-test.mp4 */; };
+		A0D6300978ABB5C7CE9CD057 /* EditorPlaybackControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = E424A41B044C38BD3BD53167 /* EditorPlaybackControls.swift */; };
+		A151FD91DD2C74BE10D43587 /* AnalysisConnectionAnchors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D936D0E099A970039939819 /* AnalysisConnectionAnchors.swift */; };
+		A6B92C42A85378648F658440 /* CameraAppearanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56DBBDB484A59436F7B6860A /* CameraAppearanceTests.swift */; };
+		A92E1ABBF76282946954DEE8 /* RecordingAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CEB511E230D691DF967F6E /* RecordingAnalysis.swift */; };
+		A93F852FB630531B4AFE004C /* GroundReferenceDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B87B8A3FA44E274CFD8D1F0 /* GroundReferenceDetection.swift */; };
+		A9C19B6B1F425DE34CC4A57C /* AnalysisSharedTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94495530F1CDF3C5836F8D06 /* AnalysisSharedTrackingTests.swift */; };
+		AC5E10E0E2AD6607514401DA /* GroundReferenceDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B064B52D9CC3C74831F105 /* GroundReferenceDetectionTests.swift */; };
+		AD31B742059AEDF5B18D3F36 /* CameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434D04B7F0926D5FF6B75204 /* CameraControls.swift */; };
+		B02506FE03EB61DFBA784C82 /* EditorTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8416F2A219F37A3DA98AAD /* EditorTimeline.swift */; };
+		B360FD3E9CFBD8563B764CEE /* VisionPlayerTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB9D0018BE5365C97F82772 /* VisionPlayerTracker.swift */; };
+		B65E33A8303EA35A86E1A2A6 /* VideoImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9455A378F3B47079A638D81A /* VideoImporter.swift */; };
+		B7FB67E04781C5AECB476D13 /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5981C3D82C6D5D08601AB772 /* ProjectsView.swift */; };
+		B884186B552F6F7EE0D5E28D /* AnalysisVideoCompositor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E17037A33028880B900C7B /* AnalysisVideoCompositor.swift */; };
+		B942F6FCC7ED8944D22EFACD /* AnalysisSheetHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE99C23BE6BC5AC37F4C0305 /* AnalysisSheetHeader.swift */; };
+		BD09E51A6232FB4BA839F8D4 /* GroundCalibration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BD969908213596B31BEC5DA /* GroundCalibration.swift */; };
+		BD1DE13772D13BA08BE86965 /* AnnotationLineStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AAF9D73CCD2FB1161F2499D /* AnnotationLineStyle.swift */; };
+		C0598922D748FA6FCEA9B889 /* RecordingLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058D4624515CE911185DE73F /* RecordingLibrary.swift */; };
+		C0FE93B3F3BEA7A36272591B /* EditorEventBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66D57A86C890CC10B1382087 /* EditorEventBrowser.swift */; };
+		C1F4525A3EEDE54A5382DFC5 /* AnalysisFieldPlacementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEFCE44787D9FDFE8BA0C3C /* AnalysisFieldPlacementView.swift */; };
+		C429D333EC2DF288A626F237 /* AnnotationMeasurements.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4F5307E3C903C41EB81598C /* AnnotationMeasurements.swift */; };
+		C4F0D81B5A4358B65B2C63DE /* AnalysisFieldDetectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2997B25011753F1FCC98F38E /* AnalysisFieldDetectionSheet.swift */; };
+		C52332F0BE0B799A453AA218 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D081429DA8A6150728D1106A /* DesignSystem.swift */; };
+		C8B6F1F3177CAE8E5A87D861 /* GameAnnotationEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C75FF2285809F801820CC45 /* GameAnnotationEffects.swift */; };
+		CAF070C186AB051AB75B83E1 /* PlayerAnalysisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5571B4F98A0F80C339E76781 /* PlayerAnalysisTests.swift */; };
+		CDC697B98492BF4C38096373 /* EditorInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62AFE96A7C1037EB5DD5CA7 /* EditorInteractionTests.swift */; };
+		D4117B9B28B6FBF6F16A9BC0 /* AnnotationMeasurementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E524835920BC939191E04B9 /* AnnotationMeasurementTests.swift */; };
+		D41B93A53F68B0C5FA39501E /* CameraRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2AFACE3113B5DC8F7E50E99 /* CameraRotationTests.swift */; };
+		D8D9CA781D24D95D7AA534EF /* AnnotationShapeEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5722D3C08C6B9966E2BDFC41 /* AnnotationShapeEditing.swift */; };
+		DA4EFF3DEFDECFA908761290 /* FieldPlacementInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A52EB69186AE586AA4E7B7 /* FieldPlacementInteraction.swift */; };
+		DE177EF88D5DD87ECADABADB /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C3FDCEF7D3F856B07CBF44 /* Models.swift */; };
+		E2826286BF02A7F72CAA33E5 /* DebugSeeding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E89D007F2BA10DF564FD0C78 /* DebugSeeding.swift */; };
+		E37200225F70C833A03A339C /* PlayerTrackingIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1E169099C0008E1140B75 /* PlayerTrackingIdentity.swift */; };
+		E44766E3E57ED4BD84FD1864 /* AnalysisTrajectoryControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45AA9F0D5D6587180E73F142 /* AnalysisTrajectoryControls.swift */; };
+		E6A300BA3B5DD1FE8222932F /* AnalysisInspectorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9475C8756BEBA825C7710854 /* AnalysisInspectorSheet.swift */; };
+		E824047A8E607B3944ACB8B9 /* AnalysisConstructionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE66D1C6D1BAC001F25086A /* AnalysisConstructionOverlay.swift */; };
+		E8AE784949AE38D59864EDB6 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845784DD256A167AE2E51EC6 /* OnboardingView.swift */; };
+		E924F805A29FA6EE14893C99 /* VisionFeasibilityBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE62822BB419C81F2C78EAD3 /* VisionFeasibilityBenchmark.swift */; };
+		EA1F3981950F045CDC19613E /* TimelineGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C17F1EAFC526ABDB621053A /* TimelineGeometryTests.swift */; };
+		EC99B4D974C7DA8854D4E74F /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FF02B8417510DF39069DEEB /* MainTabView.swift */; };
+		F028A60F4A3B96B7FD8A181C /* AnalysisOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC74A7782C32C3CBCD2A1D8 /* AnalysisOverlayView.swift */; };
+		F4D73E687026AB3D64698A4C /* MODEL_NOTICE.md in Resources */ = {isa = PBXBuildFile; fileRef = 489EFE905A322469AC71ECED /* MODEL_NOTICE.md */; };
+		F6518CCB0D958C3F2FBB7D54 /* GroundLandmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5361CF25C181685D4203D053 /* GroundLandmark.swift */; };
+		F913F5F360D54C810C21CE07 /* CameraZoomDial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D93759E949392ED1312B46 /* CameraZoomDial.swift */; };
+		FBB476690E87B5A9F9E14996 /* AnnotationLineStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95FC323E205618ED5D213B79 /* AnnotationLineStyleTests.swift */; };
+		FBB8BFA27B8AD80CC712799C /* AnalysisLayerTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B44199AF7A375932F23887 /* AnalysisLayerTimeline.swift */; };
+		FCFD17870A8BE65172139998 /* FieldLineDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A14167CD5C5BAC20E868D2E /* FieldLineDetectionTests.swift */; };
+		FDD7E74CD9A0CC5927C29860 /* EventTagStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A232A13562F8BC6BFF2062CB /* EventTagStrip.swift */; };
+		FE38A28DA2EA9BA94DFD51F2 /* AnalysisPlayerEffectsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4891CBF113077277F0CBF798 /* AnalysisPlayerEffectsSheet.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C8DCE705847FC8FCCC650FA8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AAE14A5D2011746AF714198F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0E3B3ED69986B2B59042EA78;
+			remoteInfo = Camelot;
+		};
+		F96E07BCABDDD81DF244B3A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AAE14A5D2011746AF714198F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0E3B3ED69986B2B59042EA78;
+			remoteInfo = Camelot;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		057E6F3E6C19A2D9FB83BD0D /* AnalysisTrackingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTrackingLibrary.swift; sourceTree = "<group>"; };
+		058D4624515CE911185DE73F /* RecordingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingLibrary.swift; sourceTree = "<group>"; };
+		09D93759E949392ED1312B46 /* CameraZoomDial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraZoomDial.swift; sourceTree = "<group>"; };
+		0C8416F2A219F37A3DA98AAD /* EditorTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTimeline.swift; sourceTree = "<group>"; };
+		147D9DFDCFF7B9CA8F4CB44E /* AnnotationLoupeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLoupeTests.swift; sourceTree = "<group>"; };
+		183F4DB5EE7FC1D6649D50FF /* ProjectDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailView.swift; sourceTree = "<group>"; };
+		1859D2BF948B22F3077E82C5 /* EditorEventWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorEventWorkflowTests.swift; sourceTree = "<group>"; };
+		186EA8DE501BADD976A3138D /* EditorQuickTagTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorQuickTagTests.swift; sourceTree = "<group>"; };
+		1B87B8A3FA44E274CFD8D1F0 /* GroundReferenceDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundReferenceDetection.swift; sourceTree = "<group>"; };
+		1D8BBE2454C19346C77C8396 /* PlayerTrackingIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackingIdentityTests.swift; sourceTree = "<group>"; };
+		1D936D0E099A970039939819 /* AnalysisConnectionAnchors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisConnectionAnchors.swift; sourceTree = "<group>"; };
+		1EC17B45B045485BA3AD1E97 /* OnboardingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingUITests.swift; sourceTree = "<group>"; };
+		1F296DE56CCEB0B417AF9CDA /* EditorSequencePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorSequencePreview.swift; sourceTree = "<group>"; };
+		1F90A5A902A17C35F4BF0421 /* Camelot.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Camelot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		202F64CA13EE91452E85BB5B /* PlayerTrajectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrajectory.swift; sourceTree = "<group>"; };
+		20A7C01A724E04DC409467FD /* CameraCaptureInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureInteractionTests.swift; sourceTree = "<group>"; };
+		22A0FFC8C98DA6A807E61A15 /* AnalysisPlayerTracksSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerTracksSheet.swift; sourceTree = "<group>"; };
+		29034215932A102F5DD7EB49 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2997B25011753F1FCC98F38E /* AnalysisFieldDetectionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldDetectionSheet.swift; sourceTree = "<group>"; };
+		2B1C2D184CC65110FCAC68C4 /* AnnotationRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationRenderer.swift; sourceTree = "<group>"; };
+		2B6087FB3222ECC79EB13B4F /* GroundLandmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundLandmarkTests.swift; sourceTree = "<group>"; };
+		2D4F6E7DFB01CA8ED0C39DF5 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		2F864709041DCAEFE999A74B /* AnnotationLoupe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLoupe.swift; sourceTree = "<group>"; };
+		3081DAE5E331B1CDA0A38E57 /* AnnotationViewport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationViewport.swift; sourceTree = "<group>"; };
+		31CEB511E230D691DF967F6E /* RecordingAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingAnalysis.swift; sourceTree = "<group>"; };
+		31E17037A33028880B900C7B /* AnalysisVideoCompositor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisVideoCompositor.swift; sourceTree = "<group>"; };
+		371AF7D38767498CF2899565 /* ScreenshotWalkthroughTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotWalkthroughTests.swift; sourceTree = "<group>"; };
+		375434FC4971F03979CD3CA8 /* CameraEventCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraEventCapture.swift; sourceTree = "<group>"; };
+		3CB9D0018BE5365C97F82772 /* VisionPlayerTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionPlayerTracker.swift; sourceTree = "<group>"; };
+		404C642C01BA4F124B5FDB89 /* AnalysisVisualEffectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisVisualEffectsTests.swift; sourceTree = "<group>"; };
+		425E2157597897F2DBF4F464 /* AnalysisPlayerEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerEffects.swift; sourceTree = "<group>"; };
+		434D04B7F0926D5FF6B75204 /* CameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraControls.swift; sourceTree = "<group>"; };
+		44F823623470694D9D0137AD /* AnnotationTextLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationTextLayout.swift; sourceTree = "<group>"; };
+		45AA9F0D5D6587180E73F142 /* AnalysisTrajectoryControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTrajectoryControls.swift; sourceTree = "<group>"; };
+		4891CBF113077277F0CBF798 /* AnalysisPlayerEffectsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerEffectsSheet.swift; sourceTree = "<group>"; };
+		489EFE905A322469AC71ECED /* MODEL_NOTICE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = MODEL_NOTICE.md; sourceTree = "<group>"; };
+		4E524835920BC939191E04B9 /* AnnotationMeasurementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationMeasurementTests.swift; sourceTree = "<group>"; };
+		50D1E169099C0008E1140B75 /* PlayerTrackingIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackingIdentity.swift; sourceTree = "<group>"; };
+		5361CF25C181685D4203D053 /* GroundLandmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundLandmark.swift; sourceTree = "<group>"; };
+		5571B4F98A0F80C339E76781 /* PlayerAnalysisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerAnalysisTests.swift; sourceTree = "<group>"; };
+		56DBBDB484A59436F7B6860A /* CameraAppearanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAppearanceTests.swift; sourceTree = "<group>"; };
+		5722D3C08C6B9966E2BDFC41 /* AnnotationShapeEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationShapeEditing.swift; sourceTree = "<group>"; };
+		5981C3D82C6D5D08601AB772 /* ProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsView.swift; sourceTree = "<group>"; };
+		5A14167CD5C5BAC20E868D2E /* FieldLineDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldLineDetectionTests.swift; sourceTree = "<group>"; };
+		5A87C895F1020F68155A6D64 /* FieldLineDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldLineDetection.swift; sourceTree = "<group>"; };
+		5AAF9D73CCD2FB1161F2499D /* AnnotationLineStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLineStyle.swift; sourceTree = "<group>"; };
+		5C17F1EAFC526ABDB621053A /* TimelineGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineGeometryTests.swift; sourceTree = "<group>"; };
+		5DEFCE44787D9FDFE8BA0C3C /* AnalysisFieldPlacementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldPlacementView.swift; sourceTree = "<group>"; };
+		5EA1D788790987F56410BF72 /* AnalysisAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisAnnotation.swift; sourceTree = "<group>"; };
+		5EB4A42B198EB5023F50ECD5 /* AnalysisLayerEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerEditing.swift; sourceTree = "<group>"; };
+		5F48C83CCD5565E016E98A99 /* EditorAnalysisUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorAnalysisUITests.swift; sourceTree = "<group>"; };
+		61BCA85088CFA92F2ADD4A1E /* AnalysisCompactUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisCompactUITests.swift; sourceTree = "<group>"; };
+		6452F6EC8F4DE5FF232A4DAE /* EditorWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorWorkspace.swift; sourceTree = "<group>"; };
+		66D57A86C890CC10B1382087 /* EditorEventBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorEventBrowser.swift; sourceTree = "<group>"; };
+		68C3FDCEF7D3F856B07CBF44 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		6BD969908213596B31BEC5DA /* GroundCalibration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibration.swift; sourceTree = "<group>"; };
+		6C890CFB628814DEF0CBBC18 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		724825CEF0604A1B31F698CF /* GameAnalysisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAnalysisTests.swift; sourceTree = "<group>"; };
+		72B064B52D9CC3C74831F105 /* GroundReferenceDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundReferenceDetectionTests.swift; sourceTree = "<group>"; };
+		7472CE16BCA44166D246B576 /* AnalysisEngineDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEngineDeviceTests.swift; sourceTree = "<group>"; };
+		76B2F8F5AB412EFE9D758378 /* GroundCalibrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibrationTests.swift; sourceTree = "<group>"; };
+		76EC719B4D3C82DFB9A9FC93 /* AnalysisTextControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTextControls.swift; sourceTree = "<group>"; };
+		845784DD256A167AE2E51EC6 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		8682ECFB23EA654D3E6251DB /* CamelotTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CamelotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8FF02B8417510DF39069DEEB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		9079418E2BABF21C67BA615B /* SelectedPlayerTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPlayerTracking.swift; sourceTree = "<group>"; };
+		926D0178253C25D41EE2C987 /* AnalysisControlStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisControlStyle.swift; sourceTree = "<group>"; };
+		94495530F1CDF3C5836F8D06 /* AnalysisSharedTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisSharedTrackingTests.swift; sourceTree = "<group>"; };
+		9455A378F3B47079A638D81A /* VideoImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoImporter.swift; sourceTree = "<group>"; };
+		9475C8756BEBA825C7710854 /* AnalysisInspectorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisInspectorSheet.swift; sourceTree = "<group>"; };
+		95FC323E205618ED5D213B79 /* AnnotationLineStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLineStyleTests.swift; sourceTree = "<group>"; };
+		9C75FF2285809F801820CC45 /* GameAnnotationEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAnnotationEffects.swift; sourceTree = "<group>"; };
+		A1B44199AF7A375932F23887 /* AnalysisLayerTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerTimeline.swift; sourceTree = "<group>"; };
+		A232A13562F8BC6BFF2062CB /* EventTagStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTagStrip.swift; sourceTree = "<group>"; };
+		A2A52EB69186AE586AA4E7B7 /* FieldPlacementInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementInteraction.swift; sourceTree = "<group>"; };
+		A62AFE96A7C1037EB5DD5CA7 /* EditorInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorInteractionTests.swift; sourceTree = "<group>"; };
+		AC6BC96E04126FA3FCBD931C /* AnalysisLoupePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLoupePreview.swift; sourceTree = "<group>"; };
+		ACB7FD778FCF539F64E37322 /* GroundCalibrationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibrationSheet.swift; sourceTree = "<group>"; };
+		AE94039C7B48FF26F5AC153E /* AnalysisLoupeControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLoupeControls.swift; sourceTree = "<group>"; };
+		AFC74A7782C32C3CBCD2A1D8 /* AnalysisOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisOverlayView.swift; sourceTree = "<group>"; };
+		B74B24595D6DDA4243690519 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		B79AC2B39289BBED3C7524F9 /* CompositionPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionPlayerView.swift; sourceTree = "<group>"; };
+		B86326F64CE4A3C34F4A46FD /* BasketballDetector.mlpackage */ = {isa = PBXFileReference; path = BasketballDetector.mlpackage; sourceTree = "<group>"; };
+		BE99C23BE6BC5AC37F4C0305 /* AnalysisSheetHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisSheetHeader.swift; sourceTree = "<group>"; };
+		C4C3095A7023029D5C7DB1A0 /* PlayerTrajectoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrajectoryTests.swift; sourceTree = "<group>"; };
+		CDF615562DC52421903831E2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		CE62822BB419C81F2C78EAD3 /* VisionFeasibilityBenchmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionFeasibilityBenchmark.swift; sourceTree = "<group>"; };
+		D081429DA8A6150728D1106A /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		D0F9897D2C37C8FCD38A7D8D /* CamelotUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CamelotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D1B98DA7FAD00660BADF41D9 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		D1FCAABC1DD4A11625A38A52 /* AnalysisLayerTimelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerTimelineTests.swift; sourceTree = "<group>"; };
+		D2AFACE3113B5DC8F7E50E99 /* CameraRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraRotationTests.swift; sourceTree = "<group>"; };
+		D3A3FD251A68C81E47E39072 /* FieldPlacementTouchSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementTouchSurface.swift; sourceTree = "<group>"; };
+		D4F5307E3C903C41EB81598C /* AnnotationMeasurements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationMeasurements.swift; sourceTree = "<group>"; };
+		D893E0454DE534FAB6A58FA0 /* sequence-test.mp4 */ = {isa = PBXFileReference; path = "sequence-test.mp4"; sourceTree = "<group>"; };
+		DD476C8A6B2C25605840A344 /* AnalysisEffectControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEffectControls.swift; sourceTree = "<group>"; };
+		DFE66D1C6D1BAC001F25086A /* AnalysisConstructionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisConstructionOverlay.swift; sourceTree = "<group>"; };
+		E00A28C21E728A346FBC523C /* AnalysisEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEngine.swift; sourceTree = "<group>"; };
+		E1E644DAC0739B2A9BECD616 /* FieldPlacementInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementInteractionTests.swift; sourceTree = "<group>"; };
+		E367E0BD2AB15043CB9E905C /* RecordingRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingRecovery.swift; sourceTree = "<group>"; };
+		E424A41B044C38BD3BD53167 /* EditorPlaybackControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPlaybackControls.swift; sourceTree = "<group>"; };
+		E7038444B7377DEA297F47C9 /* VideoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoThumbnail.swift; sourceTree = "<group>"; };
+		E75A1D34C70FD73F55C4BFE8 /* EditorGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorGeometry.swift; sourceTree = "<group>"; };
+		E78EC01FA5BC5C8DF2F33EC9 /* AnalysisFieldGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldGuide.swift; sourceTree = "<group>"; };
+		E89D007F2BA10DF564FD0C78 /* DebugSeeding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSeeding.swift; sourceTree = "<group>"; };
+		E8D09E0A9E68075A557569BB /* RecordingEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingEditorView.swift; sourceTree = "<group>"; };
+		EDFE55F9ABB90578EFE3A275 /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
+		EFA9421F6B63D17148E0668D /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		F2C1811FE22AEEF5B1A82874 /* AnalysisPartialFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPartialFieldTests.swift; sourceTree = "<group>"; };
+		F2C827F2CB7DB3195DBCF9FE /* EditorSequenceMediaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorSequenceMediaTests.swift; sourceTree = "<group>"; };
+		F3558A38E725273B56244268 /* AnalysisEditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEditingTests.swift; sourceTree = "<group>"; };
+		F4A9CEA50CEE4E2BBBD3864C /* AnnotationCameraMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationCameraMotion.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		02C95EAAE09B2C7E376A79A6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F90A5A902A17C35F4BF0421 /* Camelot.app */,
+				8682ECFB23EA654D3E6251DB /* CamelotTests.xctest */,
+				D0F9897D2C37C8FCD38A7D8D /* CamelotUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1E7AB0957AC1F28FEF94E027 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				D893E0454DE534FAB6A58FA0 /* sequence-test.mp4 */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		47C442FF2A2296C80599EE94 = {
+			isa = PBXGroup;
+			children = (
+				E4765EE418EFF8D419A5F0DF /* Camelot */,
+				B830CA3C6650F9E697247D3E /* CamelotTests */,
+				930D6E4085FE3DAB6DBD560E /* CamelotUITests */,
+				02C95EAAE09B2C7E376A79A6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		829C572801D9DD8341A4117B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				9F53BA9DAE1A4C5BCE743984 /* Models */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		930D6E4085FE3DAB6DBD560E /* CamelotUITests */ = {
+			isa = PBXGroup;
+			children = (
+				61BCA85088CFA92F2ADD4A1E /* AnalysisCompactUITests.swift */,
+				D2AFACE3113B5DC8F7E50E99 /* CameraRotationTests.swift */,
+				5F48C83CCD5565E016E98A99 /* EditorAnalysisUITests.swift */,
+				A62AFE96A7C1037EB5DD5CA7 /* EditorInteractionTests.swift */,
+				186EA8DE501BADD976A3138D /* EditorQuickTagTests.swift */,
+				1EC17B45B045485BA3AD1E97 /* OnboardingUITests.swift */,
+				371AF7D38767498CF2899565 /* ScreenshotWalkthroughTests.swift */,
+			);
+			path = CamelotUITests;
+			sourceTree = "<group>";
+		};
+		9F53BA9DAE1A4C5BCE743984 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B86326F64CE4A3C34F4A46FD /* BasketballDetector.mlpackage */,
+				489EFE905A322469AC71ECED /* MODEL_NOTICE.md */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B830CA3C6650F9E697247D3E /* CamelotTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3558A38E725273B56244268 /* AnalysisEditingTests.swift */,
+				7472CE16BCA44166D246B576 /* AnalysisEngineDeviceTests.swift */,
+				D1FCAABC1DD4A11625A38A52 /* AnalysisLayerTimelineTests.swift */,
+				F2C1811FE22AEEF5B1A82874 /* AnalysisPartialFieldTests.swift */,
+				94495530F1CDF3C5836F8D06 /* AnalysisSharedTrackingTests.swift */,
+				404C642C01BA4F124B5FDB89 /* AnalysisVisualEffectsTests.swift */,
+				95FC323E205618ED5D213B79 /* AnnotationLineStyleTests.swift */,
+				147D9DFDCFF7B9CA8F4CB44E /* AnnotationLoupeTests.swift */,
+				4E524835920BC939191E04B9 /* AnnotationMeasurementTests.swift */,
+				56DBBDB484A59436F7B6860A /* CameraAppearanceTests.swift */,
+				20A7C01A724E04DC409467FD /* CameraCaptureInteractionTests.swift */,
+				1859D2BF948B22F3077E82C5 /* EditorEventWorkflowTests.swift */,
+				F2C827F2CB7DB3195DBCF9FE /* EditorSequenceMediaTests.swift */,
+				5A14167CD5C5BAC20E868D2E /* FieldLineDetectionTests.swift */,
+				E1E644DAC0739B2A9BECD616 /* FieldPlacementInteractionTests.swift */,
+				724825CEF0604A1B31F698CF /* GameAnalysisTests.swift */,
+				76B2F8F5AB412EFE9D758378 /* GroundCalibrationTests.swift */,
+				2B6087FB3222ECC79EB13B4F /* GroundLandmarkTests.swift */,
+				72B064B52D9CC3C74831F105 /* GroundReferenceDetectionTests.swift */,
+				5571B4F98A0F80C339E76781 /* PlayerAnalysisTests.swift */,
+				1D8BBE2454C19346C77C8396 /* PlayerTrackingIdentityTests.swift */,
+				C4C3095A7023029D5C7DB1A0 /* PlayerTrajectoryTests.swift */,
+				5C17F1EAFC526ABDB621053A /* TimelineGeometryTests.swift */,
+				CE62822BB419C81F2C78EAD3 /* VisionFeasibilityBenchmark.swift */,
+				1E7AB0957AC1F28FEF94E027 /* Fixtures */,
+			);
+			path = CamelotTests;
+			sourceTree = "<group>";
+		};
+		E4765EE418EFF8D419A5F0DF /* Camelot */ = {
+			isa = PBXGroup;
+			children = (
+				5EA1D788790987F56410BF72 /* AnalysisAnnotation.swift */,
+				1D936D0E099A970039939819 /* AnalysisConnectionAnchors.swift */,
+				DFE66D1C6D1BAC001F25086A /* AnalysisConstructionOverlay.swift */,
+				926D0178253C25D41EE2C987 /* AnalysisControlStyle.swift */,
+				DD476C8A6B2C25605840A344 /* AnalysisEffectControls.swift */,
+				E00A28C21E728A346FBC523C /* AnalysisEngine.swift */,
+				2997B25011753F1FCC98F38E /* AnalysisFieldDetectionSheet.swift */,
+				E78EC01FA5BC5C8DF2F33EC9 /* AnalysisFieldGuide.swift */,
+				5DEFCE44787D9FDFE8BA0C3C /* AnalysisFieldPlacementView.swift */,
+				9475C8756BEBA825C7710854 /* AnalysisInspectorSheet.swift */,
+				5EB4A42B198EB5023F50ECD5 /* AnalysisLayerEditing.swift */,
+				A1B44199AF7A375932F23887 /* AnalysisLayerTimeline.swift */,
+				AE94039C7B48FF26F5AC153E /* AnalysisLoupeControls.swift */,
+				AC6BC96E04126FA3FCBD931C /* AnalysisLoupePreview.swift */,
+				AFC74A7782C32C3CBCD2A1D8 /* AnalysisOverlayView.swift */,
+				425E2157597897F2DBF4F464 /* AnalysisPlayerEffects.swift */,
+				4891CBF113077277F0CBF798 /* AnalysisPlayerEffectsSheet.swift */,
+				22A0FFC8C98DA6A807E61A15 /* AnalysisPlayerTracksSheet.swift */,
+				BE99C23BE6BC5AC37F4C0305 /* AnalysisSheetHeader.swift */,
+				76EC719B4D3C82DFB9A9FC93 /* AnalysisTextControls.swift */,
+				057E6F3E6C19A2D9FB83BD0D /* AnalysisTrackingLibrary.swift */,
+				45AA9F0D5D6587180E73F142 /* AnalysisTrajectoryControls.swift */,
+				31E17037A33028880B900C7B /* AnalysisVideoCompositor.swift */,
+				F4A9CEA50CEE4E2BBBD3864C /* AnnotationCameraMotion.swift */,
+				5AAF9D73CCD2FB1161F2499D /* AnnotationLineStyle.swift */,
+				2F864709041DCAEFE999A74B /* AnnotationLoupe.swift */,
+				D4F5307E3C903C41EB81598C /* AnnotationMeasurements.swift */,
+				2B1C2D184CC65110FCAC68C4 /* AnnotationRenderer.swift */,
+				5722D3C08C6B9966E2BDFC41 /* AnnotationShapeEditing.swift */,
+				44F823623470694D9D0137AD /* AnnotationTextLayout.swift */,
+				3081DAE5E331B1CDA0A38E57 /* AnnotationViewport.swift */,
+				D1B98DA7FAD00660BADF41D9 /* APIClient.swift */,
+				B74B24595D6DDA4243690519 /* App.swift */,
+				EDFE55F9ABB90578EFE3A275 /* AppAppearance.swift */,
+				2D4F6E7DFB01CA8ED0C39DF5 /* AppState.swift */,
+				29034215932A102F5DD7EB49 /* Assets.xcassets */,
+				434D04B7F0926D5FF6B75204 /* CameraControls.swift */,
+				375434FC4971F03979CD3CA8 /* CameraEventCapture.swift */,
+				EFA9421F6B63D17148E0668D /* CameraView.swift */,
+				09D93759E949392ED1312B46 /* CameraZoomDial.swift */,
+				B79AC2B39289BBED3C7524F9 /* CompositionPlayerView.swift */,
+				E89D007F2BA10DF564FD0C78 /* DebugSeeding.swift */,
+				D081429DA8A6150728D1106A /* DesignSystem.swift */,
+				66D57A86C890CC10B1382087 /* EditorEventBrowser.swift */,
+				E75A1D34C70FD73F55C4BFE8 /* EditorGeometry.swift */,
+				E424A41B044C38BD3BD53167 /* EditorPlaybackControls.swift */,
+				1F296DE56CCEB0B417AF9CDA /* EditorSequencePreview.swift */,
+				0C8416F2A219F37A3DA98AAD /* EditorTimeline.swift */,
+				6452F6EC8F4DE5FF232A4DAE /* EditorWorkspace.swift */,
+				A232A13562F8BC6BFF2062CB /* EventTagStrip.swift */,
+				5A87C895F1020F68155A6D64 /* FieldLineDetection.swift */,
+				A2A52EB69186AE586AA4E7B7 /* FieldPlacementInteraction.swift */,
+				D3A3FD251A68C81E47E39072 /* FieldPlacementTouchSurface.swift */,
+				9C75FF2285809F801820CC45 /* GameAnnotationEffects.swift */,
+				6BD969908213596B31BEC5DA /* GroundCalibration.swift */,
+				ACB7FD778FCF539F64E37322 /* GroundCalibrationSheet.swift */,
+				5361CF25C181685D4203D053 /* GroundLandmark.swift */,
+				1B87B8A3FA44E274CFD8D1F0 /* GroundReferenceDetection.swift */,
+				6C890CFB628814DEF0CBBC18 /* Info.plist */,
+				8FF02B8417510DF39069DEEB /* MainTabView.swift */,
+				68C3FDCEF7D3F856B07CBF44 /* Models.swift */,
+				845784DD256A167AE2E51EC6 /* OnboardingView.swift */,
+				50D1E169099C0008E1140B75 /* PlayerTrackingIdentity.swift */,
+				202F64CA13EE91452E85BB5B /* PlayerTrajectory.swift */,
+				183F4DB5EE7FC1D6649D50FF /* ProjectDetailView.swift */,
+				5981C3D82C6D5D08601AB772 /* ProjectsView.swift */,
+				31CEB511E230D691DF967F6E /* RecordingAnalysis.swift */,
+				E8D09E0A9E68075A557569BB /* RecordingEditorView.swift */,
+				058D4624515CE911185DE73F /* RecordingLibrary.swift */,
+				E367E0BD2AB15043CB9E905C /* RecordingRecovery.swift */,
+				CDF615562DC52421903831E2 /* RootView.swift */,
+				9079418E2BABF21C67BA615B /* SelectedPlayerTracking.swift */,
+				9455A378F3B47079A638D81A /* VideoImporter.swift */,
+				E7038444B7377DEA297F47C9 /* VideoThumbnail.swift */,
+				3CB9D0018BE5365C97F82772 /* VisionPlayerTracker.swift */,
+				829C572801D9DD8341A4117B /* Resources */,
+			);
+			path = Camelot;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0E3B3ED69986B2B59042EA78 /* Camelot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 101CD03CC5F851149336C7D6 /* Build configuration list for PBXNativeTarget "Camelot" */;
+			buildPhases = (
+				5DCCC1AE48B751F91A24C85A /* Sources */,
+				DBB6AFDB925947710C2678B9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Camelot;
+			packageProductDependencies = (
+			);
+			productName = Camelot;
+			productReference = 1F90A5A902A17C35F4BF0421 /* Camelot.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C62FDB7FE09E91AB94F6F2B4 /* CamelotTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BBF306367FD1539797D7CB18 /* Build configuration list for PBXNativeTarget "CamelotTests" */;
+			buildPhases = (
+				D9C06B521C5392D3EE45A7A1 /* Sources */,
+				3AE4E216E8867B1A0F625E02 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				87C4B5C077EB3502D414E13D /* PBXTargetDependency */,
+			);
+			name = CamelotTests;
+			packageProductDependencies = (
+			);
+			productName = CamelotTests;
+			productReference = 8682ECFB23EA654D3E6251DB /* CamelotTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E2F4FA8FEEED35A597041B91 /* CamelotUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 38D505EFEB5052CB8A6072CE /* Build configuration list for PBXNativeTarget "CamelotUITests" */;
+			buildPhases = (
+				B990F1ED1AA420487B1E647B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E63939294C058D95C9DF4237 /* PBXTargetDependency */,
+			);
+			name = CamelotUITests;
+			packageProductDependencies = (
+			);
+			productName = CamelotUITests;
+			productReference = D0F9897D2C37C8FCD38A7D8D /* CamelotUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AAE14A5D2011746AF714198F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0E3B3ED69986B2B59042EA78 = {
+						DevelopmentTeam = 83ZRPDHF3Y;
+						ProvisioningStyle = Automatic;
+					};
+					C62FDB7FE09E91AB94F6F2B4 = {
+						DevelopmentTeam = 83ZRPDHF3Y;
+						ProvisioningStyle = Automatic;
+					};
+					E2F4FA8FEEED35A597041B91 = {
+						DevelopmentTeam = 83ZRPDHF3Y;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 0E3B3ED69986B2B59042EA78;
+					};
+				};
+			};
+			buildConfigurationList = 1D729B2A24C93B12FCDEACC8 /* Build configuration list for PBXProject "Camelot" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 47C442FF2A2296C80599EE94;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0E3B3ED69986B2B59042EA78 /* Camelot */,
+				C62FDB7FE09E91AB94F6F2B4 /* CamelotTests */,
+				E2F4FA8FEEED35A597041B91 /* CamelotUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3AE4E216E8867B1A0F625E02 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0BCBF1AF9015801AB7C7950 /* sequence-test.mp4 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DBB6AFDB925947710C2678B9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F790B6A43CF6AE5DA3F665A /* Assets.xcassets in Resources */,
+				F4D73E687026AB3D64698A4C /* MODEL_NOTICE.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5DCCC1AE48B751F91A24C85A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DB237A42169E2E831CD3611 /* APIClient.swift in Sources */,
+				1D216148C113B4161A7AF023 /* AnalysisAnnotation.swift in Sources */,
+				A151FD91DD2C74BE10D43587 /* AnalysisConnectionAnchors.swift in Sources */,
+				E824047A8E607B3944ACB8B9 /* AnalysisConstructionOverlay.swift in Sources */,
+				5B9EC44E978211C7F2740484 /* AnalysisControlStyle.swift in Sources */,
+				5FE8BEA75A123182C7634AC7 /* AnalysisEffectControls.swift in Sources */,
+				131126C9893A37C9AD1E3392 /* AnalysisEngine.swift in Sources */,
+				C4F0D81B5A4358B65B2C63DE /* AnalysisFieldDetectionSheet.swift in Sources */,
+				2BDE977B8CD448FBA5B9A8E0 /* AnalysisFieldGuide.swift in Sources */,
+				C1F4525A3EEDE54A5382DFC5 /* AnalysisFieldPlacementView.swift in Sources */,
+				E6A300BA3B5DD1FE8222932F /* AnalysisInspectorSheet.swift in Sources */,
+				3CF0B726B4C1F907D01EB6D8 /* AnalysisLayerEditing.swift in Sources */,
+				FBB8BFA27B8AD80CC712799C /* AnalysisLayerTimeline.swift in Sources */,
+				961019B52BA6BB8D479E4600 /* AnalysisLoupeControls.swift in Sources */,
+				8FB0327867EA411EA302E6CC /* AnalysisLoupePreview.swift in Sources */,
+				F028A60F4A3B96B7FD8A181C /* AnalysisOverlayView.swift in Sources */,
+				4337EF4AF307D90955F855D1 /* AnalysisPlayerEffects.swift in Sources */,
+				FE38A28DA2EA9BA94DFD51F2 /* AnalysisPlayerEffectsSheet.swift in Sources */,
+				64FAB2649CDAF9153A4D6756 /* AnalysisPlayerTracksSheet.swift in Sources */,
+				B942F6FCC7ED8944D22EFACD /* AnalysisSheetHeader.swift in Sources */,
+				91D13646714543548F2D98BC /* AnalysisTextControls.swift in Sources */,
+				4A0119101F6F120D4FF85B83 /* AnalysisTrackingLibrary.swift in Sources */,
+				E44766E3E57ED4BD84FD1864 /* AnalysisTrajectoryControls.swift in Sources */,
+				B884186B552F6F7EE0D5E28D /* AnalysisVideoCompositor.swift in Sources */,
+				488D6CA8CF4A661AD9E9F963 /* AnnotationCameraMotion.swift in Sources */,
+				BD1DE13772D13BA08BE86965 /* AnnotationLineStyle.swift in Sources */,
+				1EE68D70BD3488A20DB39EF4 /* AnnotationLoupe.swift in Sources */,
+				C429D333EC2DF288A626F237 /* AnnotationMeasurements.swift in Sources */,
+				60D1426E5D2405D75ECAFD97 /* AnnotationRenderer.swift in Sources */,
+				D8D9CA781D24D95D7AA534EF /* AnnotationShapeEditing.swift in Sources */,
+				71EC68B3CF99BF6D9368B1FC /* AnnotationTextLayout.swift in Sources */,
+				2411FB65B6581B811B67DFF2 /* AnnotationViewport.swift in Sources */,
+				21A676E1EAD3F4C02B0C1F5E /* App.swift in Sources */,
+				653F8D472CA5D931EBF6DC40 /* AppAppearance.swift in Sources */,
+				8CD330393B6A51DD6C9554BC /* AppState.swift in Sources */,
+				3293ADDB72A10FD09DD8BDDF /* BasketballDetector.mlpackage in Sources */,
+				AD31B742059AEDF5B18D3F36 /* CameraControls.swift in Sources */,
+				05E1C16C89AF3D3B22038BBC /* CameraEventCapture.swift in Sources */,
+				737F3FBB2BABECC2518A6A24 /* CameraView.swift in Sources */,
+				F913F5F360D54C810C21CE07 /* CameraZoomDial.swift in Sources */,
+				7942CFA8349C816EDD0D0037 /* CompositionPlayerView.swift in Sources */,
+				E2826286BF02A7F72CAA33E5 /* DebugSeeding.swift in Sources */,
+				C52332F0BE0B799A453AA218 /* DesignSystem.swift in Sources */,
+				C0FE93B3F3BEA7A36272591B /* EditorEventBrowser.swift in Sources */,
+				1C12B04E3A529F6082D1DE03 /* EditorGeometry.swift in Sources */,
+				A0D6300978ABB5C7CE9CD057 /* EditorPlaybackControls.swift in Sources */,
+				2CCAD1BAC4E4D85ED452E0A5 /* EditorSequencePreview.swift in Sources */,
+				B02506FE03EB61DFBA784C82 /* EditorTimeline.swift in Sources */,
+				73108A73E9FA075214785428 /* EditorWorkspace.swift in Sources */,
+				FDD7E74CD9A0CC5927C29860 /* EventTagStrip.swift in Sources */,
+				6D2402D708763C15DA8A8BAC /* FieldLineDetection.swift in Sources */,
+				DA4EFF3DEFDECFA908761290 /* FieldPlacementInteraction.swift in Sources */,
+				53697B2AF1DF939DA39CAF27 /* FieldPlacementTouchSurface.swift in Sources */,
+				C8B6F1F3177CAE8E5A87D861 /* GameAnnotationEffects.swift in Sources */,
+				BD09E51A6232FB4BA839F8D4 /* GroundCalibration.swift in Sources */,
+				5D34D46FF6E0249AAEF9D9FD /* GroundCalibrationSheet.swift in Sources */,
+				F6518CCB0D958C3F2FBB7D54 /* GroundLandmark.swift in Sources */,
+				A93F852FB630531B4AFE004C /* GroundReferenceDetection.swift in Sources */,
+				EC99B4D974C7DA8854D4E74F /* MainTabView.swift in Sources */,
+				DE177EF88D5DD87ECADABADB /* Models.swift in Sources */,
+				E8AE784949AE38D59864EDB6 /* OnboardingView.swift in Sources */,
+				E37200225F70C833A03A339C /* PlayerTrackingIdentity.swift in Sources */,
+				7C12EE5671A86E187AA3CCF0 /* PlayerTrajectory.swift in Sources */,
+				36492A8F10A689E8743490E7 /* ProjectDetailView.swift in Sources */,
+				B7FB67E04781C5AECB476D13 /* ProjectsView.swift in Sources */,
+				A92E1ABBF76282946954DEE8 /* RecordingAnalysis.swift in Sources */,
+				9BD12DF5C11AE6909D4C54BD /* RecordingEditorView.swift in Sources */,
+				C0598922D748FA6FCEA9B889 /* RecordingLibrary.swift in Sources */,
+				4CE4E6A5D9B18CA13FDEAFCE /* RecordingRecovery.swift in Sources */,
+				17A3643907F10933368C67CB /* RootView.swift in Sources */,
+				4442E889312844BD704EA7A9 /* SelectedPlayerTracking.swift in Sources */,
+				B65E33A8303EA35A86E1A2A6 /* VideoImporter.swift in Sources */,
+				89448EBE3083F4604E114502 /* VideoThumbnail.swift in Sources */,
+				B360FD3E9CFBD8563B764CEE /* VisionPlayerTracker.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B990F1ED1AA420487B1E647B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4891B1F25294E391C2818CE6 /* AnalysisCompactUITests.swift in Sources */,
+				D41B93A53F68B0C5FA39501E /* CameraRotationTests.swift in Sources */,
+				08FF68EA02F5EC9FEA959698 /* EditorAnalysisUITests.swift in Sources */,
+				CDC697B98492BF4C38096373 /* EditorInteractionTests.swift in Sources */,
+				93DAF90A1E58EEDE5F0B6043 /* EditorQuickTagTests.swift in Sources */,
+				3E4CA30D6896C5F30B267361 /* OnboardingUITests.swift in Sources */,
+				63A5FD4DC75200C3A64F5C6D /* ScreenshotWalkthroughTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9C06B521C5392D3EE45A7A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				649E045650D4ADB8053FE623 /* AnalysisEditingTests.swift in Sources */,
+				16BBA218200A2A76C5EC160F /* AnalysisEngineDeviceTests.swift in Sources */,
+				6007E3292C385E52249CFD6E /* AnalysisLayerTimelineTests.swift in Sources */,
+				89BE487185326CB60D538849 /* AnalysisPartialFieldTests.swift in Sources */,
+				A9C19B6B1F425DE34CC4A57C /* AnalysisSharedTrackingTests.swift in Sources */,
+				2C1B9778FE558A19B4F3FB6C /* AnalysisVisualEffectsTests.swift in Sources */,
+				FBB476690E87B5A9F9E14996 /* AnnotationLineStyleTests.swift in Sources */,
+				6297B1E11DD74F5D72CC7067 /* AnnotationLoupeTests.swift in Sources */,
+				D4117B9B28B6FBF6F16A9BC0 /* AnnotationMeasurementTests.swift in Sources */,
+				A6B92C42A85378648F658440 /* CameraAppearanceTests.swift in Sources */,
+				0BB2D696F11C12A57E04BB96 /* CameraCaptureInteractionTests.swift in Sources */,
+				87F6802C0A8D446D01CFEAE0 /* EditorEventWorkflowTests.swift in Sources */,
+				5286A0CE15DCB47A91466ED7 /* EditorSequenceMediaTests.swift in Sources */,
+				FCFD17870A8BE65172139998 /* FieldLineDetectionTests.swift in Sources */,
+				39AEA768992E2BB479B45F74 /* FieldPlacementInteractionTests.swift in Sources */,
+				15774224965DE7374B592957 /* GameAnalysisTests.swift in Sources */,
+				830867C36A8232BA866EA340 /* GroundCalibrationTests.swift in Sources */,
+				15BFF62CA584F0406ACA283A /* GroundLandmarkTests.swift in Sources */,
+				AC5E10E0E2AD6607514401DA /* GroundReferenceDetectionTests.swift in Sources */,
+				CAF070C186AB051AB75B83E1 /* PlayerAnalysisTests.swift in Sources */,
+				55DE271065D6D6E95F2F702A /* PlayerTrackingIdentityTests.swift in Sources */,
+				7E1C3B27CEBEBCA144B12F1D /* PlayerTrajectoryTests.swift in Sources */,
+				EA1F3981950F045CDC19613E /* TimelineGeometryTests.swift in Sources */,
+				E924F805A29FA6EE14893C99 /* VisionFeasibilityBenchmark.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		87C4B5C077EB3502D414E13D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0E3B3ED69986B2B59042EA78 /* Camelot */;
+			targetProxy = C8DCE705847FC8FCCC650FA8 /* PBXContainerItemProxy */;
+		};
+		E63939294C058D95C9DF4237 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0E3B3ED69986B2B59042EA78 /* Camelot */;
+			targetProxy = F96E07BCABDDD81DF244B3A3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		09727D8CA13626E8B7E9B33C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 83ZRPDHF3Y;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		20F92FFA1E2C69BA34471601 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.CamelotTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Camelot.app/Camelot";
+			};
+			name = Debug;
+		};
+		251A8A980BC97054130A8447 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.CamelotTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Camelot.app/Camelot";
+			};
+			name = Release;
+		};
+		2CA693D1AD74EE85FE2E9683 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 83ZRPDHF3Y;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		65C0345ACF2EA5E483FCD4A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 83ZRPDHF3Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.evolve.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Camelot;
+			};
+			name = Debug;
+		};
+		810E40617220875712CADD84 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				API_HOST = 192.168.1.203;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Camelot/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.evolve;
+				PRODUCT_NAME = Camelot;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9881A38EBD31619A15BE797B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 83ZRPDHF3Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.evolve.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Camelot;
+			};
+			name = Release;
+		};
+		A3E1316CC6131C05F5550BD0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				API_HOST = 192.168.1.203;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Camelot/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.evolve;
+				PRODUCT_NAME = Camelot;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		101CD03CC5F851149336C7D6 /* Build configuration list for PBXNativeTarget "Camelot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A3E1316CC6131C05F5550BD0 /* Debug */,
+				810E40617220875712CADD84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1D729B2A24C93B12FCDEACC8 /* Build configuration list for PBXProject "Camelot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09727D8CA13626E8B7E9B33C /* Debug */,
+				2CA693D1AD74EE85FE2E9683 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		38D505EFEB5052CB8A6072CE /* Build configuration list for PBXNativeTarget "CamelotUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65C0345ACF2EA5E483FCD4A1 /* Debug */,
+				9881A38EBD31619A15BE797B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BBF306367FD1539797D7CB18 /* Build configuration list for PBXNativeTarget "CamelotTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				20F92FFA1E2C69BA34471601 /* Debug */,
+				251A8A980BC97054130A8447 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AAE14A5D2011746AF714198F /* Project object */;
+}

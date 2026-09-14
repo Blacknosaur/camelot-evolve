@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789205382498,
+      "tag": "0000_crazy_the_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789227490803,
+      "tag": "0001_loud_war_machine",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789233663032,
+      "tag": "0002_complete_the_watchers",
+      "breakpoints": true
+    }
+  ]
+}
