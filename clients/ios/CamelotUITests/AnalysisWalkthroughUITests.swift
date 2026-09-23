@@ -115,6 +115,44 @@ final class AnalysisWalkthroughUITests: XCTestCase {
         if discard.waitForExistence(timeout: 3) { discard.tap() }
     }
 
+    /// Line up the pitch by hand: slide, pinch and pull a corner, with Undo.
+    @MainActor
+    func testLiningUpThePitchByHandWithoutSaving() throws {
+        openAnalysis()
+        app.buttons["analysis-task-pitch"].tap()
+        XCTAssertTrue(app.buttons["ground-apply"].waitForExistence(timeout: 10))
+        // Let automatic detection finish (or report that it can't run here).
+        let find = app.buttons["ground-auto-align"]
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: find)
+        _ = XCTWaiter.wait(for: [ready], timeout: 40)
+        capture("20-pitch-detected")
+        app.buttons["ground-adjustments"].tap()
+        XCTAssertTrue(element("ground-adjust-help").waitForExistence(timeout: 3), "Adjusting explains the gestures")
+        element("ground-visible-penaltyArea").tap()
+        capture("21-pitch-adjust")
+        let preview = app.otherElements["ground-preview"]
+        func points() -> String { preview.value as? String ?? "" }
+        let before = points()
+        let surface = app.otherElements["field-placement-touch-surface"]
+        // Slide the whole pitch from an empty spot.
+        surface.coordinate(withNormalizedOffset: .init(dx: 0.5, dy: 0.15)).press(forDuration: 0.1,
+            thenDragTo: surface.coordinate(withNormalizedOffset: .init(dx: 0.58, dy: 0.22)))
+        sleep(2)
+        XCTAssertNotEqual(points(), before, "Dragging moves the pitch")
+        capture("22-pitch-moved")
+        surface.pinch(withScale: 1.3, velocity: 1)
+        sleep(2)
+        capture("23-pitch-pinched")
+        element("ground-undo").tap()
+        element("ground-undo").tap()
+        sleep(1)
+        capture("24-pitch-undone")
+        app.buttons["ground-cancel"].tap()
+        app.buttons["cancel-analysis-workspace"].tap()
+        let discard = app.buttons["Discard changes"]
+        if discard.waitForExistence(timeout: 3) { discard.tap() }
+    }
+
     @MainActor
     private func openAnalysis() {
         let offline = app.buttons["Continue offline"]

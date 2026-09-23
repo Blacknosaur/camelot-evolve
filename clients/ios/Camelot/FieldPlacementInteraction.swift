@@ -53,12 +53,14 @@ struct FieldPlacementViewport: Equatable {
 struct FieldPlacementTouchState {
     enum Action: Equatable {
         case beginCorner(CGPoint), moveCorner(CGPoint), endCorner, cancelCorner
-        case beginNavigation, navigate(scale: CGFloat, from: CGPoint, to: CGPoint), endNavigation
+        /// `rotation` is the change in the angle between the two fingers, in radians.
+        case beginNavigation, navigate(scale: CGFloat, from: CGPoint, to: CGPoint, rotation: CGFloat = 0), endNavigation
     }
     private enum Mode { case idle, corner, navigation, waiting }
     private var mode = Mode.idle
     private var navigationCenter = CGPoint.zero
     private var navigationDistance: CGFloat = 1
+    private var navigationAngle: CGFloat = 0
 
     mutating func update(_ points: [CGPoint]) -> [Action] {
         if points.count > 2 {
@@ -74,7 +76,9 @@ struct FieldPlacementTouchState {
             return [.moveCorner(points[0])]
         case .navigation:
             if points.count < 2 { mode = points.isEmpty ? .idle : .waiting; return [.endNavigation] }
-            return [.navigate(scale: distance(points) / navigationDistance, from: navigationCenter, to: center(points))]
+            var turn = angle(points) - navigationAngle
+            if turn > .pi { turn -= 2 * .pi } else if turn < -.pi { turn += 2 * .pi }
+            return [.navigate(scale: distance(points) / navigationDistance, from: navigationCenter, to: center(points), rotation: turn)]
         case .waiting:
             if points.isEmpty { mode = .idle }
         }
@@ -92,7 +96,9 @@ struct FieldPlacementTouchState {
 
     private mutating func beginNavigation(_ points: [CGPoint]) {
         mode = .navigation; navigationCenter = center(points); navigationDistance = max(1, distance(points))
+        navigationAngle = angle(points)
     }
     private func center(_ points: [CGPoint]) -> CGPoint { .init(x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2) }
     private func distance(_ points: [CGPoint]) -> CGFloat { hypot(points[0].x - points[1].x, points[0].y - points[1].y) }
+    private func angle(_ points: [CGPoint]) -> CGFloat { atan2(points[1].y - points[0].y, points[1].x - points[0].x) }
 }

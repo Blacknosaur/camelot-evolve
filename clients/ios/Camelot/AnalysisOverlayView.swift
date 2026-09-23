@@ -904,7 +904,7 @@ struct AnalysisWorkspaceView: View {
         case .beginNavigation:
             playback.pause()
             canvasNavigation = FieldPlacementViewport(zoom: canvasZoom, center: zoomCenter)
-        case .navigate(let scale, let from, let to):
+        case .navigate(let scale, let from, let to, _):
             guard let canvasNavigation else { return }
             let viewport = canvasNavigation.navigating(scale: scale, from: from, to: to, fitted: fitted)
             canvasZoom = viewport.zoom; zoomCenter = viewport.center

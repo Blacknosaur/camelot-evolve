@@ -89,6 +89,10 @@ struct GroundCalibrationSheet: View {
     /// Detection placed a reference; before that the default guess is hidden
     /// so a half-finished search never looks like a wrong answer.
     @State private var proposed = false
+    /// Positions before each hand adjustment, newest last, for Undo.
+    @State private var undoPoints: [[CGPoint]] = []
+    /// The next snap follows a hand adjustment: keep the coach's placement if it cannot lock on.
+    @State private var snapIsAutomatic = false
 
     init(url: URL, request: GroundCalibrationRequest, apply: @escaping (GroundCalibration?) -> Void) {
         self.url = url; self.request = request; self.apply = apply
@@ -113,6 +117,12 @@ struct GroundCalibrationSheet: View {
     }
 
     // MARK: - Draft model
+
+    /// Hand adjustment moves the whole pitch (drag, pinch, turn) and corners fix the angle.
+    /// Traced lines, the centre-spot workflow and two-point distances keep their own handles.
+    private var adjustsWhole: Bool {
+        showsAdjustments && !usesLines && circle == nil && mode == .plane
+    }
 
     private var revealsOverlay: Bool {
         showsAdjustments || proposed || quality != nil || request.existing != nil
@@ -245,7 +255,14 @@ struct GroundCalibrationSheet: View {
             GroundPointCanvas(image: image, points: editingPoints, count: editingCount,
                               suggestions: suggestions, calibration: calibration, landmark: landmark,
                               active: $active, showOverlay: showOverlay && revealsOverlay, fineTuning: $fineTuning, pinnedLoupe: loupePinned,
-                              referenceLines: previewReferenceLines, drawingLine: usesLines || (!editingHalfway && circle?.farTouchline != nil))
+                              referenceLines: previewReferenceLines, drawingLine: usesLines || (!editingHalfway && circle?.farTouchline != nil),
+                              adjustsWhole: adjustsWhole,
+                              beginEdit: {
+                                  notice = nil
+                                  if undoPoints.last != points { undoPoints.append(points) }
+                                  if undoPoints.count > 30 { undoPoints.removeFirst() }
+                              },
+                              endEdit: autoSnap)
                 .allowsHitTesting(frameReady)
                 .overlay { if loadingFrame { ProgressView().padding(12).background(.black.opacity(0.7), in: .circle) } }
                 .overlay(alignment: .topLeading) { qualityBadge }
@@ -261,7 +278,7 @@ struct GroundCalibrationSheet: View {
         if showOverlay, let quality {
             HStack(spacing: 6) {
                 Circle().fill(tone(for: quality.grade)).frame(width: 8, height: 8)
-                Text(quality.summary).font(.caption2.weight(.semibold)).lineLimit(1)
+                Text(plainQuality(quality.grade)).font(.caption.weight(.semibold)).lineLimit(1)
             }.padding(.horizontal, 10).padding(.vertical, 6).background(.black.opacity(0.72), in: .capsule)
                 .padding(8).allowsHitTesting(false)
                 .accessibilityElement(children: .ignore)
@@ -326,11 +343,87 @@ struct GroundCalibrationSheet: View {
                     .disabled(!canApply)
                     .accessibilityIdentifier("ground-apply")
             }
-            Button(showsAdjustments ? "Hide manual tools" : "Adjust by hand", systemImage: showsAdjustments ? "chevron.up" : "hand.draw") { showsAdjustments.toggle() }
+            Button(showsAdjustments ? "Hide manual tools" : "Adjust by hand", systemImage: showsAdjustments ? "chevron.up" : "hand.draw") {
+                // Placing by hand never waits for a search that is still running.
+                if scanning { aiScanID = 0; pendingReference = nil; autoSnapPending = false }
+                showsAdjustments.toggle()
+            }
                 .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 44)
                 .buttonStyle(.plain).foregroundStyle(Theme.signal)
                 .accessibilityIdentifier("ground-adjustments")
             if showsAdjustments {
+                if adjustsWhole { wholePitchControls } else { referenceControls }
+            }
+        }.padding(10).background(Theme.inkPanel)
+    }
+
+    /// What the coach sees drives where the adjustable corners sit.
+    private static let visibleParts: [(String, GroundLandmark)] = [("Box", .penaltyArea), ("Centre", .centreCircle), ("Half", .halfPitch), ("Whole", .fullPitch)]
+
+    private var wholePitchControls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Drag the lines onto the pitch. Pinch to resize and turn. Pull a dot to fix the angle.")
+                .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier("ground-adjust-help")
+            HStack(spacing: 6) {
+                Text("You can see").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                ForEach(Self.visibleParts, id: \.0) { title, value in
+                    Button(title) { undoPoints.append(points); chooseLandmark(value) }
+                        .buttonStyle(EditorActionStyle(prominent: landmark == value))
+                        .accessibilityAddTraits(landmark == value ? .isSelected : [])
+                        .accessibilityIdentifier("ground-visible-\(value.rawValue)")
+                }
+            }
+            HStack(spacing: 8) {
+                Button("Undo", systemImage: "arrow.uturn.backward") { undoAdjustment() }
+                    .buttonStyle(EditorActionStyle()).disabled(undoPoints.isEmpty)
+                    .accessibilityIdentifier("ground-undo")
+                if ![.centreCircle, .halfPitch, .fullPitch].contains(landmark) {
+                    Button("Other end", systemImage: "arrow.left.arrow.right") {
+                        undoPoints.append(points)
+                        points = points.map { CGPoint(x: 1 - $0.x, y: $0.y) }; goalOnRight.toggle()
+                    }.buttonStyle(EditorActionStyle()).accessibilityIdentifier("ground-goal-side")
+                }
+                Spacer(minLength: 0)
+                moreWaysMenu
+            }
+        }
+    }
+
+    private func undoAdjustment() {
+        guard let previous = undoPoints.popLast() else { return }
+        points = previous
+    }
+
+    /// After a hand adjustment, lock onto the painted lines when they are clear enough.
+    private func autoSnap() {
+        guard canSnap else { return }
+        snapIsAutomatic = true
+        snapID += 1
+    }
+
+    private var moreWaysMenu: some View {
+        Menu {
+            Section("Other ways to line up") {
+                Button("Goal area", systemImage: "sportscourt") { chooseLandmark(.goalArea) }
+                Button("Trace white lines", systemImage: "line.diagonal") { chooseLines() }
+                Button("Goal width · local scale") { chooseLandmark(.goalWidth) }
+                Button("Custom distance or rectangle") { chooseLandmark(.custom) }
+            }
+            Button(showOverlay ? "Hide pitch lines" : "Show pitch lines", systemImage: showOverlay ? "eye.slash" : "eye") { showOverlay.toggle() }
+                .accessibilityIdentifier("ground-overlay-toggle")
+            Button("Pitch size and camera", systemImage: "slider.horizontal.3") { showSettings = true }
+                .accessibilityIdentifier("ground-settings")
+        } label: {
+            Label("More", systemImage: "ellipsis.circle").font(.subheadline.weight(.semibold))
+                .frame(minHeight: 44).contentShape(.rect)
+        }
+        .accessibilityIdentifier("ground-alignment-options")
+    }
+
+    /// The expert placements keep their own tools: traced lines, the centre-spot circle and two-point distances.
+    private var referenceControls: some View {
+        VStack(spacing: 8) {
             HStack(spacing: 8) {
                 methodPicker
                 Spacer(minLength: 0)
@@ -361,8 +454,7 @@ struct GroundCalibrationSheet: View {
             else { landmarkControls }
             GroundPointNudgeControls(move: nudge)
                 .disabled(!frameReady || !editingPoints.wrappedValue.indices.contains(active) || !showOverlay)
-            }
-        }.padding(10).background(Theme.inkPanel)
+        }
     }
 
     private var methodPicker: some View {
@@ -468,6 +560,14 @@ struct GroundCalibrationSheet: View {
 
     private enum Tone { case neutral, positive, warning }
 
+    private func plainQuality(_ grade: PitchRegistration.Quality.Grade) -> String {
+        switch grade {
+        case .good: "Lines match"
+        case .check: "Nearly there"
+        case .poor: "Not matching yet"
+        }
+    }
+
     private func tone(for grade: PitchRegistration.Quality.Grade) -> Color {
         switch grade {
         case .good: Theme.signal
@@ -505,6 +605,7 @@ struct GroundCalibrationSheet: View {
         }
         if mode == .localScale { return ("Place both points on the ground at a known distance, then set it in settings.", .neutral) }
         if !showsAdjustments { return ("Tap Find the pitch and the app lines up the pitch markings for you.", .neutral) }
+        if adjustsWhole { return ("Move the white lines onto the pitch. They lock on when they are close.", .neutral) }
         return ("Drag the numbered handles onto the \(landmark.title.lowercased()) corners, then Snap to lines.", .neutral)
     }
 
@@ -754,6 +855,8 @@ struct GroundCalibrationSheet: View {
     }
 
     private func snapToMarkings() async {
+        let automatic = snapIsAutomatic
+        snapIsAutomatic = false
         guard let cgImage = image?.cgImage else { return }
         if !usesLines, let circle, let anchors = circle.anchors {
             points = anchors; self.circle = nil; centerPlaced = false; editingHalfway = false
@@ -771,8 +874,10 @@ struct GroundCalibrationSheet: View {
         evidence = prepared
         let result = await Task.detached(priority: .userInitiated) { PitchRegistration.snap(draft, evidence: prepared) }.value
         guard displayedTime == frame, sourceTime == frame else { return }
-        guard let result else {
-            notice = "No markings found near the overlay. Move it closer to the white lines and try again."; return
+        guard let result, !(automatic && result.quality.grade == .poor) else {
+            notice = automatic ? "Couldn't lock onto the white lines here, so it stays where you put it."
+                : "No markings found near the overlay. Move it closer to the white lines and try again."
+            return
         }
         if usesLines {
             guard let moved = PitchRegistration.reproject(lines, onto: result.calibration, pitchLength: pitchLength, pitchWidth: pitchWidth) else {
@@ -800,7 +905,15 @@ private struct GroundPointCanvas: View {
     var pinnedLoupe = false
     var referenceLines: [GroundLineObservation] = []
     var drawingLine = false
+    /// One finger away from a corner slides the whole pitch; two fingers resize and turn it.
+    var adjustsWhole = false
+    var beginEdit: () -> Void = {}
+    var endEdit: () -> Void = {}
     @State private var viewport = FieldPlacementViewport()
+    /// Set while the whole pitch is being moved: the positions and finger it started from.
+    @State private var wholeStart: (points: [CGPoint], location: CGPoint)?
+    @State private var pinchStart: [CGPoint]?
+    @State private var draggingCorner = false
     @State private var finger: CGPoint?
     @State private var navigationStart: FieldPlacementViewport?
     @State private var original: (points: [CGPoint], active: Int)?
@@ -841,20 +954,28 @@ private struct GroundPointCanvas: View {
                         }
                         let handles = points.map(mapped)
                         for (i, p) in handles.enumerated() {
-                            let circle = Path(ellipseIn: .init(x: p.x - 13, y: p.y - 13, width: 26, height: 26))
-                            context.fill(circle, with: .color(i == active ? Theme.signal : .black))
-                            context.stroke(circle, with: .color(.white), lineWidth: 1.5)
-                            context.draw(Text("\(i + 1)").font(.caption.bold()).foregroundStyle(i == active ? .black : .white), at: p)
+                            if adjustsWhole {
+                                let dot = Path(ellipseIn: .init(x: p.x - 11, y: p.y - 11, width: 22, height: 22))
+                                context.fill(dot, with: .color(draggingCorner && i == active ? Theme.signal : .white.opacity(0.9)))
+                                context.stroke(dot, with: .color(.black.opacity(0.8)), lineWidth: 2)
+                            } else {
+                                let circle = Path(ellipseIn: .init(x: p.x - 13, y: p.y - 13, width: 26, height: 26))
+                                context.fill(circle, with: .color(i == active ? Theme.signal : .black))
+                                context.stroke(circle, with: .color(.white), lineWidth: 1.5)
+                                context.draw(Text("\(i + 1)").font(.caption.bold()).foregroundStyle(i == active ? .black : .white), at: p)
+                            }
                         }
                     }.allowsHitTesting(false)
                     FieldPlacementTouchSurface { if showOverlay { handle($0, frame: frame, fitted: fitted) } }
                 }.clipped()
                     .overlay(alignment: .topTrailing) {
-                        Button("Fit preview", systemImage: "arrow.down.right.and.arrow.up.left") { viewport = .init() }
-                            .labelStyle(.iconOnly).buttonStyle(AnalysisControlStyle()).padding(6).background(.black.opacity(0.7), in: .rect(cornerRadius: 10))
+                        if !adjustsWhole || viewport != .init() {
+                            Button("Fit preview", systemImage: "arrow.down.right.and.arrow.up.left") { viewport = .init() }
+                                .labelStyle(.iconOnly).buttonStyle(AnalysisControlStyle()).padding(6).background(.black.opacity(0.7), in: .rect(cornerRadius: 10))
+                        }
                     }
                     .overlay {
-                        if showOverlay, points.indices.contains(active), finger != nil || fineTuning || pinnedLoupe {
+                        if showOverlay, points.indices.contains(active), (finger != nil && (!adjustsWhole || draggingCorner)) || fineTuning || pinnedLoupe {
                             let focus = finger ?? CGPoint(x: frame.minX + points[active].x * frame.width, y: frame.minY + points[active].y * frame.height)
                             GroundPointLoupe(image: image, point: points[active], magnification: max(fineTuning || pinnedLoupe ? 4 : 1.5, frame.width / image.size.width * 2))
                                 .frame(width: 112, height: 100)
@@ -867,6 +988,13 @@ private struct GroundPointCanvas: View {
             }.accessibilityElement(children: .contain).accessibilityIdentifier("ground-preview")
                 .accessibilityValue("\(showOverlay ? "Overlay visible" : "Overlay hidden"); \(points.count) points; " + points.map { String(format: "%.4f,%.4f", Double($0.x), Double($0.y)) }.joined(separator: "; "))
     }
+    private func nearestHandle(to location: CGPoint, frame: CGRect, within radius: CGFloat) -> (index: Int, point: CGPoint)? {
+        points.enumerated().map { index, p in (index, CGPoint(x: frame.minX + p.x * frame.width, y: frame.minY + p.y * frame.height)) }
+            .filter { hypot($0.1.x - location.x, $0.1.y - location.y) <= radius }
+            .min { hypot($0.1.x - location.x, $0.1.y - location.y) < hypot($1.1.x - location.x, $1.1.y - location.y) }
+            .map { (index: $0.0, point: $0.1) }
+    }
+
     private func handle(_ action: FieldPlacementTouchState.Action, frame: CGRect, fitted: CGRect) {
         func move(_ location: CGPoint) {
             finger = location
@@ -879,6 +1007,17 @@ private struct GroundPointCanvas: View {
         case .beginCorner(let location):
             fineTuning = false
             original = (points, active); offset = .zero
+            if adjustsWhole {
+                beginEdit()
+                if let corner = nearestHandle(to: location, frame: frame, within: 34) {
+                    active = corner.index; draggingCorner = true
+                    offset = .init(width: corner.point.x - location.x, height: corner.point.y - location.y)
+                    move(location)
+                } else {
+                    wholeStart = (points, location)
+                }
+                return
+            }
             if drawingLine, points.count < 2 {
                 let point = AnnotationViewport.sourcePoint(location, frame: frame, allowsOffscreen: true)
                 if points.isEmpty { points = [point, point] } else { points.append(point) }
@@ -891,7 +1030,16 @@ private struct GroundPointCanvas: View {
                 if hypot(p.x - location.x, p.y - location.y) <= 28 { active = nearest.offset; offset = .init(width: p.x - location.x, height: p.y - location.y) }
             }
             move(location)
-        case .moveCorner(let location): move(location)
+        case .moveCorner(let location):
+            if let wholeStart {
+                let dx = (location.x - wholeStart.location.x) / max(1, frame.width)
+                let dy = (location.y - wholeStart.location.y) / max(1, frame.height)
+                points = wholeStart.points.map { CGPoint(x: $0.x + dx, y: $0.y + dy) }
+            } else { move(location) }
+        case .endCorner where adjustsWhole:
+            let moved = original.map { $0.points != points } ?? false
+            wholeStart = nil; draggingCorner = false; original = nil; finger = nil
+            if moved { endEdit() }
         case .endCorner:
             if drawingLine, points.count == 2,
                hypot((points[1].x-points[0].x)*frame.width,(points[1].y-points[0].y)*frame.height) < 8 {
@@ -901,9 +1049,26 @@ private struct GroundPointCanvas: View {
             original = nil; finger = nil
         case .cancelCorner:
             if let original { points = original.points; active = original.active }
-            original = nil; finger = nil
+            original = nil; finger = nil; wholeStart = nil; draggingCorner = false
+        case .beginNavigation where adjustsWhole:
+            finger = nil; fineTuning = false
+            if pinchStart == nil { beginEdit() }
+            pinchStart = original?.points ?? points
+        case .navigate(let scale, let from, let to, let rotation) where adjustsWhole:
+            guard let pinchStart, scale.isFinite, scale > 0 else { return }
+            // Scale and turn about the point between the fingers, which the pitch follows.
+            let s = min(4, max(0.25, scale)), c = cos(rotation), n = sin(rotation)
+            points = pinchStart.map { p in
+                let x = frame.minX + p.x * frame.width - from.x, y = frame.minY + p.y * frame.height - from.y
+                let screen = CGPoint(x: to.x + s * (c * x - n * y), y: to.y + s * (n * x + c * y))
+                return CGPoint(x: (screen.x - frame.minX) / max(1, frame.width), y: (screen.y - frame.minY) / max(1, frame.height))
+            }
+        case .endNavigation where adjustsWhole:
+            let moved = pinchStart != nil
+            pinchStart = nil; original = nil
+            if moved { endEdit() }
         case .beginNavigation: navigationStart = viewport; finger = nil; fineTuning = false
-        case .navigate(let scale, let from, let to):
+        case .navigate(let scale, let from, let to, _):
             if let navigationStart { viewport = navigationStart.navigating(scale: scale, from: from, to: to, fitted: fitted) }
         case .endNavigation: navigationStart = nil
         }

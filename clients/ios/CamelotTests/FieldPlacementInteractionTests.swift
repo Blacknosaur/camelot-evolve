@@ -56,6 +56,22 @@ final class FieldPlacementInteractionTests: XCTestCase {
         XCTAssertEqual(start.navigating(scale: .nan, from: center, to: center, fitted: fitted), start)
     }
 
+    func testTwoFingerTurnReportsRotationAcrossTheHalfTurn() throws {
+        var state = FieldPlacementTouchState()
+        XCTAssertEqual(state.update([.init(x: 100, y: 100), .init(x: 200, y: 100)]), [.beginNavigation])
+        // A quarter turn clockwise on screen (y grows downwards).
+        guard case .navigate(let scale, _, _, let rotation)? = state.update([.init(x: 150, y: 50), .init(x: 150, y: 150)]).first else {
+            return XCTFail("Two fingers navigate")
+        }
+        XCTAssertEqual(scale, 1, accuracy: 0.001)
+        XCTAssertEqual(rotation, .pi / 2, accuracy: 0.001)
+        // Crossing ±180° never jumps by a full turn.
+        guard case .navigate(_, _, _, let wrapped)? = state.update([.init(x: 200, y: 101), .init(x: 100, y: 99)]).first else {
+            return XCTFail("Still navigating")
+        }
+        XCTAssertLessThanOrEqual(abs(wrapped), .pi + 0.001)
+    }
+
     func testAddingSecondFingerRollsBackCornerAndRemainingFingerCannotPlace() {
         var state = FieldPlacementTouchState()
         let a = CGPoint(x: 100, y: 100), b = CGPoint(x: 200, y: 100)
