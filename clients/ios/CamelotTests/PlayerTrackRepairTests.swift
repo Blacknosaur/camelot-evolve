@@ -307,7 +307,7 @@ final class PlayerTrackRepairTests: XCTestCase {
         XCTAssertEqual(AnalysisTrackingStrip.summary(motion(), range: 0...10), "Followed through the whole clip")
         for width in [360.0, 744.0] {
             let bar = AnalysisPlayerBar(player: player, range: 0...10, time: 4.5, rename: {}, effects: {}, fix: {}, seek: { _ in }) {
-                AnalysisMoreLabel()
+                MoreMenuLabel()
             }.frame(width: width).background(Theme.inkPanel).environment(\.colorScheme, .dark)
             let host = UIHostingController(rootView: bar)
             host.safeAreaRegions = []

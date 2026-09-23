@@ -115,7 +115,7 @@ struct AnalysisPlayerEffectsSheet: View {
             }
             .contentShape(.rect)
         }
-        .buttonStyle(AnalysisPressStyle()).disabled(locked(tool))
+        .buttonStyle(TilePressStyle()).disabled(locked(tool))
         .accessibilityLabel(title).accessibilityValue(isOn.wrappedValue ? "On" : "Off")
         .accessibilityAddTraits(.isToggle)
         .accessibilityIdentifier(id)

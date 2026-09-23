@@ -135,7 +135,7 @@ final class AnalysisWalkthroughUITests: XCTestCase {
 
     @MainActor
     private func deselect() {
-        for id in ["analysis-prompt-cancel", "analysis-player-prompt-cancel", "analysis-draw-done", "analysis-deselect"] where app.buttons[id].exists {
+        for id in ["analysis-prompt-cancel", "analysis-player-prompt-cancel", "analysis-draw-done", "deselect"] where app.buttons[id].exists {
             app.buttons[id].tap()
         }
         XCTAssertTrue(app.buttons["analysis-task-player"].waitForExistence(timeout: 3), "The task tiles return after deselecting")

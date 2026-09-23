@@ -4,43 +4,6 @@ import SwiftUI
 // palette of the task in progress, or the actions of what is selected. Every
 // bar uses the same large, labelled targets so it reads at a glance.
 
-/// A large labelled tile: icon above a short word.
-struct AnalysisTaskButton: View {
-    let title: String
-    let symbol: String
-    var active = false
-    var identifier = ""
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: symbol).font(.system(size: 19, weight: .medium)).frame(height: 24)
-                Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.75)
-            }
-            .frame(maxWidth: .infinity, minHeight: 56)
-            .foregroundStyle(active ? Theme.ink : .white)
-            .background(active ? Theme.signal : .white.opacity(0.07), in: .rect(cornerRadius: Theme.Radius.small))
-            .contentShape(.rect)
-        }
-        .buttonStyle(AnalysisPressStyle())
-        .accessibilityLabel(title)
-        .accessibilityAddTraits(active ? .isSelected : [])
-        .accessibilityIdentifier(identifier)
-    }
-}
-
-/// Shared pressed feedback for tiles and chips.
-struct AnalysisPressStyle: ButtonStyle {
-    @Environment(\.isEnabled) private var isEnabled
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .opacity(isEnabled ? (configuration.isPressed ? 0.6 : 1) : 0.35)
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-    }
-}
-
 /// The resting bar: what the coach can do with this clip.
 struct AnalysisTaskBar: View {
     let hasPitch: Bool
@@ -53,12 +16,12 @@ struct AnalysisTaskBar: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            AnalysisTaskButton(title: "Player", symbol: "figure.run", identifier: "analysis-task-player", action: player)
+            TaskTileButton(title: "Player", symbol: "figure.run", identifier: "analysis-task-player", action: player)
                 .disabled(!allowsPlayers)
-            AnalysisTaskButton(title: "Draw", symbol: "scribble.variable", identifier: "analysis-task-draw", action: draw)
-            AnalysisTaskButton(title: "Text", symbol: "textformat", identifier: "analysis-task-text", action: text)
-            AnalysisTaskButton(title: "Zoom", symbol: "plus.magnifyingglass", identifier: "analysis-task-zoom", action: zoom)
-            AnalysisTaskButton(title: "Pitch", symbol: hasPitch ? "sportscourt.fill" : "sportscourt", identifier: "analysis-task-pitch", action: pitch)
+            TaskTileButton(title: "Draw", symbol: "scribble.variable", identifier: "analysis-task-draw", action: draw)
+            TaskTileButton(title: "Text", symbol: "textformat", identifier: "analysis-task-text", action: text)
+            TaskTileButton(title: "Zoom", symbol: "plus.magnifyingglass", identifier: "analysis-task-zoom", action: zoom)
+            TaskTileButton(title: "Pitch", symbol: hasPitch ? "sportscourt.fill" : "sportscourt", identifier: "analysis-task-pitch", action: pitch)
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
         .accessibilityElement(children: .contain).accessibilityIdentifier("analysis-task-bar")
@@ -91,7 +54,7 @@ struct AnalysisDrawPalette: View {
                             .background(tool == shape ? Theme.signal : .white.opacity(0.07), in: .rect(cornerRadius: Theme.Radius.small))
                             .contentShape(.rect)
                         }
-                        .buttonStyle(AnalysisPressStyle())
+                        .buttonStyle(TilePressStyle())
                         .accessibilityLabel(shape.title)
                         .accessibilityAddTraits(tool == shape ? .isSelected : [])
                         .accessibilityIdentifier("analysis-tool-\(shape.rawValue)")
@@ -288,7 +251,7 @@ struct AnalysisPlayerBar<More: View>: View {
     var body: some View {
         VStack(spacing: 6) {
             HStack(spacing: 6) {
-                AnalysisDeselectButton(action: close)
+                DeselectButton(action: close)
                 Button(action: rename) {
                     HStack(spacing: 8) {
                         AnalysisPlayerSwatch(player: player, size: 22)
@@ -304,11 +267,11 @@ struct AnalysisPlayerBar<More: View>: View {
                 .accessibilityHint("Rename this player")
                 .accessibilityIdentifier("analysis-active-player-track")
                 Button("Highlight", systemImage: "sparkles", action: effects)
-                    .labelStyle(AnalysisCompactLabelStyle())
+                    .labelStyle(CompactLabelStyle())
                     .buttonStyle(EditorActionStyle()).accessibilityIdentifier("analysis-player-effects")
                 if allowsFix {
                     Button("Fix", systemImage: "hand.tap", action: fix)
-                        .labelStyle(AnalysisCompactLabelStyle())
+                        .labelStyle(CompactLabelStyle())
                         .buttonStyle(EditorActionStyle(prominent: lost)).accessibilityIdentifier("analysis-player-tracking")
                 }
                 more()
@@ -330,16 +293,6 @@ struct AnalysisPlayerSwatch: View {
     }
 }
 
-/// Icon and title side by side in bars; icon only when space runs out.
-struct AnalysisCompactLabelStyle: LabelStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 5) { configuration.icon; configuration.title }
-            configuration.icon
-        }
-    }
-}
-
 /// The selected drawing: what it is plus a few plain actions.
 struct AnalysisSelectionBar<Actions: View>: View {
     let title: String
@@ -349,38 +302,12 @@ struct AnalysisSelectionBar<Actions: View>: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            AnalysisDeselectButton(action: close)
+            DeselectButton(action: close)
             Label(title, systemImage: symbol).font(.subheadline.weight(.semibold)).lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading).layoutPriority(-1)
             actions()
         }
         .padding(.horizontal, 12).frame(minHeight: 60)
         .accessibilityElement(children: .contain).accessibilityIdentifier("analysis-selection-bar")
-    }
-}
-
-/// Leaves the current selection and returns to the task tiles.
-struct AnalysisDeselectButton: View {
-    let action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "xmark").font(.system(size: 13, weight: .bold))
-                .frame(width: 30, height: 30)
-                .background(.white.opacity(0.12), in: .circle)
-                .frame(width: 44, height: 44).contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Done selecting").accessibilityIdentifier("analysis-deselect")
-    }
-}
-
-/// Round "more" button that opens a menu, matching the bar buttons.
-struct AnalysisMoreLabel: View {
-    var body: some View {
-        Image(systemName: "ellipsis").font(.system(size: 15, weight: .semibold))
-            .frame(width: 36, height: 34)
-            .background(.white.opacity(0.08), in: .rect(cornerRadius: 10))
-            .frame(width: 44, height: 44).contentShape(.rect)
-            .accessibilityLabel("More")
     }
 }

@@ -211,8 +211,13 @@ struct TacticalBoardView: View {
     @State private var inspectorAutoCollapsed = false
     /// Recently used placeable items, newest first, shared by every board.
     @AppStorage("tacticalBoard.recentItems") private var recentToolsRaw = ""
-    /// Last drawing tool chosen from the Draw slot.
-    @AppStorage("tacticalBoard.lastDrawTool") private var lastDrawRaw = BoardTool.line.rawValue
+    /// The palette the bottom bar shows while placing; nil shows the task tiles.
+    @State private var palette: BoardPalettePage?
+    /// Style drawn by the Draw palette's line items (Pass, Run, Dribble).
+    @State private var drawLineStyle = BoardLineStyle.pass
+    /// The selection's detail card opens on request (Edit), so selecting never covers the pitch.
+    @State private var showsDetails = false
+    @State private var showingLineup = false
     /// A recents slot being dragged onto the board (location in `editorSpace`).
     @State private var dragPlacement: (tool: BoardTool, location: CGPoint)?
     @State private var canvasFrame: CGRect = .zero
@@ -322,14 +327,14 @@ struct TacticalBoardView: View {
                             topBar
                             stage
                         }
-                        if showsFrames { transportBar(vertical: true) } else { toolBar(vertical: true) }
+                        bottomSlot(vertical: true)
                     }
                 } else {
                     VStack(spacing: 0) {
                         topBar
                         stage
                         // Tools and the animation transport share one fixed-size slot, so the stage never resizes.
-                        if showsFrames { transportBar(vertical: false) } else { toolBar(vertical: false) }
+                        bottomSlot(vertical: false)
                     }
                 }
             }
@@ -352,6 +357,10 @@ struct TacticalBoardView: View {
                 pick(.template)
             }, onLineup: { elements, summary in placeLineup(elements, summary: summary) })
         }
+        .sheet(isPresented: $showingLineup) {
+            SquadLineupSheet(document: document) { elements, summary in placeLineup(elements, summary: summary) }
+        }
+        .onChange(of: selectedID) { _, id in if id == nil { showsDetails = false } }
         .alert("Rename board", isPresented: $renaming) {
             TextField("Board name", text: $promptText)
             Button("Save") { let trimmed = promptText.trimmingCharacters(in: .whitespaces); if !trimmed.isEmpty { name = trimmed } }
@@ -604,28 +613,15 @@ struct TacticalBoardView: View {
                     }
                     .padding(Theme.Space.sm)
                 } else if let hint = toolHint {
-                    let armed = tool != .select || pickingPathFor != nil
-                    HStack(spacing: 6) {
-                        Text(hint).font(.caption.weight(.medium)).foregroundStyle(.white.opacity(0.8))
-                        if armed {
-                            Button { disarm() } label: {
-                                Image(systemName: "xmark").font(.caption2.weight(.bold))
-                                    .frame(width: 22, height: 22)
-                                    .background(.white.opacity(0.18), in: .circle)
-                                    .frame(width: Theme.tapTarget, height: Theme.tapTarget)
-                                    .contentShape(.rect)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Finish placing")
-                            .accessibilityIdentifier("board-disarm")
-                        }
-                    }
-                    .padding(.leading, 10).padding(.trailing, armed ? 0 : 10).padding(.vertical, armed ? 0 : 5)
-                    .background(.black.opacity(0.5), in: .capsule)
-                    .padding(Theme.Space.sm)
-                    .allowsHitTesting(armed)
+                    Text(hint).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                        .padding(.horizontal, 12).padding(.vertical, 7)
+                        .background(.black.opacity(0.55), in: .capsule)
+                        .padding(Theme.Space.sm)
+                        .allowsHitTesting(false)
+                        .accessibilityIdentifier("board-hint")
                 }
             }
+            .overlay { if showsStarter { starterCard } }
             .overlay(alignment: .topTrailing) {
                 if viewport.scale > 1.01 {
                     Button { withAnimation(.snappy) { viewport = BoardViewport() } } label: {
@@ -695,15 +691,57 @@ struct TacticalBoardView: View {
         if isPlaying { return nil }
         switch tool {
         case .select:
-            if pickingPathFor != nil { return "Tap a line or shape" }
-            return document.elements.isEmpty ? "Add elements from the library below" : nil
-        case .polygon: return "Tap corners, then Done"
-        case .polyline: return "Tap points, then Done"
-        case .line: return "Drag to draw a line"
-        case .zoneRect, .zoneEllipse: return "Drag to draw a zone"
+            return pickingPathFor != nil ? "Tap the line or shape to move along" : nil
+        case .polygon: return "Tap each corner, then Done"
+        case .polyline: return "Tap points along the path, then Done"
+        case .line: return "Drag to draw a \(armedLineTitle.lowercased())"
+        case .zoneRect, .zoneEllipse: return "Drag to mark an area"
         case .text: return "Tap where the text goes"
-        default: return "Tap the field to place"
+        case .home, .away: return "Tap the pitch to add \(armedTitle) players"
+        case .template: return "Tap the pitch to place \(armedTitle)"
+        default: return "Tap the pitch to add a \(armedTitle.lowercased())"
         }
+    }
+
+    private var armedTitle: String {
+        paletteItems.first { $0.tool == tool }?.title ?? (tool == .template ? "the player" : tool.title)
+    }
+
+    private var armedLineTitle: String {
+        BoardPalettePage.draw.items.first { $0.lineStyle == drawLineStyle }?.title ?? "line"
+    }
+
+    /// An empty board offers the two ways coaches start: a team shape or single items.
+    private var showsStarter: Bool {
+        document.elements.isEmpty && palette == nil && !showsFrames && tool == .select && pathPoints.isEmpty
+    }
+
+    private var starterCard: some View {
+        VStack(spacing: Theme.Space.md) {
+            VStack(spacing: 4) {
+                Text("Start your board").font(.headline)
+                Text("Put a team shape on the pitch, or add players and equipment one by one.")
+                    .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            }
+            VStack(spacing: Theme.Space.sm) {
+                Button { showingLineup = true } label: {
+                    Label("Add a lineup", systemImage: "person.3.sequence.fill").frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .buttonStyle(DarkPillButtonStyle(isProminent: true))
+                .accessibilityIdentifier("board-start-lineup")
+                Button { openPalette(.players) } label: {
+                    Label("Add players", systemImage: "person.2.fill").frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .buttonStyle(DarkPillButtonStyle())
+                .accessibilityIdentifier("board-start-players")
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(Theme.Space.lg)
+        .frame(maxWidth: 300)
+        .glassPanel()
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("board-starter")
     }
 
     private func showToast(_ message: String) {
@@ -1130,7 +1168,7 @@ struct TacticalBoardView: View {
         case .mannequin: return BoardElement(kind: .mannequin, position: point, colorHex: "9A9AA0")
         case .line:
             var element = BoardElement(kind: .line, position: point, points: [point])
-            element.lineStyle = BoardLineStyle()
+            element.lineStyle = drawLineStyle
             return element
         case .zoneRect, .zoneEllipse:
             var element = BoardElement(kind: .zone, position: point, points: [point], colorHex: BoardPalette.keeper)
@@ -1188,7 +1226,7 @@ struct TacticalBoardView: View {
         }
         commit(recording: element.id) { $0.elements.append(element) }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        if keepsArmedAfterPlacing(tool) {
+        if keepsArmedAfterPlacing(tool) || palette != nil {
             // Stay armed to drop several quickly; flash the new element instead of selecting it.
             selectedID = nil
             flash(element.id)
@@ -1230,8 +1268,7 @@ struct TacticalBoardView: View {
         element.points = Array(pathPoints.dropFirst())
         cancelPath()
         commit(recording: element.id) { $0.elements.append(element) }
-        selectedID = element.id
-        tool = .select
+        if palette != nil { flash(element.id) } else { selectedID = element.id; tool = .select }
     }
 
     // MARK: Editing
@@ -1342,8 +1379,7 @@ struct TacticalBoardView: View {
             guard !text.isEmpty else { return }
             let element = BoardElement(kind: .text, position: point, label: text)
             commit(recording: element.id) { $0.elements.append(element) }
-            selectedID = element.id
-            tool = .select
+            if palette != nil { flash(element.id) } else { selectedID = element.id; tool = .select }
         case .editElement(let id):
             let number = Int(promptNumber.trimmingCharacters(in: .whitespaces))
             commit { doc in
@@ -1506,7 +1542,7 @@ struct TacticalBoardView: View {
     @ViewBuilder
     private func cardView(width: CGFloat) -> some View {
         // While picking a path the card steps aside so it never covers the line or shape to tap.
-        if let element = selectedElement, !isPlaying, pickingPathFor == nil {
+        if showsDetails, let element = selectedElement, !isPlaying, pickingPathFor == nil {
             if inspectorCollapsed {
                 collapsedCard(element)
                     .transition(.opacity.combined(with: .offset(y: 10)))
@@ -1626,7 +1662,7 @@ struct TacticalBoardView: View {
             }
             cardIconButton("plus.square.on.square", label: "Duplicate", id: "board-card-duplicate") { duplicate(element) }
             cardIconButton("trash", label: "Delete", id: "board-card-delete", tint: .red) { delete(element.id) }
-            cardIconButton("xmark", label: "Close", id: "board-card-close") { selectedID = nil }
+            cardIconButton("xmark", label: "Close details", id: "board-card-close") { showsDetails = false }
         }
     }
 
@@ -1828,7 +1864,7 @@ struct TacticalBoardView: View {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("board-inspector-expand")
-            Button { selectedID = nil } label: {
+            Button { showsDetails = false } label: {
                 Image(systemName: "xmark").font(.caption.weight(.bold))
                     .frame(width: 26, height: 26).background(.white.opacity(0.14), in: .circle)
                     .frame(width: Theme.tapTarget, height: Theme.tapTarget)
@@ -1847,8 +1883,8 @@ struct TacticalBoardView: View {
         case .player: element.number.map { "Player \($0)" } ?? "Player"
         case .goalkeeper: "Goalkeeper"
         case .opponent: "Opponent"
-        case .arrow, .line: "Line"
-        case .polyline: "Polyline"
+        case .arrow, .line: Self.lineTypeTitle(element)
+        case .polyline: "Path"
         case .zone: "Zone"
         case .polygon: "Shape"
         case .text: element.label.isEmpty ? "Text" : element.label
@@ -2158,48 +2194,212 @@ struct TacticalBoardView: View {
 
     static let editorSpace = "board-editor"
     private static let defaultRecents: [BoardTool] = [.home, .away, .ball, .cone]
-    private static let drawTools: [BoardTool] = [.line, .polyline, .zoneRect, .zoneEllipse, .polygon, .text]
 
-    /// The last four placeable items, newest first; first-run defaults fill empty slots.
+    /// The last placeable items, newest first, shown at the top of the library.
     private var recentTools: [BoardTool] {
         var list = recentToolsRaw.split(separator: ",").compactMap { BoardTool(rawValue: String($0)) }.filter { $0.pointKind != nil }
         for fallback in Self.defaultRecents where list.count < 4 && !list.contains(fallback) { list.append(fallback) }
         return Array(list.prefix(4))
     }
 
-    private var lastDrawTool: BoardTool {
-        BoardTool(rawValue: lastDrawRaw).flatMap { Self.drawTools.contains($0) ? $0 : nil } ?? .line
+    /// The fixed bottom slot shows exactly one thing: the selection's actions, the palette being
+    /// placed from, the animation transport, or the task tiles. Its size never changes the pitch.
+    @ViewBuilder
+    private func bottomSlot(vertical: Bool) -> some View {
+        if let element = selectedElement, !isPlaying, palette == nil, pickingPathFor == nil {
+            selectionBar(element, vertical: vertical)
+        } else if let palette {
+            paletteBar(palette, vertical: vertical)
+        } else if showsFrames {
+            transportBar(vertical: vertical)
+        } else {
+            taskBar(vertical: vertical)
+        }
     }
 
-    /// Fixed bar (no scrolling): Library, four recents, Draw and Animate. A rail on short landscape screens.
-    private func toolBar(vertical: Bool) -> some View {
+    private func slotContainer<Content: View>(vertical: Bool, id: String, @ViewBuilder content: () -> Content) -> some View {
         let layout = vertical ? AnyLayout(VStackLayout(spacing: 4)) : AnyLayout(HStackLayout(spacing: 4))
-        return layout {
-            barSlot(id: "board-library", title: "Library", isOn: false, prominent: true, vertical: vertical) {
-                Image(systemName: "plus").font(.system(size: 19, weight: .bold))
-            } action: {
-                disarm()
-                showingLibrary = true
+        return layout { content() }
+            .padding(5)
+            .frame(maxWidth: vertical ? nil : .infinity, minHeight: vertical ? nil : 60)
+            .glassPanel(cornerRadius: 22)
+            .padding(.horizontal, vertical ? 6 : 8)
+            .padding(.top, vertical ? 8 : 4)
+            .padding(.bottom, vertical ? 8 : 2)
+            .frame(width: vertical ? 76 : nil)
+            // A fixed-size slot cannot grow with the largest sizes without hiding the pitch.
+            .dynamicTypeSize(...DynamicTypeSize.xxLarge)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(id)
+    }
+
+    /// At rest: what a coach can do with the board.
+    private func taskBar(vertical: Bool) -> some View {
+        slotContainer(vertical: vertical, id: "board-toolbar") {
+            ForEach(BoardPalettePage.allCases) { page in
+                barSlot(id: page == .draw ? "board-draw" : "board-palette-\(page.rawValue)", title: page.title, isOn: false, vertical: vertical) {
+                    Image(systemName: page.symbol).font(.system(size: 18, weight: .semibold))
+                } action: { openPalette(page) }
             }
-            ForEach(recentTools) { item in recentSlot(item, vertical: vertical) }
-            drawSlot(vertical: vertical)
-            barSlot(id: "board-animate", title: "Animate", isOn: showsFrames, vertical: vertical) {
+            barSlot(id: "board-animate", title: "Animate", isOn: false, vertical: vertical) {
                 Image(systemName: "play.square.stack").font(.system(size: 18, weight: .semibold))
-            } action: {
-                toggleFrames()
+            } action: { toggleFrames() }
+            barSlot(id: "board-library", title: "More", isOn: false, vertical: vertical) {
+                Image(systemName: "square.grid.2x2").font(.system(size: 18, weight: .semibold))
+            } action: { disarm(); showingLibrary = true }
+        }
+    }
+
+    /// Items currently offered: the open page, plus an item armed from the library that the page lacks.
+    private var paletteItems: [BoardPaletteItem] {
+        let items = palette?.items ?? []
+        guard tool != .select, !items.contains(where: { $0.tool == tool }) else { return items }
+        return [BoardPaletteItem(tool, tool == .template ? (template?.label.isEmpty == false ? template!.label : "Squad player") : tool.title)] + items
+    }
+
+    /// Placing: the chosen item stays highlighted until Done, so the mode is always visible.
+    private func paletteBar(_ page: BoardPalettePage, vertical: Bool) -> some View {
+        slotContainer(vertical: vertical, id: "board-palette") {
+            ScrollView(vertical ? .vertical : .horizontal) {
+                let layout = vertical ? AnyLayout(VStackLayout(spacing: 4)) : AnyLayout(HStackLayout(spacing: 4))
+                layout {
+                    if page == .players {
+                        barSlot(id: "board-item-lineup", title: "Lineup", isOn: false, vertical: vertical) {
+                            Image(systemName: "person.3.sequence.fill").font(.system(size: 17, weight: .semibold))
+                        } action: { showingLineup = true }
+                        .frame(width: vertical ? nil : 62)
+                    }
+                    ForEach(paletteItems) { item in paletteChip(item, vertical: vertical) }
+                    barSlot(id: "board-item-all", title: "All", isOn: false, vertical: vertical) {
+                        Image(systemName: "square.grid.2x2").font(.system(size: 17, weight: .semibold))
+                    } action: { showingLibrary = true }
+                    .frame(width: vertical ? nil : 62)
+                }
+            }
+            .scrollIndicators(.hidden)
+            barSlot(id: "board-disarm", title: "Done", isOn: false, prominent: true, vertical: vertical) {
+                Image(systemName: "checkmark").font(.system(size: 18, weight: .bold))
+            } action: { closePalette() }
+            .frame(width: vertical ? nil : 62)
+        }
+    }
+
+    private func isArmed(_ item: BoardPaletteItem) -> Bool {
+        tool == item.tool && (item.lineStyle == nil || item.lineStyle == drawLineStyle)
+    }
+
+    /// Tap to choose what the next tap on the pitch adds; point items can also be dragged onto it.
+    private func paletteChip(_ item: BoardPaletteItem, vertical: Bool) -> some View {
+        let armed = isArmed(item)
+        let label = slotLabel(title: item.title, isOn: armed, prominent: false, armed: false, vertical: vertical) {
+            if let style = item.lineStyle {
+                BoardLineGlyph(style: style).frame(width: 30, height: 20)
+            } else if item.tool.pointKind != nil || item.tool == .template {
+                BoardLibraryPreview(element: item.tool == .template ? (template ?? TacticalBoardLibrarySheet.sample(for: .home, document: document))
+                                        : TacticalBoardLibrarySheet.sample(for: item.tool, document: document),
+                                    field: document.fieldType, style: document.fieldStyle)
+                    .frame(width: 30, height: 26)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+            } else {
+                Image(systemName: item.tool.symbol).font(.system(size: 17, weight: .semibold))
             }
         }
-        .padding(5)
-        .glassPanel(cornerRadius: 22)
-        .padding(.horizontal, vertical ? 6 : 8)
-        .padding(.top, vertical ? 8 : 4)
-        .padding(.bottom, vertical ? 8 : 2)
-        .frame(width: vertical ? 76 : nil)
-        // A fixed-height rail of nine slots cannot grow with the largest sizes without hiding the board,
-        // so its labels scale up to xxLarge and stop there.
-        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("board-toolbar")
+        .frame(width: vertical ? nil : (item.title.count > 7 ? 76 : 62))
+        return Group {
+            if item.tool.pointKind != nil {
+                label
+                    .onTapGesture { choose(item) }
+                    .gesture(DragGesture(minimumDistance: 10, coordinateSpace: .named(Self.editorSpace))
+                        .onChanged { value in dragPlacement = (item.tool, value.location) }
+                        .onEnded { value in
+                            dragPlacement = nil
+                            drop(item.tool, at: value.location)
+                        })
+            } else {
+                label.onTapGesture { choose(item) }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(item.title)
+        .accessibilityAddTraits(armed ? [.isButton, .isSelected] : .isButton)
+        .accessibilityAction { choose(item) }
+        .accessibilityIdentifier(item.identifier)
+    }
+
+    private func choose(_ item: BoardPaletteItem) {
+        if let style = item.lineStyle { drawLineStyle = style }
+        arm(item.tool)
+    }
+
+    private func openPalette(_ page: BoardPalettePage) {
+        stopPlayback()
+        selectedID = nil
+        palette = page
+        choose(page.defaultItem)
+    }
+
+    private func closePalette() {
+        palette = nil
+        disarm()
+    }
+
+    /// The selection's plain actions; styling and motion live behind Edit.
+    private func selectionBar(_ element: BoardElement, vertical: Bool) -> some View {
+        slotContainer(vertical: vertical, id: "board-selection") {
+            DeselectButton { selectedID = nil }
+            if !vertical {
+                HStack(spacing: Theme.Space.sm) {
+                    BoardLibraryPreview(element: previewElement(element), field: document.fieldType, style: document.fieldStyle)
+                        .frame(width: 34, height: 34)
+                        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                    Text(Self.title(of: element)).font(.subheadline.weight(.semibold)).lineLimit(1)
+                        .accessibilityIdentifier("board-selection-title")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(-1)
+            }
+            if element.kind.isPerson || element.kind == .text {
+                barSlot(id: "board-selection-name", title: element.kind == .text ? "Text" : "Name", isOn: false, vertical: vertical) {
+                    Image(systemName: element.kind == .text ? "character.cursor.ibeam" : "textformat.123").font(.system(size: 17, weight: .semibold))
+                } action: { beginEditing(element) }
+                .frame(width: vertical ? nil : 62)
+            }
+            if element.isLineLike {
+                Menu {
+                    ForEach(BoardPalettePage.draw.items.filter { $0.lineStyle != nil }) { item in
+                        Button(item.title) {
+                            guard let preset = item.lineStyle else { return }
+                            updateLineStyle(element) { $0.pattern = preset.pattern; $0.shape = preset.shape; $0.endCap = .arrow }
+                        }
+                    }
+                } label: {
+                    slotLabel(title: Self.lineTypeTitle(element), isOn: false, prominent: false, armed: false, vertical: vertical) {
+                        BoardLineGlyph(style: element.resolvedLineStyle).frame(width: 30, height: 20)
+                    }
+                    .frame(width: vertical ? nil : 62)
+                }
+                .accessibilityLabel("Line type").accessibilityValue(Self.lineTypeTitle(element))
+                .accessibilityIdentifier("board-selection-line-type")
+            }
+            barSlot(id: "board-selection-edit", title: "Edit", isOn: showsDetails, vertical: vertical) {
+                Image(systemName: "slider.horizontal.3").font(.system(size: 17, weight: .semibold))
+            } action: {
+                inspectorAutoCollapsed = false; inspectorCollapsed = false
+                showsDetails.toggle()
+            }
+            .frame(width: vertical ? nil : 62)
+            barSlot(id: "board-selection-delete", title: "Delete", isOn: false, vertical: vertical) {
+                Image(systemName: "trash").font(.system(size: 17, weight: .semibold)).foregroundStyle(.red)
+            } action: { delete(element.id) }
+            .frame(width: vertical ? nil : 62)
+        }
+    }
+
+    static func lineTypeTitle(_ element: BoardElement) -> String {
+        let style = element.resolvedLineStyle
+        return BoardPalettePage.draw.items.first { item in
+            item.lineStyle.map { $0.pattern == style.pattern && $0.shape == style.shape } ?? false
+        }?.title ?? "Line"
     }
 
     private func slotBackground(isOn: Bool, prominent: Bool) -> AnyShapeStyle {
@@ -2241,53 +2441,6 @@ struct TacticalBoardView: View {
         .accessibilityLabel(title)
         .accessibilityAddTraits(isOn ? .isSelected : [])
         .accessibilityIdentifier(id)
-    }
-
-    /// A recent item: tap to arm (tap again to finish), or drag it straight onto the board.
-    private func recentSlot(_ item: BoardTool, vertical: Bool) -> some View {
-        let armed = tool == item
-        return slotLabel(title: item == .home ? "Home" : item == .away ? "Away" : item.title, isOn: armed, prominent: false, armed: armed, vertical: vertical) {
-            BoardLibraryPreview(element: TacticalBoardLibrarySheet.sample(for: item, document: document), field: document.fieldType, style: document.fieldStyle)
-                .frame(width: 30, height: 26)
-                .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-        }
-        .onTapGesture { toggleArm(item) }
-        .gesture(DragGesture(minimumDistance: 10, coordinateSpace: .named(Self.editorSpace))
-            .onChanged { value in dragPlacement = (item, value.location) }
-            .onEnded { value in
-                dragPlacement = nil
-                drop(item, at: value.location)
-            })
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(item.title)
-        .accessibilityAddTraits(armed ? [.isButton, .isSelected] : .isButton)
-        .accessibilityAction { toggleArm(item) }
-        .accessibilityIdentifier("board-recent-\(item.rawValue)")
-    }
-
-    /// Draw: tap arms the last drawing tool (tap again to finish); long-press chooses another.
-    private func drawSlot(vertical: Bool) -> some View {
-        let armed = Self.drawTools.contains(tool)
-        let shown = armed ? tool : lastDrawTool
-        return Menu {
-            ForEach(Self.drawTools) { item in
-                Button(item.title, systemImage: item.symbol) {
-                    lastDrawRaw = item.rawValue
-                    arm(item)
-                }
-                .accessibilityIdentifier("board-draw-\(item.rawValue)")
-            }
-        } label: {
-            slotLabel(title: "Draw", isOn: armed, prominent: false, armed: armed, vertical: vertical) {
-                Image(systemName: shown.symbol).font(.system(size: 18, weight: .semibold))
-            }
-        } primaryAction: {
-            if armed { disarm() } else { arm(lastDrawTool) }
-        }
-        .accessibilityLabel("Draw \(shown.title)")
-        .accessibilityValue(armed ? tool.title : "Off")
-        .accessibilityAddTraits(armed ? .isSelected : [])
-        .accessibilityIdentifier("board-draw")
     }
 
     /// Floating tile following a recents drag.
@@ -2355,7 +2508,9 @@ struct TacticalBoardView: View {
     /// Arms an item picked in the library.
     private func pick(_ item: BoardTool) {
         showingLibrary = false
-        if Self.drawTools.contains(item) { lastDrawRaw = item.rawValue }
+        // The palette shows what is being placed and its Done, in animation mode too.
+        palette = BoardPalettePage.page(for: item) ?? .players
+        if item == .line { drawLineStyle = .pass }
         arm(item)
     }
 
@@ -2395,7 +2550,7 @@ struct TacticalBoardView: View {
             .accessibilityValue(followState)
             .accessibilityIdentifier("board-follow-state")
             cameraKeySlot(vertical: vertical)
-            barSlot(id: "board-onion-toggle", title: "Onion", isOn: document.showsOnionSkin == true, vertical: vertical) {
+            barSlot(id: "board-onion-toggle", title: "Ghosts", isOn: document.showsOnionSkin == true, vertical: vertical) {
                 Image(systemName: "square.3.layers.3d").font(.system(size: 17, weight: .semibold))
             } action: {
                 commit { $0.showsOnionSkin = $0.showsOnionSkin == true ? nil : true }
@@ -2591,7 +2746,7 @@ struct TacticalBoardView: View {
                                 .contentShape(.rect)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Add stage")
+                        .accessibilityLabel("Add step")
                         .accessibilityIdentifier("board-stage-add")
                     }
                     .padding(.horizontal, Theme.Space.md)
@@ -2629,7 +2784,7 @@ struct TacticalBoardView: View {
                 .frame(width: 60, height: 40)
                 .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                 .overlay(BoardStagePlayhead(clock: clock, document: document, index: index, isCurrent: isCurrent, isLive: showsPlayback))
-                Text("Stage \(index + 1)").font(.caption2.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
+                Text("Step \(index + 1)").font(.caption2.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
                     .foregroundStyle(isCurrent ? Theme.signal : .white.opacity(0.75))
             }
             .frame(minWidth: Theme.tapTarget)
@@ -2647,7 +2802,7 @@ struct TacticalBoardView: View {
                     .allowsHitTesting(false)
             }
         }
-        .accessibilityLabel("Stage \(index + 1)")
+        .accessibilityLabel("Step \(index + 1)")
         .accessibilityValue(frame.camera != nil ? "Camera key" : "No camera key")
         .accessibilityAddTraits(isCurrent ? .isSelected : [])
         .accessibilityIdentifier("board-stage-\(index + 1)")
@@ -2658,7 +2813,7 @@ struct TacticalBoardView: View {
                 .accessibilityIdentifier("board-stage-move-left")
             Button("Move right", systemImage: "arrow.right") { moveStage(index, by: 1) }.disabled(index == document.keyframes.count - 1)
                 .accessibilityIdentifier("board-stage-move-right")
-            Button("Delete stage", systemImage: "trash", role: .destructive) { deleteFrame(index) }.disabled(document.keyframes.count <= 1)
+            Button("Delete step", systemImage: "trash", role: .destructive) { deleteFrame(index) }.disabled(document.keyframes.count <= 1)
                 .accessibilityIdentifier("board-stage-delete")
         }
     }
@@ -2680,7 +2835,7 @@ struct TacticalBoardView: View {
             .frame(width: 50, height: 44)
             .contentShape(.rect)
         }
-        .accessibilityLabel("Transition after stage \(index + 1)")
+        .accessibilityLabel("Time to step \(index + 2)")
         .accessibilityValue(Self.seconds(document.keyframes[index].duration))
         .accessibilityIdentifier("board-transition-\(index + 1)")
     }
@@ -2737,6 +2892,7 @@ struct TacticalBoardView: View {
 
     private func toggleFrames() {
         stopPlayback()
+        closePalette()
         if showsFrames {
             showsFrames = false
         } else {

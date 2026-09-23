@@ -516,7 +516,7 @@ struct AnalysisWorkspaceView: View {
             }
             Button("Remove highlight", systemImage: "trash", role: .destructive) { removeHighlights(of: player.id) }
                 .accessibilityIdentifier("analysis-remove-selected-player")
-        } label: { AnalysisMoreLabel() }
+        } label: { MoreMenuLabel() }
             .buttonStyle(.plain).accessibilityIdentifier("analysis-layer-options")
     }
 
@@ -568,7 +568,7 @@ struct AnalysisWorkspaceView: View {
             AnalysisSelectionBar(title: selected.title, symbol: selected.tool.symbol, close: clearSelection) {
                 if selected.tool != .trajectory { movementMenu(selected) }
                 Button("Style", systemImage: "paintpalette") { showProperties = true }
-                    .labelStyle(AnalysisCompactLabelStyle())
+                    .labelStyle(CompactLabelStyle())
                     .buttonStyle(EditorActionStyle()).accessibilityIdentifier("analysis-drawing-style")
                 layerMenu(selected)
             }.disabled(isBusy)
@@ -641,7 +641,7 @@ struct AnalysisWorkspaceView: View {
             Button(selected.isLocked == true ? "Unlock" : "Lock", systemImage: selected.isLocked == true ? "lock.open" : "lock") { toggleLayerLocked(selected.id) }
             Button("Delete", systemImage: "trash", role: .destructive) { deleteSelected() }
                 .disabled(selected.isLocked == true).accessibilityIdentifier("analysis-delete-layer")
-        } label: { AnalysisMoreLabel() }
+        } label: { MoreMenuLabel() }
             .buttonStyle(.plain).accessibilityIdentifier("analysis-layer-options")
     }
 
