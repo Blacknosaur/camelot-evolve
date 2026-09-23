@@ -1953,23 +1953,22 @@ struct TacticalBoardView: View {
         }
     }
 
-    /// Collapses the card when a newly selected element sits where the expanded card would cover it,
-    /// and re-expands after an automatic collapse once the selection is clear of it. The board never moves.
+    /// The card sits at the opposite end of the stage from the selection: an element in the bottom
+    /// half gets the card at the top, so it is never hidden behind its own settings. The card only
+    /// collapses when the stage is too short for the element to clear it either way. The board never moves.
     private func collapseInspectorIfCovering(stageSize: CGSize) {
         guard let element = document.elements(at: nil).first(where: { $0.id == selectedID }) else { return }
         let renderer = hitRenderer(stageSize)
         let point = renderer.transformCenter(element, projection: renderer.projection(size: stageSize)).applying(viewport.transform(in: stageSize))
-        let cardHeight: CGFloat = element.isLineLike || element.kind.isArea ? 240 : 200
+        let cardHeight: CGFloat = element.isLineLike || element.kind.isArea ? 250 : 290
         var covered: Bool
         if Self.usesTrailingPanels(stageSize) {
             covered = point.x > stageSize.width - min(350, stageSize.width * 0.5) - 24
             cardAtTop = false
         } else {
-            let coversBottom = point.y > stageSize.height - cardHeight - (showsFrames ? 118 : 0)
-            let coversTop = point.y < cardHeight + 16
-            // Prefer moving the card to the top over collapsing it.
-            cardAtTop = coversBottom && !coversTop
-            covered = coversBottom && coversTop
+            cardAtTop = point.y > stageSize.height / 2
+            let reserved = cardHeight + (showsFrames && !cardAtTop ? 118 : 0) + 16
+            covered = cardAtTop ? point.y < reserved : point.y > stageSize.height - reserved
         }
         if covered, !inspectorCollapsed {
             inspectorCollapsed = true

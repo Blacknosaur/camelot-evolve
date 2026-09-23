@@ -89,6 +89,30 @@ final class BoardWalkthroughUITests: XCTestCase {
         tapAny("board-close")
     }
 
+    /// Zooming in and back to 100% returns the pitch to the centre.
+    @MainActor
+    func testZoomBackToFullSizeRecentresThePitch() throws {
+        app.tabBars.buttons["Boards"].tap()
+        let canvas = app.openNewBoard("Full pitch")
+        tapAny("board-start-players")
+        canvas.coordinate(withNormalizedOffset: .init(dx: 0.5, dy: 0.5)).tap()
+        tapAny("board-disarm")
+        capture("30-start")
+        canvas.pinch(withScale: 2.5, velocity: 2)
+        sleep(1)
+        capture("31-zoomed")
+        let badge = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "%")).firstMatch
+        if badge.waitForExistence(timeout: 3) { badge.tap() }
+        sleep(2)
+        capture("32-badge-reset")
+        canvas.pinch(withScale: 2.5, velocity: 2)
+        sleep(1)
+        canvas.pinch(withScale: 0.2, velocity: -2)
+        sleep(2)
+        capture("33-pinched-out")
+        tapAny("board-close")
+    }
+
     @MainActor
     private func element(_ id: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: id).firstMatch

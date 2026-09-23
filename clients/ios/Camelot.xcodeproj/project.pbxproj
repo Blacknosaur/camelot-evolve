@@ -167,6 +167,7 @@
 		B3A29514BDE4468FC984FEFE /* FieldPreviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8C39D1FE57A6511220CC15 /* FieldPreviewTests.swift */; };
 		B3E89AABC50E5D9AA3CE4A8A /* PlayerMaskStabilizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECAA89C269960C802EB386B /* PlayerMaskStabilizer.swift */; };
 		B5E460AE3BDB9A37361103DD /* CameraFeatureRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421C567120E2F590170242B6 /* CameraFeatureRegistration.swift */; };
+		B658964849F14A37248849E2 /* BoardSurfaceCentringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E466950F838C8E62FFA42E7 /* BoardSurfaceCentringTests.swift */; };
 		B65E33A8303EA35A86E1A2A6 /* VideoImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9455A378F3B47079A638D81A /* VideoImporter.swift */; };
 		B7FB67E04781C5AECB476D13 /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5981C3D82C6D5D08601AB772 /* ProjectsView.swift */; };
 		B884186B552F6F7EE0D5E28D /* AnalysisVideoCompositor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E17037A33028880B900C7B /* AnalysisVideoCompositor.swift */; };
@@ -270,6 +271,7 @@
 		097E50CEFB5E2162519E6945 /* PlayerRosterTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRosterTracking.swift; sourceTree = "<group>"; };
 		09D93759E949392ED1312B46 /* CameraZoomDial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraZoomDial.swift; sourceTree = "<group>"; };
 		0C8416F2A219F37A3DA98AAD /* EditorTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTimeline.swift; sourceTree = "<group>"; };
+		0E466950F838C8E62FFA42E7 /* BoardSurfaceCentringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSurfaceCentringTests.swift; sourceTree = "<group>"; };
 		0E7EFA01B2F5185368E4CD3E /* edgetam_no_mem_embed_f32.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = edgetam_no_mem_embed_f32.bin; sourceTree = "<group>"; };
 		1017140A622C1E30D0C0723F /* AnalysisSourceFilmstrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisSourceFilmstrip.swift; sourceTree = "<group>"; };
 		1177A6710A2F6A60FC2EDA13 /* GroundCircleReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCircleReference.swift; sourceTree = "<group>"; };
@@ -589,6 +591,7 @@
 				147D9DFDCFF7B9CA8F4CB44E /* AnnotationLoupeTests.swift */,
 				4E524835920BC939191E04B9 /* AnnotationMeasurementTests.swift */,
 				D672CA69AEB535EB4BA559C0 /* BoardPerfProbeTests.swift */,
+				0E466950F838C8E62FFA42E7 /* BoardSurfaceCentringTests.swift */,
 				56DBBDB484A59436F7B6860A /* CameraAppearanceTests.swift */,
 				20A7C01A724E04DC409467FD /* CameraCaptureInteractionTests.swift */,
 				D00B7D6F8380AEC4D8597B5F /* CameraPrecisionTests.swift */,
@@ -1142,6 +1145,7 @@
 				6297B1E11DD74F5D72CC7067 /* AnnotationLoupeTests.swift in Sources */,
 				D4117B9B28B6FBF6F16A9BC0 /* AnnotationMeasurementTests.swift in Sources */,
 				F29A58F70099D978B9691072 /* BoardPerfProbeTests.swift in Sources */,
+				B658964849F14A37248849E2 /* BoardSurfaceCentringTests.swift in Sources */,
 				A6B92C42A85378648F658440 /* CameraAppearanceTests.swift in Sources */,
 				0BB2D696F11C12A57E04BB96 /* CameraCaptureInteractionTests.swift in Sources */,
 				AEB6346AADCCA3DAD098D852 /* CameraPrecisionTests.swift in Sources */,

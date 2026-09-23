@@ -473,7 +473,7 @@ final class BoardSurfaceCache: @unchecked Sendable {
         let extent = CGSize(width: meters.width + 2 * apron + 2 * padding, height: meters.height + 2 * apron + 2 * padding)
         let bucket = pow(2, ceil(log2(max(1, requested)) * 2) / 2)
         let ppm = min(bucket, 4096 / max(extent.width, extent.height))
-        let key = "slab-\(field.rawValue)-\(style.rawValue)-\(Int((ppm * 100).rounded()))"
+        let key = "slab2-\(field.rawValue)-\(style.rawValue)-\(Int((ppm * 100).rounded()))"
         if let cached = lock.withLock({ images[key] }) { return (cached, apron, padding) }
         guard let painted = BoardSurfacePainter.image(field: field, style: style, pixelsPerMeter: ppm, apron: apron) else { return nil }
         let width = Int((extent.width * ppm).rounded()), height = Int((extent.height * ppm).rounded())
@@ -483,7 +483,8 @@ final class BoardSurfaceCache: @unchecked Sendable {
         cg.translateBy(x: 0, y: CGFloat(height))
         cg.scaleBy(x: 1, y: -1)
         cg.scaleBy(x: ppm, y: ppm)
-        cg.translateBy(x: padding, y: padding)
+        // The slab starts at field (-apron - padding): the apron sits inside it, not before it.
+        cg.translateBy(x: apron + padding, y: apron + padding)
         let region = CGRect(x: -apron, y: -apron, width: meters.width + 2 * apron, height: meters.height + 2 * apron)
         let corner = min(region.width, region.height) * 0.018
         let slabPath = CGPath(roundedRect: region, cornerWidth: corner, cornerHeight: corner, transform: nil)
