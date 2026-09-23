@@ -27,12 +27,17 @@ final class AnalysisLayerTimelineTests: XCTestCase {
         context.draw(try XCTUnwrap(rendered.cgImage), in: CGRect(x: 0, y: 0, width: 400, height: 48))
         XCTAssertTrue((0..<48).contains { y in
             let i = (y * 400 + 120) * 4
-            return pixels[i] < 100 && pixels[i + 1] > 150 && pixels[i + 2] > 150
-        }, "The interpolated interval must render cyan")
+            return pixels[i + 1] > 230 && pixels[i + 2] < 120
+        }, "The interpolated interval must render as followed (lime)")
         XCTAssertTrue((0..<48).contains { y in
             let i = (y * 400 + 250) * 4
-            return pixels[i] > 200 && pixels[i + 1] > 60 && pixels[i + 2] < 100
+            return pixels[i] > 200 && (60...200).contains(pixels[i + 1]) && pixels[i + 2] < 100
         }, "A real missing interval must remain orange")
+        // The coverage strip is the 3 pt line at y 32; the bar's lime border sits elsewhere.
+        XCTAssertFalse((32..<35).contains { y in
+            let i = (y * 400 + 250) * 4
+            return pixels[i + 1] > 230 && pixels[i + 2] < 120
+        }, "The missing interval must not be drawn as followed")
     }
 
     @MainActor

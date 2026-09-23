@@ -294,85 +294,35 @@ final class PlayerTrackRepairTests: XCTestCase {
     }
 
     @MainActor
-    func testManualReviewControlsRenderOnPhoneAtCompactAndWideWidths() async throws {
+    func testPlayerBarShowsLostPartsAndFitsPhoneWidths() async throws {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
         let previous = scene.windows.first { $0.isKeyWindow }
         let window = UIWindow(windowScene: scene)
         defer { window.isHidden = true; previous?.makeKey() }
+        var track = motion(from: 1, to: 9); track.gaps = [4...5]
+        let player = AnalysisTrackingLibrary.Player(id: UUID(), name: "Blue player 9", motion: track)
+        // Lead-in, the gap and the tail are all shown as lost parts.
+        XCTAssertEqual(AnalysisTrackingStrip.lostSections(track, range: 0...10).count, 3)
+        XCTAssertEqual(AnalysisTrackingStrip.summary(track, range: 0...10), "Lost in 3 places")
+        XCTAssertEqual(AnalysisTrackingStrip.summary(motion(), range: 0...10), "Followed through the whole clip")
         for width in [360.0, 744.0] {
-            let controls = AnalysisPlayerFrameReviewControls(name: "Blue player 9", time: 9.833,
-                canGoBack: true, canGoNext: true, canUndo: true, canTrack: true, isSeeking: false,
-                previous: {}, next: {}, undo: {}, track: {}, done: {})
-                .frame(width: width).environment(\.colorScheme, .dark)
-            // Menu uses a UIKit-backed button. ImageRenderer substitutes a
-            // placeholder; a real hosting window exercises the actual control.
-            let host = UIHostingController(rootView: controls)
+            let bar = AnalysisPlayerBar(player: player, range: 0...10, time: 4.5, rename: {}, effects: {}, fix: {}, seek: { _ in }) {
+                AnalysisMoreLabel()
+            }.frame(width: width).background(Theme.inkPanel).environment(\.colorScheme, .dark)
+            let host = UIHostingController(rootView: bar)
             host.safeAreaRegions = []
             window.rootViewController = host; window.makeKeyAndVisible()
             try await Task.sleep(for: .milliseconds(150))
-            let size = host.sizeThatFits(in: CGSize(width: width, height: 150))
+            let size = host.sizeThatFits(in: CGSize(width: width, height: 200))
             host.view.frame = CGRect(origin: .zero, size: size); host.view.layoutIfNeeded()
             let image = UIGraphicsImageRenderer(bounds: host.view.bounds).image { _ in
                 host.view.drawHierarchy(in: host.view.bounds, afterScreenUpdates: true)
             }
             XCTAssertEqual(image.size.width, width, accuracy: 1)
-            XCTAssertLessThan(image.size.height, 150, "Controls must leave room for the footage")
-            let attachment = XCTAttachment(image: image); attachment.name = "Player frame review controls \(Int(width))pt"
+            XCTAssertLessThan(image.size.height, 120, "The player bar must leave room for the timeline")
+            let attachment = XCTAttachment(image: image); attachment.name = "Player bar \(Int(width))pt"
             attachment.lifetime = .keepAlways; add(attachment)
         }
-    }
-
-    @MainActor
-    func testUnifiedTrackingSheetRendersOnPhoneWithoutTouchingProjectData() async throws {
-        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
-        let oldWindow = scene.windows.first { $0.isKeyWindow }
-        let window = UIWindow(windowScene: scene)
-        defer { window.isHidden = true; oldWindow?.makeKey() }
-        var track = motion(); track.gaps = [4...5]; track.hidesUncertainPositions = true
-        let player = AnalysisTrackingLibrary.Player(id: UUID(), name: "Blue player 9", motion: track)
-        let view = AnalysisPlayerTrackingSheet(player: player, clipRange: 0...10, time: 4.5, isBusy: false,
-            includeBodyMasks: .constant(false), trackWholeClip: {}, trackToEnd: {}, trackBackToStart: {}, fillGap: {},
-            seek: { _ in }, bridge: { _ in },
-            smoothing: { _ in }, rename: { _ in })
-        let host = UIHostingController(rootView: view)
-        window.rootViewController = host; window.makeKeyAndVisible()
-        try await Task.sleep(for: .milliseconds(350))
-        host.view.layoutIfNeeded()
-        let image = UIGraphicsImageRenderer(bounds: host.view.bounds).image { _ in
-            host.view.drawHierarchy(in: host.view.bounds, afterScreenUpdates: true)
-        }
-        let attachment = XCTAttachment(image: image); attachment.name = "Unified tracking and manual correction sheet"
-        attachment.lifetime = .keepAlways; add(attachment)
-        func scrollViews(in view: UIView) -> [UIScrollView] {
-            (view as? UIScrollView).map { [$0] } ?? [] + view.subviews.flatMap { scrollViews(in: $0) }
-        }
-        let scroll = try XCTUnwrap(scrollViews(in: host.view).max { $0.contentSize.height < $1.contentSize.height })
-        scroll.setContentOffset(CGPoint(x: 0, y: min(650, max(0, scroll.contentSize.height - scroll.bounds.height))), animated: false)
-        try await Task.sleep(for: .milliseconds(150))
-        let identityImage = UIGraphicsImageRenderer(bounds: host.view.bounds).image { _ in
-            host.view.drawHierarchy(in: host.view.bounds, afterScreenUpdates: true)
-        }
-        let identity = XCTAttachment(image: identityImage); identity.name = "Player identity views and number controls"
-        identity.lifetime = .keepAlways; add(identity)
-    }
-
-    @MainActor
-    func testRedoRangeControlsRenderOnPhone() async throws {
-        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
-        let previous = scene.windows.first { $0.isKeyWindow }
-        let window = UIWindow(windowScene: scene)
-        defer { window.isHidden = true; previous?.makeKey() }
-        let view = AnalysisPlayerTrackingReplacementSheet(request: .init(id: UUID(), name: "Blue player 9", time: 3),
-            clipRange: 0...33, frameRate: 30, replace: { _, _ in })
-        let host = UIHostingController(rootView: view)
-        window.rootViewController = host; window.makeKeyAndVisible()
-        try await Task.sleep(for: .milliseconds(350))
-        host.view.layoutIfNeeded()
-        let image = UIGraphicsImageRenderer(bounds: host.view.bounds).image { _ in
-            host.view.drawHierarchy(in: host.view.bounds, afterScreenUpdates: true)
-        }
-        let attachment = XCTAttachment(image: image); attachment.name = "Redo range and whole clip controls"
-        attachment.lifetime = .keepAlways; add(attachment)
     }
 
     private func motion(from start: Double = 0, to end: Double = 10) -> PlayerMotion {

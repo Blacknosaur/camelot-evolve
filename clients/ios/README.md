@@ -114,16 +114,13 @@ Tagging inserts at the playhead without pausing playback or rebuilding the previ
 assembled clips map the current output position back to the correct source and speed.
 Timeline pinches keep the playhead fixed, including off-center gestures and release.
 
-Field setup (Analyze → Measure, or the Field tool) is one sheet: pick a frame,
-tap **Detect field** for an on-device proposal, or place a landmark's numbered
-handles / trace visible lines, then **Snap to lines** refines the whole pitch
-template against the painted markings and reports a fit grade, median residual
-and evidence coverage. Editing any point clears the grade until the next snap;
-Apply still requires the explicit "Lines align with the video" review. Frames,
-asset metadata and the pitch model are loaded once per session. Synthetic
-simulator coverage lives in `CamelotTests/PitchRegistrationTests` and
-`CamelotUITests/FieldSetupUITests` (seed the video produced from a rendered
-pitch frame); real-footage proposals run on the phone only.
+Pitch setup (Analyse → Pitch) is one sheet, "Line up the pitch": it starts detecting
+on open, snaps the pitch template to the painted markings and ends in **Looks right**
+or **Try again**. The method menu, numbered handles, trace lines, nudges and
+dimensions are under **Adjust by hand**. Synthetic simulator coverage lives in
+`CamelotTests/PitchRegistrationTests` and `CamelotUITests/FieldSetupUITests`;
+real-footage proposals run on the phone only. The Analyse workspace itself is
+described in `docs/annotation-and-analysis.md` (task-first workspace section).
 
 ## Player tracking
 
@@ -136,11 +133,11 @@ from the playhead in either direction replaces only the section the pass covers:
 through `PlayerMotion.continuing(with:from:)` and backward through `prepending(_:seed:)`, so the
 saved past and future survive. The stored format is unchanged, so older tracks need no migration.
 
-The selected-player sheet keeps this to four actions: **Track** replaces the whole clip,
-**Track forward** and **Track backward** replace the covered direction, and **Fill gap** follows
-the nearest missing interval while merging only new samples. Fill-gap passes never overwrite
-existing source samples; the other three passes retain the normal stop behavior and save their
-partial result.
+In the Analyse screen a highlight follows its player through the whole clip
+automatically (forward with the video, then back to the start), and **Fix** is the
+only repair: tap the player on any frame. Inside a lost part only that part is
+filled; on a followed frame the track re-follows from there. See the task-first
+workspace section in `docs/annotation-and-analysis.md`.
 
 Sampling is capped at `PlayerTrackingLimits.maximumSampleRate` (30 Hz); 60 fps sources are tracked
 every other frame, and sources at or below the cap keep every frame. Every frame runs inside an

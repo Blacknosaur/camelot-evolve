@@ -4,7 +4,7 @@ import SwiftUI
 enum AnalysisWorkspaceMode: String, Identifiable {
     case video, freezeFrame
     var id: String { rawValue }
-    var title: String { self == .video ? "Analysis" : "Freeze-frame analysis" }
+    var title: String { self == .video ? "Analyse" : "Freeze frame" }
 }
 
 struct AnalysisWorkspaceRequest: Identifiable {
@@ -18,6 +18,13 @@ struct AnalysisWorkspaceRequest: Identifiable {
     var parentClipID: UUID? = nil
 }
 
+/// Analyse one clip: highlight players, draw, add text and zoom.
+///
+/// The screen is task-first. The bottom bar shows the tasks at rest, the
+/// palette or instruction of the task in progress, or the actions of what is
+/// selected. Following a player is automatic: pick a player and a highlight,
+/// and the video runs along with the pass. Fixing it is one idea — tap the
+/// right player on any frame — rather than a set of tracking directions.
 struct AnalysisWorkspaceView: View {
     let request: AnalysisWorkspaceRequest
     let session: AnalysisSession
@@ -27,7 +34,9 @@ struct AnalysisWorkspaceView: View {
     @State private var clip: CompositionClip
     @State private var selectedID: UUID?
     @State private var tool: AnalysisDrawingTool = .select
-    @State private var color = Color(red: 0.86, green: 1, blue: 0.15)
+    /// The Draw palette reopens on the last shape used.
+    @State private var lastDrawTool: AnalysisDrawingTool = .arrow
+    @State private var color = AnnotationColor.yellow
     @State private var width = 0.006
     @State private var draft: AnalysisAnnotation?
     @State private var dragOriginal: AnalysisAnnotation?
@@ -36,53 +45,34 @@ struct AnalysisWorkspaceView: View {
     @State private var displayAspect: CGFloat = 16 / 9
     @State private var still: UIImage?
     @State private var error: String?
+    @State private var notice: String?
+    @State private var noticeToken = UUID()
     @State private var selectedKeyframe: UUID?
     @State private var showsPlayers = true
     @State private var initialised = false
     @State private var freezeTime = 0.0
     @State private var selectedPlayer: PlayerMotionSample?
     @State private var selectedPlayerTrackID: UUID?
-    @State private var showPlayerTracks = false
-    @State private var playerPickerLayerID: UUID?
     @State private var showPlayerEffects = false
+    /// Fix mode: the next tap on the video is where this player really is.
     @State private var pickingPlayerTrack = false
-    @State private var showToolPicker = false
-    @State private var showPlayerTracking = false
     @State private var correctingTrackID: UUID?
-    /// With `correctingTrackID`: the pick places the player by hand at this
-    /// frame instead of running tracking again.
-    @State private var placingPlayer = false
     @State private var trackingTask: Task<Void, Never>?
     @State private var trackingID: UUID?
     @State private var trackingJob: UUID?
-    /// Optional visual output; player identity always uses the same tracker.
-    @State private var includeBodyMasks = false
-    @State private var reviewingFrames = false
-    @State private var reviewUndoTimes: [Double] = []
-    @State private var referenceView: PlayerIdentityView?
-    @State private var pickedDirection: PlayerTrackingDirection = .forward
-    @State private var pickedWholeClip = false
-    @State private var replacementRequest: PlayerTrackingReplacementRequest?
-    @State private var queuedReplacementRequest: PlayerTrackingReplacementRequest?
-    @State private var pickedReplacementRange: ClosedRange<Double>?
-    @State private var reviewBox: CGRect?
-    /// "Which one is he?" after a player has been lost.
-    @State private var reacquiring: AnalysisTrackingLibrary.Player?
-    @State private var reacquisitionCandidates: [PlayerReacquisitionCandidate] = []
-    @State private var reacquisitionSearching = false
-    @State private var reacquisitionProgress = 0.0
-    @State private var reacquisitionFrom = 0.0
-    @State private var reacquisitionTask: Task<Void, Never>?
     @State private var trackingProgress = 0.0
-    /// Live state of an incremental player pass: which way it is walking, the
-    /// frame it started from and the frame it has reached.
-    @State private var trackingDirection: PlayerTrackingDirection?
-    @State private var trackingOrigin: Double?
     @State private var trackingPhase: PlayerTrackingPhase = .following
-    @State private var trackingTime: Double?
     @State private var trackingStoredAt = 0.0
+    /// Set while the clip camera is being read rather than a player followed.
+    @State private var readingCamera = false
+    /// Where a follow or fix began; the playhead returns here when it ends.
+    @State private var followOrigin: Double?
     @State private var correctingPlayer = false
     @State private var showProperties = false
+    @State private var showPitchOptions = false
+    @State private var confirmDiscard = false
+    @State private var renamingPlayer: UUID?
+    @State private var draftName = ""
     @State private var canvasZoom: CGFloat = 1
     @State private var zoomCenter = CGPoint(x: 0.5, y: 0.5)
     @State private var constructionPoints: [CGPoint] = []
@@ -96,12 +86,13 @@ struct AnalysisWorkspaceView: View {
     @State private var canvasNavigation: FieldPlacementViewport?
     @State private var canvasTouch: (start: CGPoint, current: CGPoint, frame: CGRect, time: Double, ready: Bool)?
     @State private var canvasDragging = false
-    @State private var confirmsDelete = false
     @State private var editingTextSize = false
     @State private var groundRequest: GroundCalibrationRequest?
     @State private var fieldPreviewEnabled = false
-    @State private var workspaceHeight = 320.0
-    @State private var sidebarWidth = 390.0
+    /// Nil until the coach drags the divider: the video then gets exactly the
+    /// height the footage needs and everything else goes to the workspace.
+    @State private var workspaceHeight: Double?
+    @State private var sidebarWidth = 360.0
     @State private var timelineZoom: CGFloat = 1
     @State private var sourceFrameRate = 30.0
 
@@ -116,24 +107,23 @@ struct AnalysisWorkspaceView: View {
     }
 
     private var time: Double { clip.freezeDuration == nil ? playback.currentSeconds : freezeTime }
+    private var clipRange: ClosedRange<Double> { clip.startSeconds...clip.endSeconds }
     private var selected: AnalysisAnnotation? { clip.annotations.first { $0.id == selectedID } }
     private var analysis: RecordingAnalysis? { session.analysis(for: request.recording.id) }
     private var detectionTime: Double { clip.freezeDuration == nil ? time : clip.startSeconds }
-    private var detections: [AnalysisDetection] {
-        guard let frame = analysis?.frame(at: detectionTime),
-              !reviewingFrames || abs(frame.time - detectionTime) < 0.5 / sourceFrameRate else { return [] }
-        return frame.detections
-    }
-    private var frameReview: PlayerFrameReview {
-        .init(range: clip.startSeconds...clip.endSeconds, frameRate: sourceFrameRate)
-    }
+    private var detections: [AnalysisDetection] { analysis?.frame(at: detectionTime)?.detections ?? [] }
+    private var isDrawing: Bool { AnalysisDrawingTool.drawShapes.contains(tool) }
     private var pickingConnection: Bool { tool == .connection || tool == .zone && areaUsesPlayers }
+    private var isBusy: Bool { trackingID != nil }
     private var playerEffectLayers: [AnalysisAnnotation] {
         clip.annotations.filter { mark in
-            [.player, .spotlight, .text, .trajectory, .loupe].contains(mark.tool) && mark.isActiveInEditor(at: time) &&
+            [.player, .spotlight, .text, .trajectory, .loupe].contains(mark.tool) &&
             (selectedPlayerTrackID != nil ? mark.playerMotion?.trackID == selectedPlayerTrackID :
                 selected?.playerEffectGroupID != nil ? mark.playerEffectGroupID == selected?.playerEffectGroupID : mark.id == selectedID)
         }
+    }
+    private func playerName(_ id: UUID?) -> String {
+        clip.trackingLibrary?.players.first(where: { $0.id == id })?.name ?? "the player"
     }
     private var selectedPlayerName: String {
         clip.trackingLibrary?.players.first(where: { $0.id == selectedPlayerTrackID })?.name ?? "Player"
@@ -147,28 +137,26 @@ struct AnalysisWorkspaceView: View {
         }
         return value
     }
+
+    /// One short instruction on the video, where the finger is going.
     private var canvasHint: String {
-        if pickingPlayerTrack {
-            if let referenceView { return "Select \(selectedPlayerName) · \(referenceView.title) reference" }
-            if reviewingFrames, playback.isSeeking { return "Loading next frame…" }
-            if reviewingFrames { return "Tap the player’s centre or draw the full body · advances one frame" }
-            if placingPlayer, correctingTrackID != nil { return "Tap or draw around \(selectedPlayerName) to place it at this frame" }
-            return correctingTrackID == nil ? "Tap or draw around a new player to track" : "Tap or draw around the same player to continue its track"
+        if isBusy { return "" }
+        if pickingPlayerTrack { return "Tap \(playerName(correctingTrackID))" }
+        if correctingPlayer { return "Tap the player to follow" }
+        switch tool {
+        case .player: return "Tap a player"
+        case .text: return "Tap where the text goes"
+        case .zoom: return "Tap where to zoom in"
+        case .loupe: return "Tap a player or a spot to magnify"
+        case .connection: return "Tap players in order"
+        case .zone: return areaUsesPlayers ? "Tap players in order" : "Tap each corner"
+        case .pen: return "Draw with your finger"
+        case .arrow, .line, .ellipse, .rectangle: return "Drag to draw"
+        default: break
         }
-        if tool == .connection || tool == .zone && areaUsesPlayers { return "Tap players in order, then Finish" }
-        if tool == .zone { return "Tap polygon corners, then Finish" }
-        if tool == .zoom { return "Tap where to zoom · trim its layer to set the duration" }
-        if tool == .loupe { return "Tap a player to follow, or tap anywhere for a static loupe" }
-        if correctingPlayer {
-            return correctingConnectionAnchor.map { "Reselect \($0.title) · orange endpoint" } ?? "Tap or draw around the same player"
-        }
-        if tool == .select, let selected {
-            if selected.tool == .zoom { return "Drag the focus · Preview effect to see the zoom" }
-            return selected.motionMode == .keyframes ? "Scrub, then drag a handle to set a keyframe" : ""
-        }
-        if tool == .select { return "" }
-        if tool == .player || tool == .spotlight { return "Tap a player or draw around one" }
-        return tool == .text ? "Tap to place text" : ""
+        if let selected, selected.tool == .zoom { return "Drag to move the zoom" }
+        if let selected, selected.motionMode == .keyframes { return "Scrub, then drag to set a position" }
+        return ""
     }
 
     var body: some View {
@@ -183,33 +171,34 @@ struct AnalysisWorkspaceView: View {
                         analysisWorkspace.frame(width: sidebar)
                     }
                 } else {
-                    let sizes = EditorPanelSizes(height: layout.size.height, workspace: workspaceHeight, minimumWorkspace: 260)
+                    let fitted = layout.size.height - 20 - (layout.size.width / max(0.5, displayAspect) + 64)
+                    let sizes = EditorPanelSizes(height: layout.size.height, workspace: workspaceHeight ?? max(230, fitted), minimumWorkspace: 230)
                     VStack(spacing: 0) {
                         analysisPreview.frame(height: sizes.preview).clipped()
                         EditorPanelDivider(title: "Workspace", value: sizes.workspace,
-                            limits: min(260, layout.size.height * 0.45)...max(260, layout.size.height - 180)) { workspaceHeight = $0 }
+                            limits: min(230, layout.size.height * 0.45)...max(230, layout.size.height - 180)) { workspaceHeight = $0 }
                         analysisWorkspace.frame(height: sizes.workspace).clipped()
                     }
                 }
             }
             .background(Theme.inkPanel)
-            .navigationTitle(request.mode == .video ? "Analyse" : "Freeze frame")
+            .navigationTitle(request.mode.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button { dismiss() } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44).contentShape(.rect) }
-                        .accessibilityLabel("Cancel analysis").accessibilityIdentifier("cancel-analysis-workspace")
+                    Button { if undo.isEmpty { dismiss() } else { playback.pause(); confirmDiscard = true } } label: {
+                        Image(systemName: "xmark").frame(width: 44, height: 44).contentShape(.rect)
+                    }.accessibilityLabel("Close without saving").accessibilityIdentifier("cancel-analysis-workspace")
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    transport
-                    Button("Tools", systemImage: tool.symbol) { playback.pause(); showToolPicker = true }
-                        .disabled(trackingID != nil).accessibilityValue(tool.title)
-                        .accessibilityIdentifier("analysis-tools")
-                    Button("Drawing style", systemImage: "slider.horizontal.3") { showProperties = true }
-                        .accessibilityIdentifier("analysis-drawing-style")
-                    Button("Save", systemImage: "checkmark") {
+                    Button("Undo", systemImage: "arrow.uturn.backward") { undoEdit() }
+                        .disabled(undo.isEmpty || isBusy).accessibilityIdentifier("analysis-undo")
+                    Button("Redo", systemImage: "arrow.uturn.forward") { redoEdit() }
+                        .disabled(redo.isEmpty || isBusy).accessibilityIdentifier("analysis-redo")
+                    Button("Done") {
                         do { try save(clip); dismiss() } catch { self.error = error.localizedDescription }
-                    }.disabled(trackingID != nil).accessibilityIdentifier("save-analysis-workspace")
+                    }.bold().foregroundStyle(Theme.signal).disabled(isBusy)
+                        .accessibilityIdentifier("save-analysis-workspace")
                 }
             }
             .toolbarColorScheme(.dark, for: .navigationBar)
@@ -218,86 +207,54 @@ struct AnalysisWorkspaceView: View {
             .alert("Analysis", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) {
                 Button("OK") { error = nil }
             } message: { Text(error ?? "") }
+            .confirmationDialog("Discard your changes?", isPresented: $confirmDiscard, titleVisibility: .visible) {
+                Button("Discard changes", role: .destructive) { dismiss() }
+                Button("Keep editing", role: .cancel) {}
+            }
+            .confirmationDialog("Pitch", isPresented: $showPitchOptions, titleVisibility: .hidden) {
+                Button(fieldPreviewEnabled ? "Hide pitch lines" : "Show pitch lines") { toggleFieldPreview() }
+                    .accessibilityIdentifier("analysis-tool-field-preview")
+                Button("Line up the pitch again") { openMeasurements() }
+                    .accessibilityIdentifier("analysis-tool-measure")
+                Button("Cancel", role: .cancel) {}
+            }
+            .alert("Player name", isPresented: Binding(get: { renamingPlayer != nil }, set: { if !$0 { renamingPlayer = nil } })) {
+                TextField("Name", text: $draftName)
+                Button("Cancel", role: .cancel) { renamingPlayer = nil }
+                Button("Save") { if let id = renamingPlayer { renamePlayerTrack(id, name: draftName) }; renamingPlayer = nil }
+            }
         }
         .sheet(isPresented: $showProperties) {
-            AnalysisInspectorSheet(title: selected?.title ?? "Drawing style", hasLayer: selected != nil,
-                                   style: { inspectorStyle.disabled(trackingID != nil) },
-                                   timing: { inspectorTiming.disabled(trackingID != nil) },
-                                   layer: { inspectorLayer.disabled(trackingID != nil) })
+            AnalysisInspectorSheet(title: selected?.title ?? "Style",
+                                   style: { inspectorStyle.disabled(isBusy) },
+                                   timing: { inspectorTiming.disabled(isBusy) })
                 .id(selectedID)
         }
-        .sheet(isPresented: $showPlayerTracks, onDismiss: { playerPickerLayerID = nil }) {
-            AnalysisPlayerTracksSheet(players: clip.trackingLibrary?.players ?? [], clipStart: clip.startSeconds, clipEnd: clip.endSeconds, time: time,
-                                      select: chooseSavedPlayer, add: {
-                                          if playerPickerLayerID != nil { pickLayerPlayer() } else { pickPlayerTrack() }
-                                      },
-                                      rename: renamePlayerTrack,
-                                      assignTeam: assignPlayerTeam, link: linkPlayerTrack,
-                                      canLink: { clip.trackingLibrary?.canLinkPlayer($0, to: $1) == true },
-                                      remove: removePlayerTrack, canRemove: { clip.canRemovePlayerTrack($0) },
-                                      selectedID: selected?.playerMotion?.trackID ?? selectedPlayerTrackID,
-                                      choosingForLayer: playerPickerLayerID != nil)
-        }
-        .sheet(item: $reacquiring) { player in
-            AnalysisPlayerReacquisitionSheet(
-                playerName: player.name, searchedFrom: reacquisitionFrom, clipStart: clip.startSeconds,
-                isSearching: reacquisitionSearching, progress: reacquisitionProgress,
-                candidates: reacquisitionCandidates,
-                confirm: { candidate in confirmReacquisition(player.id, candidate: candidate) },
-                preview: { candidate in seek(candidate.time) },
-                cancel: { reacquisitionTask?.cancel(); reacquisitionTask = nil })
-        }
-        .sheet(isPresented: $showPlayerTracking, onDismiss: {
-            if let queued = queuedReplacementRequest {
-                queuedReplacementRequest = nil; replacementRequest = queued
-            }
-        }) {
-            if let player = activePlayer {
-                AnalysisPlayerTrackingSheet(player: player, clipRange: clip.startSeconds...clip.endSeconds, time: time,
-                                            isBusy: trackingID != nil, layer: selected?.playerMotion != nil ? selected : nil,
-                                            includeBodyMasks: $includeBodyMasks,
-                                            trackWholeClip: { trackPlayerBackward(player.id, thenForward: true) },
-                                            trackToEnd: { trackPlayerToEnd(player.id) },
-                                            trackBackToStart: { trackPlayerBackward(player.id, thenForward: false) },
-                                            fillGap: { fillPlayerGap(player.id) },
-                                            addReference: { view in beginPlacing(player.id); referenceView = view },
-                                            setNumber: { setPlayerNumber(player.id, number: $0) },
-                                            seek: { seek($0) },
-                                            bridge: { value in if selectedID != nil { checkpoint(); setGapBridging(value) } },
-                                            smoothing: { value in if selectedID != nil { checkpoint(); setTrackingSmoothing(value) } },
-                                            rename: { renamePlayerTrack(player.id, name: $0) },
-                                            remove: clip.canRemovePlayerTrack(player.id) ? { removePlayerTrack(player.id) } : nil)
-            }
-        }
-        .sheet(item: $replacementRequest) { request in
-            AnalysisPlayerTrackingReplacementSheet(request: request, clipRange: clip.startSeconds...clip.endSeconds,
-                                                   frameRate: sourceFrameRate) { range, seedTime in
-                seek(seedTime)
-                pickPlayerTrack(correcting: request.id, direction: seedTime - range.lowerBound > 0.05 ? .backward : .forward)
-                pickedReplacementRange = range
-            }
-        }
-        .sheet(isPresented: $showToolPicker) {
-            AnalysisToolPickerSheet(tool: tool, fieldPreview: fieldPreviewEnabled, hasField: clip.groundCalibration != nil,
-                                    choose: chooseTool, measure: openMeasurements, field: toggleFieldPreview)
-        }
         .sheet(isPresented: $showPlayerEffects) {
-            AnalysisPlayerEffectsSheet(name: selectedPlayerName, existing: playerEffectLayers, allowsTrajectory: clip.freezeDuration == nil, measurementStatus: measurementStatus, apply: applyPlayerEffects)
+            AnalysisPlayerEffectsSheet(name: selectedPlayerTrackID == nil ? "Player \((clip.trackingLibrary?.players.count ?? 0) + 1)" : selectedPlayerName,
+                                       existing: playerEffectLayers, allowsTrajectory: clip.freezeDuration == nil,
+                                       measurementStatus: measurementStatus, apply: applyPlayerEffects)
         }
         .fullScreenCover(item: $groundRequest) { request in
             GroundCalibrationSheet(url: self.request.recording.fileURL, request: request, apply: applyGroundCalibration)
         }
         .preferredColorScheme(.dark).tint(.white)
         .task { await prepare() }
+        .task(id: noticeToken) {
+            guard notice != nil else { return }
+            try? await Task.sleep(for: .seconds(4))
+            if !Task.isCancelled { withAnimation { notice = nil } }
+        }
         .onDisappear {
             // A full-screen placement editor temporarily covers this workspace.
             // Keep the time observer so playback/scrubbing still updates on return.
             if groundRequest != nil { playback.pause() }
             else { playback.stop(); session.cancel(); trackingTask?.cancel() }
         }
-        .onChange(of: session.errorMessage) { if let message = session.errorMessage { error = message } }
-        .onChange(of: pickingPlayerTrack) {
-            if !pickingPlayerTrack, reviewingFrames { endFrameReview() }
+        // Player finding is a convenience: when it fails the coach can still
+        // draw a box, so say that instead of interrupting with an alert.
+        .onChange(of: session.errorMessage) {
+            if session.errorMessage != nil { show("Couldn't pick out players on this frame. Draw a box around one instead.") }
         }
         .onChange(of: selectedID) {
             selectedVertex = nil
@@ -306,10 +263,10 @@ struct AnalysisWorkspaceView: View {
             correctingPlayer = false
         }
         .task(id: detectionTime) {
-            guard initialised, !playback.isPlaying, trackingID == nil, selectedID == nil || correctingPlayer || tool == .connection || tool == .zone && areaUsesPlayers else { return }
+            guard initialised, !playback.isPlaying, !isBusy, selectedID == nil || correctingPlayer || pickingConnection else { return }
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
-            if reviewingFrames ? detections.isEmpty : analysis?.frame(at: detectionTime) == nil { detect(motion: false) }
+            if analysis?.frame(at: detectionTime) == nil { detect() }
         }
         .onChange(of: time) {
             if let box = selected?.playerMotion?.box(at: time) { selectedPlayer = .init(time: time, box: box) }
@@ -322,6 +279,13 @@ struct AnalysisWorkspaceView: View {
         }
     }
 
+    private func show(_ message: String) {
+        withAnimation { notice = message }
+        noticeToken = UUID()
+    }
+
+    // MARK: - Preview
+
     private var analysisPreview: some View {
         canvas.background(.black)
             .overlay(alignment: .bottom) {
@@ -330,142 +294,29 @@ struct AnalysisWorkspaceView: View {
             }
             .overlay(alignment: .bottom) {
                 EditorPreviewControls(playback: playback, isPreparing: !initialised,
-                    isEnabled: initialised && clip.freezeDuration == nil && trackingID == nil && constructionPoints.isEmpty,
+                    isEnabled: initialised && clip.freezeDuration == nil && !isBusy && constructionPoints.isEmpty,
                     play: togglePlayback, currentTime: time - clip.startSeconds,
                     totalTime: clip.annotationEnd - clip.startSeconds,
                     timeIdentifier: "analysis-current-time", playIdentifier: "analysis-play-pause",
                     previousFrame: { seek(time - 1 / sourceFrameRate) }, nextFrame: { seek(time + 1 / sourceFrameRate) })
                     .padding(.horizontal, 8).padding(.bottom, 2)
             }
+            .overlay(alignment: .top) {
+                if let notice {
+                    Text(notice).font(.subheadline.weight(.semibold)).multilineTextAlignment(.center)
+                        .padding(.horizontal, 14).padding(.vertical, 10)
+                        .background(Theme.signal, in: .rect(cornerRadius: Theme.Radius.medium))
+                        .foregroundStyle(Theme.ink).padding(.horizontal, 16).padding(.top, 48)
+                        .onTapGesture { withAnimation { self.notice = nil } }
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .accessibilityIdentifier("analysis-notice")
+                }
+            }
     }
 
     private func togglePlayback() {
-        if reviewingFrames { endFrameReview() }
         if playback.isPlaying { playback.pause() }
         else { playback.playRange(from: time >= clip.endSeconds - 0.04 ? clip.startSeconds : time, to: clip.endSeconds) }
-    }
-
-    /// One bottom row: the running pass, the picked player, the selected layer's
-    /// controls, or the current tool. Drawing tools open from the toolbar.
-    private var analysisWorkspace: some View {
-        VStack(spacing: 0) {
-            if correctingPlayer, let anchor = correctingConnectionAnchor {
-                AnalysisConnectionCorrectionCard(anchor: anchor, url: request.recording.fileURL, clipStart: clip.startSeconds, showLastSeen: { seek($0) }).id(anchor.id)
-            }
-            constructionControls
-            if selected?.linkedPlayers != nil, !correctingPlayer {
-                AnalysisConnectionSelectionStrip(anchors: connectionAnchors, selected: correctingAnchor) { anchor in
-                    correctingAnchor = anchor; correctingPlayer = true; tool = .select
-                    playback.pause(); detect(motion: false)
-                }.disabled(trackingID != nil || selected?.isLocked == true)
-            }
-            layerTimeline
-            if trackingID != nil || pickingPlayerTrack { playerActions }
-            else if correctingPlayer, selected?.linkedPlayers == nil, selected != nil { layerControls }
-            else if let player = activePlayer { playerBar(player) }
-            else if selectedPlayer != nil, selectedID == nil { newPlayerBar }
-            else if selected != nil { layerControls }
-        }.background(Theme.inkPanel)
-    }
-
-    /// The player the bottom bar is about: the selected drawing's player, or
-    /// the saved player picked on the video or from the list.
-    private var activePlayer: AnalysisTrackingLibrary.Player? {
-        let id = selected.map { $0.playerMotion?.trackID } ?? selectedPlayerTrackID
-        guard selected == nil || selected?.playerMotion != nil, let id else { return nil }
-        return clip.trackingLibrary?.players.first { $0.id == id }
-    }
-
-    /// One bar for a player, whatever was tapped: name, effects, tracking.
-    private func playerBar(_ player: AnalysisTrackingLibrary.Player) -> some View {
-        HStack(spacing: 8) {
-            Button {
-                playerPickerLayerID = selected?.playerMotion != nil ? selected?.id : nil
-                playback.pause(); showPlayerTracks = true
-            } label: {
-                HStack(spacing: 6) {
-                    Circle().fill(player.kitColor.map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? Color.white.opacity(0.2))
-                        .frame(width: 14, height: 14).overlay(Circle().strokeBorder(.white.opacity(0.4), lineWidth: 1))
-                    Text(player.number.map { "\(player.name) · #\($0)" } ?? player.name).lineLimit(1)
-                }.font(.caption.bold())
-            }.buttonStyle(.plain).frame(minHeight: 44).accessibilityIdentifier("analysis-active-player-track")
-            Spacer(minLength: 0)
-            Button("Effects", systemImage: "sparkles") { openPlayerEffects(for: player) }
-                .buttonStyle(EditorActionStyle()).accessibilityIdentifier("analysis-player-effects")
-            Button("Tracking", systemImage: player.motion.missingIntervals(in: clip.startSeconds...clip.endSeconds).isEmpty ? "figure.run" : "figure.run.circle")
-                { playback.pause(); showPlayerTracking = true }
-                .buttonStyle(EditorActionStyle(prominent: player.motion.isMissing(at: time))).accessibilityIdentifier("analysis-player-tracking")
-            if selected != nil { layerMenu }
-        }.padding(.horizontal, 10).frame(height: 52).background(Theme.inkPanel).disabled(trackingID != nil)
-    }
-
-    /// A detected body that is not a saved player yet.
-    private var newPlayerBar: some View {
-        HStack(spacing: 8) {
-            Label("New player", systemImage: "person.crop.circle.badge.plus").font(.caption.bold()).lineLimit(1)
-            Spacer(minLength: 0)
-            Button("Effects", systemImage: "sparkles") { showPlayerEffects = true }
-                .buttonStyle(EditorActionStyle()).accessibilityIdentifier("analysis-player-effects")
-            Button("Track", systemImage: "figure.run") { if let seed = selectedPlayer?.box { trackIndependentPlayer(seed: seed) } }
-                .buttonStyle(EditorActionStyle(prominent: true)).accessibilityIdentifier("analysis-track-selected-player")
-        }.padding(.horizontal, 10).frame(height: 52).background(Theme.inkPanel).disabled(trackingID != nil || clip.freezeDuration != nil)
-    }
-
-    private func openPlayerEffects(for player: AnalysisTrackingLibrary.Player) {
-        let motion = player.motion
-        let range = selected.map { $0.start...$0.end } ?? clip.startSeconds...clip.endSeconds
-        let effectTime: Double
-        if motion.box(at: time) != nil, range.contains(time) { effectTime = time }
-        else if let nearest = motion.samples.filter({ range.contains($0.time) && motion.box(at: $0.time) != nil })
-                    .min(by: { abs($0.time - time) < abs($1.time - time) }) { effectTime = nearest.time }
-        else { error = "This player has no tracking inside this layer's time range."; return }
-        selectedPlayerTrackID = player.id
-        selectedPlayer = .init(time: effectTime, box: motion.box(at: effectTime) ?? .zero)
-        if effectTime != time { seek(effectTime) }
-        showPlayerEffects = true
-    }
-
-    /// Layer housekeeping shared by the player bar and the drawing bar.
-    private var layerMenu: some View {
-        Menu {
-            if let selected {
-                Button("Layer style", systemImage: "slider.horizontal.3") { showProperties = true }
-                if selected.playerMotion != nil {
-                    Button("Follow another player", systemImage: "person.2") { playerPickerLayerID = selected.id; showPlayerTracks = true }
-                    Button("Stop following · keep position", systemImage: "pause") { setMotionMode(.still) }
-                }
-                if clip.freezeDuration == nil {
-                    Button("Preview effect", systemImage: "play.rectangle") { playback.playRange(from: selected.start, to: selected.end) }
-                }
-                Button("Duplicate", systemImage: "plus.square.on.square", action: duplicate)
-                if clip.freezeDuration == nil, selected.playerMotion == nil {
-                    Button("Follow clip camera", systemImage: "video.badge.waveform") { beginCameraTracking() }
-                        .disabled(selected.isLocked == true)
-                }
-                Button(selected.isLocked == true ? "Unlock layer" : "Lock layer", systemImage: "lock") { toggleLayerLocked(selected.id) }
-                Button("Delete layer", systemImage: "trash", role: .destructive) {
-                    checkpoint(); clip.annotations.removeAll { $0.id == selected.id }; selectedID = nil
-                }.disabled(selected.isLocked == true)
-            }
-        } label: {
-            Label("Layer actions", systemImage: "ellipsis")
-                .labelStyle(.iconOnly).modifier(AnalysisControlSurface())
-        }.buttonStyle(.plain).accessibilityIdentifier("analysis-layer-options")
-    }
-
-    private var historyUndo: (() -> Void)? { undo.isEmpty ? nil : { undoEdit() } }
-    private var historyRedo: (() -> Void)? { redo.isEmpty ? nil : { redoEdit() } }
-
-    private var layerTimeline: some View {
-        AnalysisLayerTimeline(annotations: clip.annotations, bounds: clip.startSeconds...clip.annotationEnd, time: time,
-                    selectedID: selectedID, selectedKeyframe: selectedKeyframe,
-                    select: selectTimelineLayer, seek: { seek($0) }, previewSeek: previewSeek,
-                    beginEdit: { playback.pause(); checkpoint() }, edit: editTimelineLayer,
-                    selectKeyframe: selectTimelineKeyframe, toggleHidden: toggleLayerHidden,
-                    toggleLocked: toggleLayerLocked, reorder: reorderLayer,
-                    videoURL: nil, freezeTime: clip.freezeDuration == nil ? nil : clip.startSeconds,
-                    undo: historyUndo, redo: historyRedo, zoom: $timelineZoom)
-                    .frame(maxHeight: .infinity).disabled(trackingID != nil)
     }
 
     private var canvas: some View {
@@ -479,6 +330,12 @@ struct AnalysisWorkspaceView: View {
             .overlay(alignment: .top) { inspectionControls }
         }.accessibilityElement(children: .contain).accessibilityIdentifier("analysis-workspace-canvas")
             .accessibilityValue(canvasAccessibilityValue)
+    }
+
+    /// Detected players are offered whenever a tap on one would do something.
+    private var offersPlayers: Bool {
+        showsPlayers && !playback.isPlaying && !isBusy &&
+            ((tool == .select || tool == .player) && (selectedID == nil || correctingPlayer) || pickingConnection)
     }
 
     private func canvasContent(frame: CGRect, bounds: CGRect) -> some View {
@@ -497,7 +354,11 @@ struct AnalysisWorkspaceView: View {
                                      still: still, frame: frame, bounds: bounds, ground: clip.groundCalibration)
                     .allowsHitTesting(false)
             }
-            AnnotationDrawingSurface(marks: marks, ground: clip.groundCalibration, time: time, frame: frame, selectedID: playback.isPlaying ? nil : selectedID, detections: showsPlayers && !playback.isPlaying && (selectedID == nil || correctingPlayer || tool == .connection || tool == .zone && areaUsesPlayers) && (tool == .player || tool == .spotlight || tool == .select || tool == .connection || tool == .zone && areaUsesPlayers) ? detections : [], selectedPlayer: playback.isPlaying ? nil : selectedPlayer?.box, constructionPoints: constructionPoints, renderMarks: !usesLoupe)
+            AnnotationDrawingSurface(marks: marks, ground: clip.groundCalibration, time: time, frame: frame,
+                                     selectedID: playback.isPlaying ? nil : selectedID,
+                                     detections: offersPlayers ? detections : [],
+                                     selectedPlayer: playback.isPlaying ? nil : selectedPlayer?.box,
+                                     constructionPoints: constructionPoints, renderMarks: !usesLoupe)
                 .allowsHitTesting(false)
                 .overlay {
                     ConnectionAnchorSurface(anchors: playback.isPlaying || selected?.isHidden == true ? [] : connectionAnchors,
@@ -507,17 +368,17 @@ struct AnalysisWorkspaceView: View {
                 AnalysisFieldPreview(calibration: clip.groundCalibration, time: time, frame: frame, bounds: bounds)
                     .allowsHitTesting(false)
             }
-            if showsPlayers, (tool == .select && (selectedID == nil || correctingPlayer) || pickingConnection), !playback.isPlaying, trackingID == nil {
+            if offersPlayers {
                 ForEach(Array(detections.enumerated()), id: \.offset) { index, detection in
                     Button {
                         if pickingConnection { appendConstructionPlayer(detection.rect) }
                         else { selectPlayer(detection.rect) }
                     } label: { Color.clear.contentShape(.rect) }
                         .buttonStyle(.plain)
-                        .frame(width: max(18, detection.rect.width * frame.width), height: max(22, detection.rect.height * frame.height))
+                        .frame(width: max(24, detection.rect.width * frame.width), height: max(30, detection.rect.height * frame.height))
                         .position(x: frame.minX + detection.rect.midX * frame.width, y: frame.minY + detection.rect.midY * frame.height)
                         .accessibilityLabel("Player \(index + 1)")
-                        .accessibilityHint("Select to add a ring, spotlight or following label")
+                        .accessibilityHint("Select to highlight this player")
                         .accessibilityIdentifier("analysis-detected-player-\(index)")
                 }
             }
@@ -531,10 +392,12 @@ struct AnalysisWorkspaceView: View {
         HStack(alignment: .top) {
             if !canvasHint.isEmpty {
                 Text(canvasHint)
-                    .font(.caption).padding(8).background(.black.opacity(0.65), in: .capsule).allowsHitTesting(false)
+                    .font(.subheadline.weight(.semibold)).padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(.black.opacity(0.7), in: .capsule).allowsHitTesting(false)
+                    .accessibilityIdentifier("analysis-canvas-hint")
             }
             Spacer(minLength: 4)
-            if let player = activePlayer { selectedPlayerChip(player) }
+            if isBusy, let player = activePlayer { followingChip(player) }
             if abs(canvasZoom - 1) > 0.01 || hypot(zoomCenter.x - 0.5, zoomCenter.y - 0.5) > 0.01 {
                 Button("Fit preview", systemImage: "arrow.down.right.and.arrow.up.left") {
                     canvasZoom = 1; zoomCenter = CGPoint(x: 0.5, y: 0.5)
@@ -544,27 +407,272 @@ struct AnalysisWorkspaceView: View {
         }.padding(8)
     }
 
-    /// Top-right badge on the video: who is selected, and whether a tracking pass is running.
-    private func selectedPlayerChip(_ player: AnalysisTrackingLibrary.Player) -> some View {
-        let tracking = trackingID != nil
-        return Button {
-            playback.pause(); showPlayerTracking = true
-        } label: {
-            HStack(spacing: 6) {
-                Circle().fill(player.kitColor.map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? Color.white.opacity(0.2))
-                    .frame(width: 10, height: 10).overlay(Circle().strokeBorder(.white.opacity(0.4), lineWidth: 1))
-                Text(player.number.map { "\(player.name) · #\($0)" } ?? player.name).lineLimit(1)
-                if tracking {
-                    Image(systemName: "figure.run").symbolEffect(.pulse)
-                    Text("\(Int(trackingProgress * 100))%").monospacedDigit()
-                }
+    private func followingChip(_ player: AnalysisTrackingLibrary.Player) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "figure.run").symbolEffect(.pulse)
+            Text("\(player.name) · \(Int(trackingProgress * 100))%").monospacedDigit()
+        }
+        .font(.caption.bold()).foregroundStyle(Theme.ink)
+        .padding(.horizontal, 10).padding(.vertical, 6)
+        .background(Theme.signal, in: .capsule)
+        .accessibilityIdentifier("analysis-selected-player-chip")
+        .accessibilityLabel("Following \(player.name)")
+    }
+
+    // MARK: - Workspace
+
+    private var analysisWorkspace: some View {
+        VStack(spacing: 0) {
+            if correctingPlayer, let anchor = correctingConnectionAnchor {
+                AnalysisConnectionCorrectionCard(anchor: anchor, url: request.recording.fileURL, clipStart: clip.startSeconds, showLastSeen: { seek($0) }).id(anchor.id)
             }
-            .font(.caption.bold()).foregroundStyle(tracking ? Theme.ink : .white)
-            .padding(.horizontal, 10).padding(.vertical, 6)
-            .background(tracking ? Theme.signal : Color.black.opacity(0.65), in: .capsule)
-        }.buttonStyle(.plain).disabled(tracking)
-            .accessibilityIdentifier("analysis-selected-player-chip")
-            .accessibilityLabel(tracking ? "Tracking \(player.name)" : "Selected player \(player.name)")
+            constructionControls
+            if selected?.linkedPlayers != nil, !correctingPlayer, !isBusy {
+                AnalysisConnectionSelectionStrip(anchors: connectionAnchors, selected: correctingAnchor) { anchor in
+                    correctingAnchor = anchor; correctingPlayer = true; tool = .select
+                    playback.pause(); detect()
+                }.disabled(selected?.isLocked == true)
+            }
+            layerTimeline
+            Rectangle().fill(Theme.inkStroke).frame(height: 1)
+            bottomBar.background(Theme.inkPanel)
+        }.background(Theme.inkPanel)
+    }
+
+    /// Exactly one bar at a time; the first matching state wins.
+    @ViewBuilder private var bottomBar: some View {
+        if isBusy {
+            AnalysisFollowingBar(title: readingCamera ? "Reading the camera movement" : "Following \(activePlayer?.name ?? "the player")",
+                                 progress: trackingProgress,
+                                 status: readingCamera ? "So drawings stay on the pitch as the camera pans." : trackingStatus,
+                                 stop: { trackingTask?.cancel() })
+        } else if pickingPlayerTrack, let id = correctingTrackID {
+            fixPrompt(id)
+        } else if correctingPlayer {
+            AnalysisPromptBar(title: "Choose a player to follow", message: "Tap them on the video, or draw a box around them.",
+                              identifier: "analysis-correct-tracking") {
+                correctingPlayer = false; tool = .select; session.cancel()
+            }
+        } else if isDrawing, constructionPoints.isEmpty {
+            AnalysisDrawPalette(tool: tool, color: $color, choose: chooseTool, done: { tool = .select })
+        } else if isDrawing {
+            EmptyView()
+        } else if tool == .player {
+            AnalysisPromptBar(title: "Highlight a player", message: "Tap a player on the video. If one isn't picked up, draw a box around them.",
+                              identifier: "analysis-player-prompt") { tool = .select }
+        } else if tool == .text {
+            AnalysisPromptBar(title: "Add text", message: "Tap where the text should go.", identifier: "analysis-text-prompt") { tool = .select }
+        } else if tool == .zoom {
+            AnalysisPromptBar(title: "Zoom in", message: "Tap the spot to zoom in on. Trim its bar to set how long.", identifier: "analysis-zoom-prompt") { tool = .select }
+        } else if let player = activePlayer {
+            AnalysisPlayerBar(player: player, range: clipRange, time: time,
+                              rename: { draftName = player.name; renamingPlayer = player.id },
+                              effects: { openPlayerEffects(for: player) },
+                              fix: { beginFix(player.id) },
+                              seek: { seek($0) }, allowsFix: clip.freezeDuration == nil, close: clearSelection) { playerMenu(player) }
+        } else if selectedPlayer != nil, selectedID == nil {
+            AnalysisSelectionBar(title: "New player", symbol: "person.crop.circle.badge.plus", close: clearSelection) {
+                Button("Highlight", systemImage: "sparkles") { showPlayerEffects = true }
+                    .labelStyle(.titleAndIcon).fixedSize()
+                    .buttonStyle(EditorActionStyle(prominent: true)).accessibilityIdentifier("analysis-player-effects")
+            }
+        } else if let selected {
+            drawingBar(selected)
+        } else {
+            VStack(spacing: 0) {
+                freezeControls
+                AnalysisTaskBar(hasPitch: clip.groundCalibration != nil, allowsPlayers: true,
+                                player: { chooseTool(.player) }, draw: { chooseTool(lastDrawTool) },
+                                text: { chooseTool(.text) }, zoom: { chooseTool(.zoom) }, pitch: openPitch)
+            }
+        }
+    }
+
+    private var trackingStatus: String {
+        switch trackingPhase {
+        case .following: "The video moves with them. Stop keeps what's done."
+        case .occluded: "Hidden behind someone · still looking"
+        case .offscreen: "Out of the picture · waiting for them to return"
+        case .searching: "Looking for them again"
+        }
+    }
+
+    // MARK: Player
+
+    /// The player the bottom bar is about: the selected drawing's player, or
+    /// the saved player picked on the video.
+    private var activePlayer: AnalysisTrackingLibrary.Player? {
+        let id = selected.map { $0.playerMotion?.trackID } ?? selectedPlayerTrackID
+        guard selected == nil || selected?.playerMotion != nil, let id else { return nil }
+        return clip.trackingLibrary?.players.first { $0.id == id }
+    }
+
+    private func playerMenu(_ player: AnalysisTrackingLibrary.Player) -> some View {
+        Menu {
+            Button("Rename", systemImage: "pencil") { draftName = player.name; renamingPlayer = player.id }
+            if let selected {
+                Button("Style this effect", systemImage: "paintpalette") { showProperties = true }
+                Button("Play this effect", systemImage: "play") { playback.playRange(from: selected.start, to: selected.end) }
+            }
+            Button("Remove highlight", systemImage: "trash", role: .destructive) { removeHighlights(of: player.id) }
+                .accessibilityIdentifier("analysis-remove-selected-player")
+        } label: { AnalysisMoreLabel() }
+            .buttonStyle(.plain).accessibilityIdentifier("analysis-layer-options")
+    }
+
+    private var fixLostSections: [ClosedRange<Double>] {
+        guard let id = correctingTrackID, let motion = clip.trackingLibrary?.players.first(where: { $0.id == id })?.motion else { return [] }
+        return AnalysisTrackingStrip.lostSections(motion, range: clipRange)
+    }
+
+    private func fixPrompt(_ id: UUID) -> some View {
+        let lost = fixLostSections
+        return AnalysisPromptBar(title: "Where is \(playerName(id))?",
+                                 message: "Go to a frame where they're visible and tap them. Following continues from there.",
+                                 identifier: "analysis-fix-prompt", cancel: endFix) {
+            if !lost.isEmpty {
+                Button("Next lost part", systemImage: "arrow.right.to.line") {
+                    let next = lost.first { $0.lowerBound > time + 0.05 } ?? lost[0]
+                    seek(min(next.upperBound, next.lowerBound + 0.05))
+                }.labelStyle(.iconOnly).buttonStyle(EditorActionStyle())
+                    .accessibilityIdentifier("analysis-next-gap")
+            }
+        }
+    }
+
+    private func openPlayerEffects(for player: AnalysisTrackingLibrary.Player) {
+        let motion = player.motion
+        let effectTime: Double
+        if motion.box(at: time) != nil { effectTime = time }
+        else if let nearest = motion.samples.filter({ clipRange.contains($0.time) && motion.box(at: $0.time) != nil })
+                    .min(by: { abs($0.time - time) < abs($1.time - time) }) { effectTime = nearest.time }
+        else { show("\(player.name) isn't followed anywhere yet. Tap Fix to find them."); return }
+        selectedPlayerTrackID = player.id
+        selectedPlayer = .init(time: effectTime, box: motion.box(at: effectTime) ?? .zero)
+        if effectTime != time { seek(effectTime) }
+        showPlayerEffects = true
+    }
+
+    private func removeHighlights(of id: UUID) {
+        let ids = Set(clip.annotations.filter { $0.playerMotion?.trackID == id && $0.isLocked != true }.map(\.id))
+        checkpoint()
+        clip.annotations.removeAll { ids.contains($0.id) }
+        _ = clip.removePlayerTrack(id)
+        selectedID = nil; selectedPlayer = nil; selectedPlayerTrackID = nil
+    }
+
+    // MARK: Drawing
+
+    private func drawingBar(_ selected: AnalysisAnnotation) -> some View {
+        VStack(spacing: 0) {
+            AnalysisSelectionBar(title: selected.title, symbol: selected.tool.symbol, close: clearSelection) {
+                if selected.tool != .trajectory { movementMenu(selected) }
+                Button("Style", systemImage: "paintpalette") { showProperties = true }
+                    .labelStyle(AnalysisCompactLabelStyle())
+                    .buttonStyle(EditorActionStyle()).accessibilityIdentifier("analysis-drawing-style")
+                layerMenu(selected)
+            }.disabled(isBusy)
+            if selected.tool == .zone, selected.fieldLines != true, selected.linkedPlayers == nil {
+                HStack(spacing: 12) {
+                    Text(selectedVertex.map { "Corner \($0 + 1)" } ?? "Tap a corner to edit it").font(.caption).foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                    Button("Add corner", systemImage: "plus") {
+                        let index = selectedVertex ?? max(0, selected.points.count - 1)
+                        updateSelected { $0.insertPolygonCorner(after: index) }; selectedVertex = index + 1
+                    }.disabled(selected.points.count >= 12)
+                    Button("Remove corner", systemImage: "minus") {
+                        guard let index = selectedVertex else { return }
+                        updateSelected { $0.removePolygonCorner(at: index) }; selectedVertex = nil
+                    }.labelStyle(.iconOnly).disabled(selectedVertex == nil || selected.points.count <= 3)
+                }.buttonStyle(AnalysisControlStyle()).padding(.horizontal, 12).disabled(selected.isLocked == true)
+            }
+            if selected.motionMode == .keyframes {
+                HStack(spacing: 12) {
+                    Button("Previous position", systemImage: "backward.end") { stepKeyframe(-1) }.labelStyle(.iconOnly)
+                    Button("Set position here", systemImage: "diamond") { addKeyframe() }.accessibilityIdentifier("analysis-add-keyframe")
+                    Button("Next position", systemImage: "forward.end") { stepKeyframe(1) }.labelStyle(.iconOnly)
+                    Spacer(minLength: 0)
+                    Button("Remove position", systemImage: "diamond.slash") { deleteKeyframe() }.labelStyle(.iconOnly).disabled(selectedKeyframe == nil)
+                }.buttonStyle(AnalysisControlStyle()).padding(.horizontal, 12)
+                    .disabled(selected.isLocked == true || time < selected.start || time > selected.end)
+            }
+        }
+    }
+
+    private func movementTitle(_ mode: AnnotationMotionMode) -> String {
+        switch mode {
+        case .still: "Stays put"
+        case .camera: "On the pitch"
+        case .player: "Follows player"
+        case .keyframes: "Animated"
+        }
+    }
+
+    private func movementMenu(_ selected: AnalysisAnnotation) -> some View {
+        Menu {
+            Button("Stay put on screen", systemImage: "pin") { setMotionMode(.still) }
+            if clip.freezeDuration == nil {
+                Button("Stick to the pitch as the camera moves", systemImage: "sportscourt") { setMotionMode(.camera) }
+                Button(selected.playerMotion == nil ? "Follow a player" : "Follow a different player", systemImage: "figure.run") { setMotionMode(.player) }
+            }
+            Button("Animate by hand", systemImage: "diamond") { setMotionMode(.keyframes) }
+        } label: {
+            Label(movementTitle(selected.motionMode), systemImage: "move.3d").labelStyle(.titleAndIcon).fixedSize()
+        }
+        .buttonStyle(EditorActionStyle()).disabled(selected.isLocked == true)
+        .accessibilityLabel("Movement").accessibilityValue(movementTitle(selected.motionMode))
+        .accessibilityIdentifier("analysis-motion-mode")
+    }
+
+    private func layerMenu(_ selected: AnalysisAnnotation) -> some View {
+        Menu {
+            if clip.freezeDuration == nil {
+                Button("Play this drawing", systemImage: "play") { playback.playRange(from: selected.start, to: selected.end) }
+            }
+            Button("Start here", systemImage: "arrow.right.to.line") { changeTiming { $0.start = max(clip.startSeconds, min(time, $0.end - 1 / 30)) } }
+                .disabled(selected.isLocked == true)
+            Button("End here", systemImage: "arrow.left.to.line") { changeTiming { $0.end = min(clip.annotationEnd, max(time, $0.start + 1 / 30)) } }
+                .disabled(selected.isLocked == true)
+            Button("Duplicate", systemImage: "plus.square.on.square", action: duplicate)
+            if selected.motionMode == .camera {
+                Button("Re-check camera movement", systemImage: "arrow.clockwise") { ensureSharedCameraTracking(force: true) }
+                    .accessibilityIdentifier("analysis-correct-tracking")
+            }
+            Button(selected.isLocked == true ? "Unlock" : "Lock", systemImage: selected.isLocked == true ? "lock.open" : "lock") { toggleLayerLocked(selected.id) }
+            Button("Delete", systemImage: "trash", role: .destructive) { deleteSelected() }
+                .disabled(selected.isLocked == true).accessibilityIdentifier("analysis-delete-layer")
+        } label: { AnalysisMoreLabel() }
+            .buttonStyle(.plain).accessibilityIdentifier("analysis-layer-options")
+    }
+
+    private func clearSelection() {
+        selectedID = nil; selectedPlayer = nil; selectedPlayerTrackID = nil
+        selectedKeyframe = nil; correctingPlayer = false; tool = .select
+    }
+
+    private func deleteSelected() {
+        guard let selected, selected.isLocked != true else { return }
+        checkpoint(); clip.annotations.removeAll { $0.id == selected.id }; selectedID = nil; selectedPlayer = nil
+    }
+
+    private var layerTimeline: some View {
+        AnalysisLayerTimeline(annotations: clip.annotations, bounds: clip.startSeconds...clip.annotationEnd, time: time,
+                    selectedID: selectedID, selectedKeyframe: selectedKeyframe,
+                    select: selectTimelineLayer, seek: { seek($0) }, previewSeek: previewSeek,
+                    beginEdit: { playback.pause(); checkpoint() }, edit: editTimelineLayer,
+                    selectKeyframe: selectTimelineKeyframe, toggleHidden: toggleLayerHidden,
+                    toggleLocked: toggleLayerLocked, reorder: reorderLayer,
+                    freezeTime: clip.freezeDuration == nil ? nil : clip.startSeconds,
+                    zoom: $timelineZoom)
+                    .frame(maxHeight: .infinity).disabled(isBusy)
+    }
+
+    // MARK: Pitch
+
+    private func openPitch() {
+        playback.pause()
+        if clip.groundCalibration == nil { fieldPreviewEnabled = true; openMeasurements() }
+        else { showPitchOptions = true }
     }
 
     private func toggleFieldPreview() {
@@ -575,234 +683,22 @@ struct AnalysisWorkspaceView: View {
         }
     }
 
-    @ViewBuilder private var playerActions: some View {
-        if trackingID != nil {
-            HStack(spacing: 8) {
-                ProgressView(value: trackingProgress).frame(width: 60)
-                if let direction = trackingDirection {
-                    Image(systemName: direction == .forward ? "arrow.right" : "arrow.left")
-                        .font(.caption.bold()).foregroundStyle(Theme.signal)
-                        .accessibilityLabel(direction == .forward ? "Tracking forward" : "Tracking backward")
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(trackingRangeLabel).font(.caption.monospacedDigit())
-                    if trackingDirection != nil {
-                        Text(trackingPhase.label).font(.caption2)
-                            .foregroundStyle(trackingPhase == .following ? Color.secondary : Color.orange)
-                            .accessibilityIdentifier("analysis-tracking-phase")
-                    }
-                }.lineLimit(1)
-                Spacer(minLength: 4)
-                // Stop, not Cancel: everything tracked so far is kept.
-                Button("Stop") { trackingTask?.cancel() }
-                    .buttonStyle(AnalysisControlStyle()).accessibilityIdentifier("analysis-stop-tracking")
-            }.padding(.horizontal, 10).frame(height: 44).background(Theme.inkPanel)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("analysis-tracking-status")
-        } else if reviewingFrames {
-            frameReviewControls
-        } else if pickingPlayerTrack {
-            HStack {
-                Text(placingPlayer && correctingTrackID != nil ? "Place player here" : correctingTrackID == nil ? "New player track" : "Correct player track").font(.caption.bold())
-                Spacer()
-                Button("Cancel pick") { pickingPlayerTrack = false; correctingTrackID = nil; placingPlayer = false; pickedReplacementRange = nil }
-                    .buttonStyle(AnalysisControlStyle())
-            }.padding(.horizontal, 12).padding(.vertical, 4).background(Theme.inkPanel)
-        }
-    }
-
-    private var frameReviewControls: some View {
-        AnalysisPlayerFrameReviewControls(name: selectedPlayerName, time: time - clip.startSeconds,
-            canGoBack: frameReview.previous(before: time) != nil, canGoNext: frameReview.next(after: time) != nil,
-            canUndo: !reviewUndoTimes.isEmpty && !undo.isEmpty,
-            canTrack: reviewUndoTimes.last.map { $0 < clip.endSeconds - 0.05 } ?? false,
-            isSeeking: playback.isSeeking,
-            previous: { if let previous = frameReview.previous(before: time) { seek(previous) } },
-            next: { if let next = frameReview.next(after: time) { seek(next) } },
-            undo: undoEdit, track: continueReviewedPlayer, done: endFrameReview,
-            redoTracking: { if let id = correctingTrackID { openTrackingReplacement(id, at: reviewUndoTimes.last ?? time) } })
-    }
-
-    private func openTrackingReplacement(_ id: UUID, at sourceTime: Double? = nil, wholeClip: Bool = false, afterDismiss: Bool = false) {
-        guard trackingID == nil, let player = clip.trackingLibrary?.players.first(where: { $0.id == id }) else { return }
-        playback.pause()
-        let request = PlayerTrackingReplacementRequest(id: id, name: player.name, time: sourceTime ?? time, wholeClip: wholeClip)
-        if afterDismiss { queuedReplacementRequest = request } else { replacementRequest = request }
-    }
-
-    private func continueReviewedPlayer() {
-        guard let id = correctingTrackID, let start = reviewUndoTimes.last,
-              let player = clip.trackingLibrary?.players.first(where: { $0.id == id }),
-              let seed = player.motion.samples.first(where: { abs($0.time - start) < 1 / 600 })?.box else { return }
-        var prior = player.motion; prior.identity = player.identity
-        endFrameReview(); seek(start)
-        runPlayerTracking(id: id, seed: seed, from: start, to: clip.endSeconds, direction: .forward,
-                          prior: prior.preparingCorrection(at: start, direction: .forward), includeBodyMasks: includeBodyMasks, confirmedSeed: true)
-    }
-
-    private func endFrameReview() {
-        reviewingFrames = false; pickingPlayerTrack = false; correctingTrackID = nil; placingPlayer = false
-        reviewUndoTimes = []; reviewBox = nil
-        pickedReplacementRange = nil
-    }
-
-    /// "Tracking 0:03.4 → 0:12.8 · 41%" so the tracked range is visible while it grows.
-    private var trackingRangeLabel: String {
-        guard trackingDirection != nil, let origin = trackingOrigin, let now = trackingTime else {
-            return "Tracking · \(Int(trackingProgress * 100))%"
-        }
-        let from = timelineTimecode(min(origin, now) - clip.startSeconds, includesTenths: true)
-        let to = timelineTimecode(max(origin, now) - clip.startSeconds, includesTenths: true)
-        return "\(from) – \(to) · \(Int(trackingProgress * 100))%"
-    }
-
-    private var selectedTrackMotion: PlayerMotion? {
-        clip.trackingLibrary?.players.first(where: { $0.id == selectedPlayerTrackID })?.motion
-    }
-
-    /// Step between the untracked sections of the selected player so each can
-    /// be checked, placed by hand or resumed.
-    @ViewBuilder private func gapNavigation(_ id: UUID) -> some View {
-        let range = clip.startSeconds...clip.endSeconds
-        let motion = clip.trackingLibrary?.players.first(where: { $0.id == id })?.motion
-        let previous = motion?.previousMissing(before: time, in: range)
-        let next = motion?.nextMissing(after: time, in: range)
-        Button("Previous gap", systemImage: "arrow.left.to.line") { if let previous { seek(previous) } }
-            .labelStyle(.iconOnly).disabled(previous == nil).accessibilityIdentifier("analysis-previous-gap")
-        Button("Next gap", systemImage: "arrow.right.to.line") { if let next { seek(next) } }
-            .labelStyle(.iconOnly).disabled(next == nil).accessibilityIdentifier("analysis-next-gap")
-    }
-
-    private var transport: some View {
-        HStack(spacing: 0) {
-            Menu {
-                if clip.freezeDuration == nil {
-                    Button("Track new player", systemImage: "person.badge.plus") { pickPlayerTrack() }
-                        .accessibilityIdentifier("analysis-track-new-player")
-                    Button("Track all players", systemImage: "person.3.sequence") { trackAllPlayers() }
-                        .accessibilityIdentifier("analysis-track-all-players")
-                    Button("Manage player tracks", systemImage: "person.2") { playback.pause(); playerPickerLayerID = nil; showPlayerTracks = true }
-                        .accessibilityIdentifier("analysis-manage-player-tracks")
-                }
-                Button("Measurements & ground", systemImage: "ruler", action: openMeasurements)
-                if clip.groundCalibration != nil {
-                    Button("New ground reference here", systemImage: "ruler.fill") {
-                        playback.pause()
-                        groundRequest = .init(sourceTime: clip.freezeDuration == nil ? time : clip.startSeconds,
-                                              annotationTime: time, existing: nil, isStill: clip.freezeDuration != nil,
-                                              sourceRange: clip.startSeconds...clip.endSeconds, cameraMotion: clip.trackingLibrary?.sharedCamera)
-                    }
-                }
-                if clip.freezeDuration == nil {
-                    Section("Clip camera · shared by all layers") {
-                        Text(cameraCoverageStatus)
-                        Button(clip.hasFullCameraTrack ? "Re-track entire clip" : "Track entire clip", systemImage: "video.badge.waveform") {
-                            ensureSharedCameraTracking(force: clip.hasFullCameraTrack)
-                        }.accessibilityIdentifier("analysis-track-clip-camera")
-                        if selected != nil { Button("Follow clip camera", systemImage: "link") { beginCameraTracking() } }
-                    }
-                }
-            } label: {
-                Label("Clip tracks", systemImage: "figure.run.square.stack")
-                    .labelStyle(.iconOnly).frame(width: 44, height: 44).contentShape(.rect)
-            }.buttonStyle(.plain)
-                .accessibilityIdentifier("analysis-clip-tracks")
-        }.accessibilityElement(children: .contain).accessibilityIdentifier("analysis-transport")
-            .disabled(trackingID != nil || !constructionPoints.isEmpty)
-    }
-
-    @ViewBuilder private var layerControls: some View {
-        if let selected, correctingPlayer, selected.linkedPlayers == nil {
-            HStack {
-                Text("Tap or draw around the player").font(.caption.bold())
-                Spacer(minLength: 0)
-                Button("Cancel pick") { correctingPlayer = false; tool = .select; session.cancel() }
-                    .buttonStyle(AnalysisControlStyle()).accessibilityIdentifier("analysis-correct-tracking")
-            }.padding(.horizontal, 12).frame(height: 44).background(Theme.inkPanel)
-        } else if let selected {
-            VStack(spacing: 6) {
-                HStack(spacing: 10) {
-                    if selected.tool == .trajectory {
-                        Label("Follows player track", systemImage: "figure.run")
-                            .font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
-                    } else {
-                    Menu {
-                        Button("Static", systemImage: "pause") { setMotionMode(.still) }
-                        Button("Keyframes", systemImage: "diamond") { setMotionMode(.keyframes) }
-                        if clip.freezeDuration == nil {
-                            Button("Follow player", systemImage: "figure.run") { setMotionMode(.player) }
-                            Button("Follow clip camera", systemImage: "video") { beginCameraTracking() }
-                        }
-                    } label: { Label(selected.motionMode.title, systemImage: "move.3d") }
-                        .buttonStyle(EditorActionStyle()).disabled(selected.isLocked == true)
-                        .accessibilityValue(selected.motionMode.title)
-                        .accessibilityIdentifier("analysis-motion-mode")
-                    Spacer(minLength: 0)
-                    if selected.motionMode == .camera, clip.freezeDuration == nil {
-                        Button("Re-track camera", systemImage: "scope") { ensureSharedCameraTracking(force: true) }
-                            .labelStyle(.iconOnly).buttonStyle(AnalysisTransportStyle()).disabled(selected.isLocked == true)
-                            .accessibilityIdentifier("analysis-correct-tracking")
-                    }
-                    Button("Style", systemImage: "slider.horizontal.3") { showProperties = true }
-                        .buttonStyle(EditorActionStyle())
-                    }
-                    layerMenu
-                }
-                if selected.tool == .zone, selected.fieldLines != true, selected.linkedPlayers == nil {
-                    HStack(spacing: 12) {
-                        Text(selectedVertex.map { "Corner \($0 + 1)" } ?? "Tap a corner to edit").font(.caption2).foregroundStyle(.secondary)
-                        Spacer(minLength: 0)
-                        Button("Add corner", systemImage: "plus") {
-                            let index = selectedVertex ?? max(0, selected.points.count - 1)
-                            updateSelected { $0.insertPolygonCorner(after: index) }; selectedVertex = index + 1
-                        }.disabled(selected.points.count >= 12)
-                        Button("Remove corner", systemImage: "minus") {
-                            guard let index = selectedVertex else { return }
-                            updateSelected { $0.removePolygonCorner(at: index) }; selectedVertex = nil
-                        }.labelStyle(.iconOnly).disabled(selectedVertex == nil || selected.points.count <= 3)
-                    }.buttonStyle(AnalysisControlStyle()).disabled(selected.isLocked == true)
-                }
-                if selected.motionMode == .keyframes {
-                    HStack(spacing: 12) {
-                        Button("Previous keyframe", systemImage: "backward.end") { stepKeyframe(-1) }.labelStyle(.iconOnly)
-                        Button("Add keyframe", systemImage: "diamond") { addKeyframe() }.accessibilityIdentifier("analysis-add-keyframe")
-                        Button("Next keyframe", systemImage: "forward.end") { stepKeyframe(1) }.labelStyle(.iconOnly)
-                        Spacer(minLength: 0)
-                        Button("Delete keyframe", systemImage: "diamond.slash") { deleteKeyframe() }.labelStyle(.iconOnly).disabled(selectedKeyframe == nil)
-                    }.buttonStyle(AnalysisControlStyle()).disabled(selected.isLocked == true || time < selected.start || time > selected.end)
-                }
-            }.padding(.horizontal, 10).background(Theme.inkPanel).disabled(trackingID != nil)
-        }
-    }
+    // MARK: - Style sheet
 
     @ViewBuilder private var inspectorStyle: some View {
-        inspectorEffect
+        if selected?.isLocked == true {
+            Section { Label("Unlock this drawing (⋯ → Unlock) to change it.", systemImage: "lock").foregroundStyle(.secondary) }
+        }
+        inspectorText
         inspectorAppearance
+        inspectorEffect
         inspectorMeasurements
     }
 
-    @ViewBuilder private var inspectorMeasurements: some View {
-        if let selected, selected.tool == .text || [.line, .arrow, .connection, .zone].contains(selected.tool) {
-            Section("Measurements") {
-                if selected.tool == .text {
-                    Toggle("Show player speed · km/h", isOn: Binding(get: { self.selected?.showsSpeed == true }, set: { value in updateSelected { $0.showsSpeed = value } }))
-                        .disabled(clip.freezeDuration != nil || selected.playerMotion == nil)
-                } else if selected.fieldLines != true {
-                    Toggle("Show distances · m", isOn: Binding(get: { self.selected?.showsDistance == true }, set: { value in updateSelected { $0.showsDistance = value } }))
-                        .accessibilityIdentifier("analysis-show-distance")
-                }
-                Text(measurementStatus ?? "Set a known ground reference in Measure. Values stay unavailable without calibration.").font(.caption).foregroundStyle(.secondary)
-            }.disabled(selected.isLocked == true)
-        }
-    }
-
-    @ViewBuilder private var inspectorAppearance: some View {
-        if selected?.isLocked == true {
-            Section { Label("Unlock this layer in Layer settings to edit.", systemImage: "lock").foregroundStyle(.secondary) }
-        }
+    @ViewBuilder private var inspectorText: some View {
         if selected?.tool == .text {
             Section("Text") {
-                TextField("Annotation text", text: Binding(get: { selected?.text ?? "" }, set: { value in updateSelected { $0.text = value } }), axis: .vertical)
+                TextField("Text", text: Binding(get: { selected?.text ?? "" }, set: { value in updateSelected { $0.text = value } }), axis: .vertical)
                     .lineLimit(2...5).accessibilityIdentifier("analysis-text-input")
                 AnalysisTextControls(style: Binding(get: { selected?.resolvedTextStyle ?? .init() }, set: { value in
                     updateSelected(recordUndo: !editingTextSize) { $0.textStyle = value }
@@ -812,47 +708,78 @@ struct AnalysisWorkspaceView: View {
                 })
             }.disabled(selected?.isLocked == true)
         }
-        if selected?.tool != .zoom && selected?.tool != .loupe {
-            Section("Appearance") {
-                ColorPicker("Colour", selection: Binding(get: {
-                    selected.map { Color(red: $0.color.red, green: $0.color.green, blue: $0.color.blue) } ?? color
-                }, set: { value in color = value; updateSelected { $0.color = annotationColor } }), supportsOpacity: false)
-                if selected?.tool != .text { VStack(alignment: .leading, spacing: 8) {
-                    Text("Line width")
-                    Slider(value: Binding(get: { selected?.width ?? width }, set: { value in
-                        width = value; updateSelected(recordUndo: false) { $0.width = value }
-                    }), in: 0.002...0.04, onEditingChanged: { if $0 { checkpoint() } })
-                        .accessibilityLabel("Line width")
-                } }
-            }.disabled(selected?.isLocked == true)
+    }
+
+    @ViewBuilder private var inspectorMeasurements: some View {
+        if let selected, selected.tool == .text || [.line, .arrow, .connection, .zone].contains(selected.tool) {
+            Section("Measurements") {
+                if selected.tool == .text {
+                    Toggle("Show player speed", isOn: Binding(get: { self.selected?.showsSpeed == true }, set: { value in updateSelected { $0.showsSpeed = value } }))
+                        .disabled(clip.freezeDuration != nil || selected.playerMotion == nil)
+                } else if selected.fieldLines != true {
+                    Toggle("Show distances in metres", isOn: Binding(get: { self.selected?.showsDistance == true }, set: { value in
+                        updateSelected { $0.showsDistance = value }
+                        if value, clip.groundCalibration == nil { showProperties = false; openMeasurements() }
+                    })).accessibilityIdentifier("analysis-show-distance")
+                }
+                if clip.groundCalibration == nil {
+                    Text("Needs the pitch lined up first (Pitch in the bottom bar).").font(.caption).foregroundStyle(.secondary)
+                }
+            }.disabled(selected.isLocked == true)
         }
+    }
+
+    @ViewBuilder private var inspectorAppearance: some View {
+        if let selected, selected.tool != .zoom, selected.tool != .loupe {
+            Section("Colour") {
+                AnalysisColorSwatches(color: Binding(get: { self.selected?.color ?? color }, set: { value in
+                    color = value; updateSelected { $0.color = value }
+                }))
+            }.disabled(selected.isLocked == true)
+            if selected.tool != .text {
+                Section("Thickness") {
+                    Picker("Thickness", selection: Binding(get: { Self.thickness(for: self.selected?.width ?? width) }, set: { value in
+                        width = value; updateSelected { $0.width = value }
+                    })) {
+                        Text("Thin").tag(0.004)
+                        Text("Medium").tag(0.008)
+                        Text("Thick").tag(0.014)
+                    }.pickerStyle(.segmented).accessibilityIdentifier("analysis-thickness")
+                }.disabled(selected.isLocked == true)
+            }
+        }
+    }
+
+    private static func thickness(for width: Double) -> Double {
+        [0.004, 0.008, 0.014].min { abs($0 - width) < abs($1 - width) } ?? 0.008
     }
 
     @ViewBuilder private var inspectorEffect: some View {
         if let selected {
             if [.line, .arrow, .pen, .connection, .zone, .rectangle, .ellipse].contains(selected.tool), selected.fieldLines != true {
-                Section("Line style") {
+                Section("Line") {
                     AnalysisLineControls(mark: selected, style: { value in updateSelected(recordUndo: false) { $0.lineStyle = value } }, beginEdit: checkpoint)
                 }
             }
-            Section(selected.tool == .zoom ? "Zoom" : "Effect") {
-                if selected.tool == .zoom {
+            if selected.tool == .zoom {
+                Section("Zoom") {
                     AnalysisZoomControls(mark: selected,
                         amount: { value in updateSelected(recordUndo: false) { $0.zoomScale = value } },
                         ramp: { value in updateSelected(recordUndo: false) { $0.zoomRamp = value } }, beginEdit: checkpoint)
-                } else if selected.tool == .loupe {
+                }
+            } else if selected.tool == .loupe {
+                Section("Magnifier") {
                     AnalysisLoupeControls(style: Binding(get: { self.selected?.loupeStyle ?? .init() }, set: { value in
                         updateSelected(recordUndo: false) { $0.loupeStyle = value }
                     }), beginEdit: checkpoint).disabled(selected.isLocked == true)
-                } else if selected.tool == .trajectory {
+                }
+            } else if selected.tool == .trajectory {
+                Section("Trail") {
                     AnalysisTrajectoryControls(style: Binding(get: { self.selected?.trajectoryStyle ?? .init() }, set: { value in updateSelected { $0.trajectoryStyle = value } }))
                         .disabled(selected.isLocked == true)
-                    Text(selected.trajectoryCameraMotion == nil ? "Image-space trail. Add a camera track and use it to compensate for camera movement." : "Camera-compensated trail within saved camera coverage.")
-                        .font(.caption).foregroundStyle(.secondary)
-                    if let camera = clip.trackingLibrary?.camera(at: time), selected.trajectoryCameraMotion == nil {
-                        Button("Use saved camera for trail") { updateSelected { $0.trajectoryCameraMotion = camera } }
-                    }
-                } else {
+                }
+            } else if selected.tool != .text {
+                Section("Effect") {
                     AnalysisEffectControls(mark: selected, effect: { value in updateSelected { $0.effect = value } },
                         fill: { value in updateSelected(recordUndo: false) { $0.areaFill = value } },
                         wallHeight: { value in updateSelected(recordUndo: false) { $0.wallHeight = value } },
@@ -863,15 +790,6 @@ struct AnalysisWorkspaceView: View {
                         metricHeight: { value in updateSelected(recordUndo: false) { $0.wallHeightMeters = value } }, beginEdit: checkpoint)
                 }
             }
-            if selected.playerMotion != nil || selected.linkedPlayers != nil {
-                Section("Tracking") {
-                    AnalysisTrackingSmoothingControls(mark: selected, amount: setTrackingSmoothing, beginEdit: checkpoint)
-                    AnalysisTrackingBridgeControls(mark: selected, amount: setGapBridging, beginEdit: checkpoint)
-                }
-            }
-        } else {
-            Section("Players") { detectionControls }
-            freezeControls
         }
     }
 
@@ -882,117 +800,42 @@ struct AnalysisWorkspaceView: View {
     @ViewBuilder private var inspectorTiming: some View {
         if let selected {
             Section {
-                LabeledContent("Duration", value: "\((selected.end - selected.start).formatted(.number.precision(.fractionLength(1)))) s")
-                Stepper("Start  \((selected.start - clip.startSeconds).formatted(.number.precision(.fractionLength(1)))) s",
-                        value: Binding(get: { self.selected?.start ?? selected.start }, set: { value in changeTiming { $0.start = value } }),
-                        in: clip.startSeconds...max(clip.startSeconds, selected.end - 1 / 30), step: 0.1)
-                    .accessibilityIdentifier("analysis-layer-in")
-                Stepper("End  \((selected.end - clip.startSeconds).formatted(.number.precision(.fractionLength(1)))) s",
-                        value: Binding(get: { self.selected?.end ?? selected.end }, set: { value in changeTiming { $0.end = value } }),
-                        in: min(clip.annotationEnd, selected.start + 1 / 30)...clip.annotationEnd, step: 0.1)
-                    .accessibilityIdentifier("analysis-layer-out")
-            } header: { Text("On the timeline") } footer: {
-                Text("Times are relative to this clip. Drag either edge on the timeline for larger changes.")
-                if let first = selected.motionStart, selected.start < first - 0.05 {
-                    Text("Orange marks frames without tracking. Re-track from an earlier frame, or choose Static for a fixed drawing.")
-                }
-            }.disabled(selected.isLocked == true)
-            Section {
-                Button("Start at playhead", systemImage: "arrow.right.to.line") {
-                    changeTiming { $0.start = max(clip.startSeconds, min(time, $0.end - 1 / 30)) }
-                }
-                Button("End at playhead", systemImage: "arrow.left.to.line") {
-                    changeTiming { $0.end = min(clip.annotationEnd, max(time, $0.start + 1 / 30)) }
-                }
-                Button("Use whole clip", systemImage: "arrow.left.and.right") {
-                    changeTiming { $0.start = clip.startSeconds; $0.end = clip.annotationEnd }
-                }
-            }.disabled(selected.isLocked == true)
-            if selected.tool != .zoom {
-                Section {
+                LabeledContent("Shows", value: "\(timelineTimecode(selected.start - clip.startSeconds, includesTenths: true)) – \(timelineTimecode(selected.end - clip.startSeconds, includesTenths: true))")
+                    .accessibilityIdentifier("analysis-layer-range")
+                HStack(spacing: 8) {
+                    Button("Start here") { changeTiming { $0.start = max(clip.startSeconds, min(time, $0.end - 1 / 30)) } }
+                        .accessibilityIdentifier("analysis-layer-in")
+                    Button("End here") { changeTiming { $0.end = min(clip.annotationEnd, max(time, $0.start + 1 / 30)) } }
+                        .accessibilityIdentifier("analysis-layer-out")
+                    Button("Whole clip") { changeTiming { $0.start = clip.startSeconds; $0.end = clip.annotationEnd } }
+                }.buttonStyle(EditorActionStyle()).frame(maxWidth: .infinity)
+                if selected.tool != .zoom {
                     Toggle("Fade in and out", isOn: Binding(get: { self.selected?.fade ?? false }, set: { value in updateSelected { $0.fade = value } }))
-                }.disabled(selected.isLocked == true)
-            }
-            freezeControls
-        }
-    }
-
-    @ViewBuilder private var inspectorLayer: some View {
-        if let selected {
-            if let id = selected.playerMotion?.trackID,
-               let track = clip.trackingLibrary?.players.first(where: { $0.id == id }) {
-                Section("Shared tracking") {
-                    TextField("Track name", text: Binding(get: {
-                        clip.trackingLibrary?.players.first(where: { $0.id == id })?.name ?? track.name
-                    }, set: { value in
-                        guard let index = clip.trackingLibrary?.players.firstIndex(where: { $0.id == id }) else { return }
-                        checkpoint(); clip.trackingLibrary?.players[index].name = value
-                    })).accessibilityIdentifier("analysis-track-name")
-                    Text("Ring, spotlight and label reuse this track. Correcting its motion updates all attached layers.").font(.caption).foregroundStyle(.secondary)
                 }
-            } else if selected.cameraMotion?.trackID != nil {
-                Section("Shared tracking") {
-                    Text("Saved camera track")
-                    Text("Other drawings can use this camera track without processing the video again.").font(.caption).foregroundStyle(.secondary)
-                }
-            }
-            Section("Name") {
-                TextField(selected.tool.title, text: Binding(get: { self.selected?.layerName ?? "" }, set: { value in updateSelected { $0.layerName = value } }))
-                    .accessibilityIdentifier("analysis-layer-name").disabled(selected.isLocked == true)
-            }
-            Section {
-                Toggle("Visible", isOn: Binding(get: { self.selected?.isHidden != true }, set: { _ in toggleLayerHidden(selected.id) }))
-                Toggle("Lock layer", isOn: Binding(get: { self.selected?.isLocked == true }, set: { _ in toggleLayerLocked(selected.id) }))
-                Button("Duplicate layer", systemImage: "plus.square.on.square", action: duplicate)
-            }
-            Section {
-                Button("Delete layer", systemImage: "trash", role: .destructive) { confirmsDelete = true }
-                    .disabled(selected.isLocked == true)
-            }.confirmationDialog("Delete this layer?", isPresented: $confirmsDelete, titleVisibility: .visible) {
-                Button("Delete layer", role: .destructive) {
-                    checkpoint(); clip.annotations.removeAll { $0.id == selectedID }; showProperties = false; selectedID = nil
-                }
-            }
+            } header: { Text("When it shows") } footer: {
+                Text("\"Here\" is the current frame. You can also drag the ends of its bar on the timeline.")
+            }.disabled(selected.isLocked == true)
         }
     }
 
     @ViewBuilder private var freezeControls: some View {
         if clip.freezeDuration != nil {
-            Section("Freeze frame") {
-                Stepper("Hold: \((clip.freezeDuration ?? 5).formatted()) seconds", value: Binding(get: { clip.freezeDuration ?? 5 }, set: { value in
-                    let oldEnd = clip.annotationEnd; clip.freezeDuration = value
-                    for index in clip.annotations.indices where clip.annotations[index].end >= oldEnd - 0.01 { clip.annotations[index].end = clip.annotationEnd }
-                    freezeTime = min(freezeTime, clip.annotationEnd)
-                }), in: 1...30, step: 1)
-            }
+            Stepper("Hold the frame for \((clip.freezeDuration ?? 5).formatted()) s", value: Binding(get: { clip.freezeDuration ?? 5 }, set: { value in
+                checkpoint()
+                let oldEnd = clip.annotationEnd; clip.freezeDuration = value
+                for index in clip.annotations.indices where clip.annotations[index].end >= oldEnd - 0.01 { clip.annotations[index].end = clip.annotationEnd }
+                freezeTime = min(freezeTime, clip.annotationEnd)
+            }), in: 1...30, step: 1)
+            .font(.subheadline).padding(.horizontal, 12).frame(minHeight: 44)
+            .accessibilityIdentifier("analysis-freeze-hold")
         }
     }
 
-    private var detectionControls: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if session.isRunning {
-                ProgressView(value: session.progress ?? 0)
-                HStack { Text("Finding players…"); Spacer(); Button("Cancel") { session.cancel() } }.font(.caption)
-            } else {
-                HStack {
-                    Button("Find players") { detect(motion: false) }
-                }.font(.caption).buttonStyle(.bordered).accessibilityIdentifier("detect-analysis-players")
-                Text(detections.isEmpty ? "Use Player to draw around someone if detection misses them." : "Tap a player, then open Player effects to combine a ring, spotlight and label.")
-                    .font(.caption2).foregroundStyle(.secondary)
-                Toggle("Show detected players", isOn: $showsPlayers).font(.caption)
-            }
-        }
-    }
-
-    private var annotationColor: AnnotationColor {
-        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
-        UIColor(color).getRed(&r, green: &g, blue: &b, alpha: &a)
-        return .init(red: r, green: g, blue: b)
-    }
+    // MARK: - Construction (areas and connected players)
 
     private var constructionPreview: [AnalysisAnnotation] {
         guard !constructionPoints.isEmpty else { return [] }
-        var mark = AnalysisAnnotation(id: constructionID, tool: tool, points: constructionPoints, color: annotationColor, width: width, start: time, end: time + 1)
+        var mark = AnalysisAnnotation(id: constructionID, tool: tool, points: constructionPoints, color: color, width: width, start: time, end: time + 1)
         mark.effect = .neon
         return [mark]
     }
@@ -1001,25 +844,26 @@ struct AnalysisWorkspaceView: View {
         if tool == .connection || tool == .zone {
             HStack(spacing: 12) {
                 if tool == .zone {
-                    Toggle("Players", isOn: $areaUsesPlayers).font(.caption).fixedSize()
-                        .onChange(of: areaUsesPlayers) { constructionPoints = []; constructionPlayers = []; detect(motion: false) }
+                    Toggle("Use players", isOn: $areaUsesPlayers).font(.subheadline).fixedSize()
+                        .onChange(of: areaUsesPlayers) { constructionPoints = []; constructionPlayers = []; detect() }
                 }
-                Text("\(constructionPoints.count) \(tool == .connection || areaUsesPlayers ? "player" : "corner")\(constructionPoints.count == 1 ? "" : "s")").font(.caption)
+                Text("\(constructionPoints.count) \(tool == .connection || areaUsesPlayers ? "player" : "corner")\(constructionPoints.count == 1 ? "" : "s")").font(.subheadline)
                     .accessibilityIdentifier("analysis-construction-count")
                 Spacer(minLength: 0)
                 Button("Remove last point", systemImage: "arrow.uturn.backward") {
                     if !constructionPoints.isEmpty { constructionPoints.removeLast() }
                     if !constructionPlayers.isEmpty { constructionPlayers.removeLast() }
                 }.labelStyle(.iconOnly).disabled(constructionPoints.isEmpty)
-                Button("Finish", action: finishConstruction).bold()
+                Button("Finish", action: finishConstruction)
+                    .buttonStyle(EditorActionStyle(prominent: true))
                     .disabled(constructionPoints.count < (tool == .zone ? 3 : 2))
                     .accessibilityIdentifier("analysis-finish-construction")
-            }.padding(.horizontal, 12).frame(height: 40).background(Theme.inkPanel)
+            }.padding(.horizontal, 12).frame(height: 52).background(Theme.inkPanel)
         }
     }
 
     private func finishConstruction() {
-        var mark = AnalysisAnnotation(tool: tool, points: constructionPoints, color: annotationColor, width: width,
+        var mark = AnalysisAnnotation(tool: tool, points: constructionPoints, color: color, width: width,
                                       start: clip.startSeconds, end: clip.annotationEnd)
         mark.effect = .neon
         let seeds = constructionPlayers
@@ -1033,6 +877,8 @@ struct AnalysisWorkspaceView: View {
         constructionPlayers.append(.init(time: time, box: box))
         constructionPoints.append(.init(x: box.midX, y: box.maxY))
     }
+
+    // MARK: - Canvas touches
 
     private func handleCanvasTouch(_ action: FieldPlacementTouchState.Action, frame: CGRect, fitted: CGRect) {
         switch action {
@@ -1067,7 +913,7 @@ struct AnalysisWorkspaceView: View {
     }
 
     private func changeCanvasDrawing(startLocation: CGPoint, location: CGPoint, frame: CGRect) {
-        guard initialised, trackingID == nil, frame.contains(startLocation) || editsOffscreenField else { return }
+        guard initialised, !isBusy, frame.contains(startLocation) || editsOffscreenField else { return }
         if dragFrame == nil { dragFrame = frame }
         playback.pause()
         let start = normalise(startLocation, frame: frame)
@@ -1093,7 +939,7 @@ struct AnalysisWorkspaceView: View {
             return
         }
         if draft == nil {
-            draft = AnalysisAnnotation(tool: tool, points: [start], color: annotationColor, width: width, text: tool == .text ? "Text" : "", start: min(time, clip.annotationEnd - 0.05), end: min(clip.annotationEnd, time + 4))
+            draft = AnalysisAnnotation(tool: tool, points: [start], color: color, width: width, text: tool == .text ? "Text" : "", start: min(time, clip.annotationEnd - 0.05), end: min(clip.annotationEnd, time + 4))
         }
         if tool == .pen { draft?.points.append(point) }
         else { draft?.points = tool == .zoom || tool == .loupe ? [point] : [start, point] }
@@ -1101,24 +947,19 @@ struct AnalysisWorkspaceView: View {
 
     private func endCanvasDrawing(startLocation: CGPoint, location: CGPoint, frame: CGRect) {
         defer { draft = nil; dragOriginal = nil; dragVertex = nil; dragFrame = nil }
-        guard initialised, trackingID == nil, frame.contains(startLocation) || editsOffscreenField else { return }
+        guard initialised, !isBusy, frame.contains(startLocation) || editsOffscreenField else { return }
         let start = normalise(startLocation, frame: frame)
         let end = normalise(location, frame: frame)
+        let box = CGRect(x: min(start.x, end.x), y: min(start.y, end.y), width: abs(end.x - start.x), height: abs(end.y - start.y))
         if pickingPlayerTrack {
             guard !playback.isSeeking, draft != nil else { return }
-            let seed = CGRect(x: min(start.x, end.x), y: min(start.y, end.y), width: abs(end.x - start.x), height: abs(end.y - start.y))
-            guard seed.width > 0.003, seed.height > 0.01 else {
-                tapCanvas(startLocation, frame: frame); return
-            }
-            trackIndependentPlayer(seed: seed)
+            guard box.width > 0.003, box.height > 0.01 else { tapCanvas(startLocation, frame: frame); return }
+            if let id = correctingTrackID { fixPlayer(id, seed: box) }
             return
         }
-        if correctingPlayer, let id = selectedID {
-            let seed = CGRect(x: min(start.x, end.x), y: min(start.y, end.y), width: abs(end.x - start.x), height: abs(end.y - start.y))
-            guard seed.width > 0.003, seed.height > 0.01 else { return }
-            if selected?.linkedPlayers != nil { selectPlayer(seed); return }
-            checkpoint(); correctingPlayer = false; selectedPlayer = .init(time: time, box: seed)
-            beginTracking(id: id, seed: seed, from: time, confirmedSeed: true)
+        if correctingPlayer, selectedID != nil {
+            guard box.width > 0.003, box.height > 0.01 else { return }
+            selectPlayer(box)
             return
         }
         if tool == .select, let original = dragOriginal {
@@ -1154,27 +995,22 @@ struct AnalysisWorkspaceView: View {
         guard mark.isLocked != true, mark.isHidden != true, time >= mark.start, time <= mark.end, mark.hasMotion(at: time) else { return nil }
         return mark.editHandles(at: time, ground: clip.groundCalibration).enumerated().map { index, handle in
             (index, hypot(frame.minX + handle.x * frame.width - point.x, frame.minY + handle.y * frame.height - point.y))
-        }.min { $0.1 < $1.1 }.flatMap { $0.1 <= 22 ? $0.0 : nil }
+        }.min { $0.1 < $1.1 }.flatMap { $0.1 <= 26 ? $0.0 : nil }
     }
     private func tapCanvas(_ location: CGPoint, frame: CGRect) {
-        guard initialised, trackingID == nil, frame.contains(location) || editsOffscreenField else { return }
+        guard initialised, !isBusy, frame.contains(location) || editsOffscreenField else { return }
         playback.pause()
         let point = normalise(location, frame: frame)
         if pickingPlayerTrack {
             guard !playback.isSeeking else { return }
-            if let box = player(at: point) { trackIndependentPlayer(seed: box) }
-            else if reviewingFrames, let reference = reviewBox {
-                // The user supplies the centre; a drag supplies a new body size.
-                let box = CGRect(x: point.x - reference.width / 2, y: point.y - reference.height / 2,
-                                 width: reference.width, height: reference.height)
-                trackIndependentPlayer(seed: box)
-            } else { error = "Draw a box around the full player when no detection is available." }
+            if let box = player(at: point), let id = correctingTrackID { fixPlayer(id, seed: box) }
+            else { show("No player found there. Draw a box around them instead.") }
             return
         }
         if tool == .zone || tool == .connection {
             guard constructionPoints.count < 12 else { return }
             if tool == .connection || areaUsesPlayers {
-                guard let box = player(at: point) else { error = "Tap a detected player. If the player is missing, use Find players at this frame first."; return }
+                guard let box = player(at: point) else { show("Tap a player. If one isn't picked up, move a frame and try again."); return }
                 appendConstructionPlayer(box)
             } else { constructionPoints.append(point) }
             return
@@ -1188,22 +1024,23 @@ struct AnalysisWorkspaceView: View {
                 selectedPlayerTrackID = mark.playerMotion?.trackID
             } else if let player = player(at: point) {
                 selectPlayer(player)
-            } else if !correctingPlayer { selectedID = nil; selectedPlayer = nil }
+            } else if !correctingPlayer { selectedID = nil; selectedPlayer = nil; selectedPlayerTrackID = nil }
             return
         }
-        guard [.text, .player, .spotlight, .pen, .zoom, .loupe].contains(tool) else { return }
-        var mark = AnalysisAnnotation(tool: tool, points: [point], color: annotationColor, width: width, text: tool == .text ? "Text" : "", start: min(time, clip.annotationEnd - 0.05), end: min(clip.annotationEnd, time + 4))
+        if tool == .player {
+            if let box = player(at: point) { selectPlayer(box) }
+            else { show("No player found there. Draw a box around them instead.") }
+            return
+        }
+        guard [.text, .spotlight, .pen, .zoom, .loupe].contains(tool) else { return }
+        var mark = AnalysisAnnotation(tool: tool, points: [point], color: color, width: width, text: tool == .text ? "Text" : "", start: min(time, clip.annotationEnd - 0.05), end: min(clip.annotationEnd, time + 4))
         if tool == .loupe {
             selectedPlayer = player(at: point).map { .init(time: time, box: $0) }
         }
-        if tool == .player || tool == .spotlight {
+        if tool == .spotlight {
             if let player = detections.filter({ $0.rect.insetBy(dx: -0.015, dy: -0.015).contains(point) }).min(by: { $0.rect.width < $1.rect.width }) {
                 mark.points = [player.rect.origin, CGPoint(x: player.rect.maxX, y: player.rect.maxY)]
             } else { mark.points = [CGPoint(x: point.x - 0.022, y: point.y - 0.10), CGPoint(x: point.x + 0.022, y: point.y)] }
-        }
-        if tool == .player, let first = mark.points.first, let last = mark.points.last {
-            selectPlayer(CGRect(x: min(first.x, last.x), y: min(first.y, last.y), width: abs(last.x - first.x), height: abs(last.y - first.y)))
-            return
         }
         insertMark(mark)
     }
@@ -1223,26 +1060,27 @@ struct AnalysisWorkspaceView: View {
         }
     }
     private func select(_ mark: AnalysisAnnotation) {
-        pickingPlayerTrack = false; correctingTrackID = nil
+        endFix()
         constructionPoints = []; constructionPlayers = []
         selectedID = mark.id; tool = .select
         if time < mark.start || time >= mark.end { seek(min(clip.annotationEnd - 0.02, max(clip.startSeconds, mark.start))) }
         selectedPlayer = (mark.playerMotion?.box(at: time) ?? (mark.playerMotion == nil ? mark.playerEffectBox : nil)).map { .init(time: time, box: $0) }
         selectedPlayerTrackID = mark.playerMotion?.trackID
     }
+
+    // MARK: - Editing
+
     private func checkpoint() { undo.append(clip); if undo.count > 60 { undo.removeFirst() }; redo = [] }
     private func undoEdit() {
         guard let previous = undo.popLast() else { return }
+        endFix()
         redo.append(clip); clip = previous; selectedID = nil
-        if reviewingFrames {
-            if let previousTime = reviewUndoTimes.popLast() {
-                seek(previousTime)
-                reviewBox = clip.trackingLibrary?.players.first(where: { $0.id == correctingTrackID })?.motion
-                    .samples.min(by: { abs($0.time - previousTime) < abs($1.time - previousTime) })?.box
-            } else { endFrameReview() }
-        }
     }
-    private func redoEdit() { guard let next = redo.popLast() else { return }; if reviewingFrames { endFrameReview() }; undo.append(clip); clip = next; selectedID = nil }
+    private func redoEdit() {
+        guard let next = redo.popLast() else { return }
+        endFix()
+        undo.append(clip); clip = next; selectedID = nil
+    }
     private func updateSelected(recordUndo: Bool = true, _ change: (inout AnalysisAnnotation) -> Void) {
         guard let index = clip.annotations.firstIndex(where: { $0.id == selectedID }), clip.annotations[index].isLocked != true else { return }
         if recordUndo { checkpoint() }; change(&clip.annotations[index])
@@ -1253,7 +1091,7 @@ struct AnalysisWorkspaceView: View {
             if let mark = selected { editTimelineLayer(mark, finished: true) }
             return
         }
-        guard let mark = selected, let motion = mark.playerMotion else { return }
+        guard let mark = selected, let motion = mark.playerMotion, mark.playerEffectGroupID == nil else { return }
         if motion.lostAt == nil, let last = motion.samples.last, mark.end > last.time + 0.12 {
             beginTracking(id: mark.id, seed: last.box, from: last.time)
         }
@@ -1276,12 +1114,14 @@ struct AnalysisWorkspaceView: View {
         if finished, let camera = mark.cameraMotion, camera.lostAt == nil, (camera.samples.last?.time ?? mark.start) < mark.end - 0.15 {
             beginCameraTracking(fromCurrentFrame: false); return
         }
-        guard finished, let motion = mark.playerMotion, motion.lostAt == nil,
+        // Player highlights share the clip's player track; only one-off
+        // drawings that follow a player extend their own motion here.
+        guard finished, mark.playerEffectGroupID == nil, let motion = mark.playerMotion, motion.lostAt == nil,
               let last = motion.samples.last, mark.end > last.time + 0.12 else { return }
         beginTracking(id: mark.id, seed: last.box, from: last.time)
     }
     private func selectTimelineKeyframe(_ layer: UUID, _ frame: UUID, _ seconds: Double) {
-        pickingPlayerTrack = false; correctingTrackID = nil
+        endFix()
         constructionPoints = []; constructionPlayers = []
         playback.pause(); selectedID = layer; selectedKeyframe = frame; tool = .select; seek(seconds)
     }
@@ -1296,7 +1136,10 @@ struct AnalysisWorkspaceView: View {
         case .player:
             guard clip.freezeDuration == nil else { return }
             if mark.linkedPlayers != nil { correctingAnchor = correctingAnchor ?? 0; correctingPlayer = true; return }
-            playerPickerLayerID = mark.id; showPlayerTracks = true
+            if time < mark.start || time >= mark.end { seek(mark.start) }
+            // Picking a player next replaces whatever this drawing followed before.
+            if mark.playerMotion != nil { updateSelected { $0.makeStatic(at: time) } }
+            correctingPlayer = true; showsPlayers = true; detect()
         case .camera:
             beginCameraTracking()
         }
@@ -1349,24 +1192,19 @@ struct AnalysisWorkspaceView: View {
         let bounded = min(clip.annotationEnd, max(clip.startSeconds, value))
         if clip.freezeDuration != nil { freezeTime = bounded } else { playback.previewSeek(bounded) }
     }
-    private func setTrackingSmoothing(_ value: Double) {
-        updateSelected(recordUndo: false) { mark in
-            mark.playerMotion?.smoothing = value
-            if let links = mark.linkedPlayers {
-                mark.linkedPlayers = links.map { var motion = $0; motion.smoothing = value; return motion }
-            }
-        }
-    }
-    private func detect(motion: Bool) {
+    private func detect() {
         let start = max(clip.startSeconds, detectionTime - 0.05)
-        let end = min(request.recording.duration, motion ? detectionTime + 6 : detectionTime + 0.1)
+        let end = min(request.recording.duration, detectionTime + 0.1)
         if end > start { session.analyze(recording: request.recording, range: start...end) }
     }
     private func player(at point: CGPoint) -> CGRect? {
         PlayerSelection.box(at: point, among: detections.map(\.rect), aspectRatio: displayAspect)
     }
     private func selectPlayer(_ box: CGRect) {
-        if pickingPlayerTrack { guard !playback.isSeeking else { return }; trackIndependentPlayer(seed: box); return }
+        if pickingPlayerTrack {
+            guard !playback.isSeeking, let id = correctingTrackID else { return }
+            fixPlayer(id, seed: box); return
+        }
         playback.pause(); selectedPlayer = .init(time: time, box: box)
         selectedPlayerTrackID = clip.trackingLibrary?.player(matching: box, at: time)?.id
         if tool == .player, !correctingPlayer {
@@ -1392,33 +1230,50 @@ struct AnalysisWorkspaceView: View {
     }
     private func chooseTool(_ item: AnalysisDrawingTool) {
         playback.pause()
-        endFrameReview()
+        endFix()
         canvasNavigation = nil
         correctingPlayer = false
         constructionPoints = []; constructionPlayers = []
-        if item == .zoom { selectedID = nil; selectedPlayer = nil; canvasZoom = 1; zoomCenter = CGPoint(x: 0.5, y: 0.5) }
-        if item == .zone || item == .connection {
-            selectedID = nil; selectedPlayer = nil; tool = item
-            if analysis?.frame(at: detectionTime) == nil { detect(motion: false) }
-            return
-        }
-        if item == .player, selectedPlayer != nil { showPlayerEffects = true; return }
-        if item == .text || item == .player || item == .loupe { selectedID = nil; selectedPlayer = nil; selectedPlayerTrackID = nil }
+        selectedID = nil; selectedPlayer = nil; selectedPlayerTrackID = nil
+        if AnalysisDrawingTool.drawShapes.contains(item) { lastDrawTool = item }
+        if item == .zoom { canvasZoom = 1; zoomCenter = CGPoint(x: 0.5, y: 0.5) }
         tool = item
+        if item == .player || item == .zone || item == .connection {
+            showsPlayers = true
+            if analysis?.frame(at: detectionTime) == nil { detect() }
+        }
     }
 
     private func applyPlayerEffects(_ options: AnalysisPlayerEffects) {
-        guard let player = selectedPlayer, trackingID == nil else { return }
+        guard let player = selectedPlayer, !isBusy else { return }
         let saved = reusablePlayer(box: player.box, at: time)
+        checkpoint()
         if clip.freezeDuration == nil, saved == nil, !options.tools.isEmpty {
-            trackIndependentPlayer(seed: player.box, effects: options)
+            // Show the highlight straight away on a one-frame track, then let
+            // the pass extend it: the effect follows the player as the video runs.
+            let id = UUID()
+            let seed = PlayerMotion(samples: [.init(time: time, box: player.box)], trackID: id)
+            clip.storePlayerTrack(seed)
+            selectedID = clip.applyPlayerEffects(options, replacing: [], box: player.box, motion: seed, at: time)
+            selectedPlayerTrackID = id; tool = .select
+            nameFromLabel(options, player: id)
+            followPlayer(id, seed: player.box, from: time)
         } else {
-            checkpoint()
             selectedID = clip.applyPlayerEffects(options, replacing: Set(playerEffectLayers.map(\.id)),
                                                  box: player.box, motion: saved?.motion, at: time)
             selectedPlayerTrackID = saved?.id; tool = .select
+            if let id = saved?.id { nameFromLabel(options, player: id) }
         }
     }
+    /// A typed name label is the player's name too, so the bar and later
+    /// highlights use it.
+    private func nameFromLabel(_ options: AnalysisPlayerEffects, player id: UUID) {
+        let name = options.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard options.label, !name.isEmpty,
+              let index = clip.trackingLibrary?.players.firstIndex(where: { $0.id == id }) else { return }
+        clip.trackingLibrary?.players[index].name = name
+    }
+
     private func insertMark(_ mark: AnalysisAnnotation) {
         var mark = mark
         if mark.tool == .zoom { mark.zoomScale = 2; mark.zoomRamp = 0.35; selectedPlayer = nil }
@@ -1426,14 +1281,12 @@ struct AnalysisWorkspaceView: View {
         if mark.tool == .loupe { mark.loupeStyle = mark.loupeStyle ?? .init() }
         checkpoint(); clip.annotations.append(mark); selectedID = mark.id; tool = .select
         if mark.tool == .text { showProperties = true }
-        if mark.tool == .zoom { showProperties = true; return }
-        if mark.tool == .loupe, selectedPlayer == nil { showProperties = true }
         guard clip.freezeDuration == nil, mark.playerMotion == nil else { return }
-        if [.player, .spotlight].contains(mark.tool), let first = mark.points.first, let last = mark.points.last {
+        if mark.tool == .spotlight, let first = mark.points.first, let last = mark.points.last {
             let seed = CGRect(x: min(first.x, last.x), y: min(first.y, last.y), width: abs(last.x - first.x), height: abs(last.y - first.y))
             selectedPlayer = .init(time: time, box: seed)
             attachOrTrack(id: mark.id, seed: seed)
-        } else if let player = selectedPlayer { attachOrTrack(id: mark.id, seed: player.box) }
+        } else if mark.tool == .loupe, let player = selectedPlayer { attachOrTrack(id: mark.id, seed: player.box) }
     }
 
     private func reusablePlayer(box: CGRect, at seconds: Double) -> AnalysisTrackingLibrary.Player? {
@@ -1451,224 +1304,87 @@ struct AnalysisWorkspaceView: View {
         } else { beginTracking(id: id, seed: seed, from: time, confirmedSeed: true) }
     }
 
-    private func selectSavedPlayer(_ player: AnalysisTrackingLibrary.Player) {
-        let selectionTime = player.motion.box(at: time) != nil ? time : player.motion.samples.first?.time ?? time
-        guard let box = player.motion.box(at: selectionTime) else { return }
-        pickingPlayerTrack = false; correctingTrackID = nil; correctingPlayer = false
-        canvasNavigation = nil; constructionPoints = []; constructionPlayers = []
-        if selectionTime != time { seek(selectionTime) }
-        playback.pause(); selectedID = nil; tool = .select
-        selectedPlayer = .init(time: selectionTime, box: box); selectedPlayerTrackID = player.id
-    }
-
-    private func pickLayerPlayer() {
-        playerPickerLayerID = nil
-        guard let selected, selected.isLocked != true else { return }
-        playback.pause(); tool = .select; correctingPlayer = true; showsPlayers = true
-        if time < selected.start || time >= selected.end { seek(selected.start) }
-        detect(motion: false)
-    }
-
-    private func chooseSavedPlayer(_ player: AnalysisTrackingLibrary.Player) {
-        guard let id = playerPickerLayerID, let mark = clip.annotations.first(where: { $0.id == id }) else {
-            selectSavedPlayer(player); return
-        }
-        let available = player.motion.samples.filter { $0.time >= mark.start && $0.time <= mark.end && player.motion.box(at: $0.time) != nil }
-        guard let nearest = available.min(by: { abs($0.time-time) < abs($1.time-time) }) else {
-            error = "This player has no tracking inside this layer’s time range."; return
-        }
-        let bindTime = player.motion.box(at: time) != nil && time >= mark.start && time <= mark.end ? time : nearest.time
-        checkpoint()
-        guard clip.followSavedPlayer(player, layerID: id, at: bindTime) else { return }
-        selectedID = id; selectedPlayerTrackID = player.id
-        selectedPlayer = .init(time: bindTime, box: player.motion.box(at: bindTime)!)
-        correctingPlayer = false; pickingPlayerTrack = false; tool = .select; seek(bindTime)
-    }
-
     private func renamePlayerTrack(_ id: UUID, name: String) {
-        guard let index = clip.trackingLibrary?.players.firstIndex(where: { $0.id == id }),
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, let index = clip.trackingLibrary?.players.firstIndex(where: { $0.id == id }),
               clip.trackingLibrary?.players[index].name != name else { return }
         checkpoint(); clip.trackingLibrary?.players[index].name = name
     }
 
-    private func assignPlayerTeam(_ id: UUID, team: PlayerTrackingTeam) {
-        guard let player = clip.trackingLibrary?.players.first(where: { $0.id == id }), player.assignedTeam != team else { return }
-        checkpoint(); clip.assignPlayerTeam(team, to: id)
+    // MARK: - Following players
+
+    /// Follow a player through the whole clip: forward first, so the video
+    /// plays along with the pass, then back to the start. Stop keeps both.
+    private func followPlayer(_ id: UUID, seed: CGRect, from start: Double) {
+        followOrigin = start
+        let backward = {
+            guard start - clip.startSeconds > 0.1, let player = clip.trackingLibrary?.players.first(where: { $0.id == id }),
+                  let box = player.motion.box(at: start) else { finishFollowing(id); return }
+            var motion = player.motion; motion.identity = player.identity
+            runPlayerTracking(id: id, seed: box, from: start, to: clip.startSeconds, direction: .backward,
+                              prior: motion, recordUndo: false) { finishFollowing(id) }
+        }
+        if start < clip.endSeconds - 0.1 {
+            runPlayerTracking(id: id, seed: seed, from: start, to: clip.endSeconds, direction: .forward,
+                              prior: nil, confirmedSeed: true, recordUndo: false, then: backward)
+        } else { backward() }
     }
 
-    private func linkPlayerTrack(_ source: UUID, into target: UUID) {
-        guard clip.trackingLibrary?.canLinkPlayer(source, to: target) == true else { return }
+    private func beginFix(_ id: UUID) {
+        guard !isBusy, clip.freezeDuration == nil else { return }
+        playback.pause(); tool = .select; correctingPlayer = false
+        constructionPoints = []; constructionPlayers = []; canvasNavigation = nil
+        selectedID = nil; selectedPlayerTrackID = id
+        correctingTrackID = id; pickingPlayerTrack = true; showsPlayers = true
+        detect()
+    }
+
+    private func endFix() { pickingPlayerTrack = false; correctingTrackID = nil }
+
+    /// The coach showed where the player really is on this frame. Inside a
+    /// lost part, only that part is filled in (the rest is kept). On a frame
+    /// that was followed, the track was on someone else: follow again from here.
+    private func fixPlayer(_ id: UUID, seed: CGRect) {
+        guard let player = clip.trackingLibrary?.players.first(where: { $0.id == id }) else { endFix(); return }
+        let start = time
+        var motion = player.motion; motion.identity = player.identity
+        let section = motion.missingIntervals(in: clipRange).first { $0.contains(start) }
+        endFix()
         checkpoint()
-        guard clip.linkPlayerTrack(source, to: target) else { return }
-        if selectedPlayerTrackID == source { selectedPlayerTrackID = target }
-    }
-
-    private func pickPlayerTrack(correcting id: UUID? = nil, direction: PlayerTrackingDirection = .forward, wholeClip: Bool = false) {
-        guard clip.freezeDuration == nil, trackingID == nil else { return }
-        playback.pause(); selectedID = nil; selectedPlayer = nil; selectedPlayerTrackID = nil
-        tool = .select; correctingPlayer = false; constructionPoints = []; constructionPlayers = []
-        canvasNavigation = nil; showsPlayers = true
-        correctingTrackID = id; pickingPlayerTrack = true; placingPlayer = false; reviewingFrames = false
-        pickedDirection = direction; pickedWholeClip = wholeClip; referenceView = nil
-        pickedReplacementRange = nil
-        detect(motion: false)
-    }
-
-    /// Fix an untracked frame by hand: the next pick becomes a placement in the
-    /// saved track, with no tracking pass and no change to other players.
-    private func beginPlacing(_ id: UUID, review: Bool = false) {
-        guard clip.freezeDuration == nil, trackingID == nil else { return }
-        playback.pause(); selectedID = nil; selectedPlayer = nil; selectedPlayerTrackID = id
-        tool = .select; correctingPlayer = false; constructionPoints = []; constructionPlayers = []
-        canvasNavigation = nil; showsPlayers = true
-        correctingTrackID = id; pickingPlayerTrack = true; placingPlayer = true
-        reviewingFrames = review; reviewUndoTimes = []; referenceView = nil
-        pickedReplacementRange = nil
-        if review { seek(max(clip.startSeconds, floor(time * sourceFrameRate + 0.0001) / sourceFrameRate)) }
-        reviewBox = clip.trackingLibrary?.players.first(where: { $0.id == id })?.motion.samples
-            .min(by: { abs($0.time - time) < abs($1.time - time) })?.box
-        detect(motion: false)
-    }
-
-    private func placeSelectedPlayer(_ id: UUID, seed: CGRect) {
-        guard !playback.isSeeking, seed.width > 0.003, seed.height > 0.01 else { return }
-        checkpoint()
-        guard clip.placePlayerSample(trackID: id, box: seed, at: time) else { return }
+        followOrigin = start
         selectedPlayerTrackID = id
-        selectedPlayer = .init(time: time, box: seed)
-        if reviewingFrames {
-            reviewBox = seed; reviewUndoTimes.append(time)
-            if reviewUndoTimes.count > 60 { reviewUndoTimes.removeFirst() }
-            if let next = frameReview.next(after: time) { seek(next) }
-        } else {
-            pickingPlayerTrack = false; correctingTrackID = nil; placingPlayer = false
+        guard let section else {
+            let prior = motion.preparingCorrection(at: start, direction: .forward)
+            runPlayerTracking(id: id, seed: seed, from: start, to: clip.endSeconds, direction: .forward,
+                              prior: prior, confirmedSeed: true, recordUndo: false) { finishFollowing(id) }
+            return
         }
-    }
-
-    private func removePlayerTrack(_ id: UUID) {
-        guard clip.canRemovePlayerTrack(id) else { return }
-        checkpoint()
-        _ = clip.removePlayerTrack(id)
-        if selectedPlayerTrackID == id { selectedPlayerTrackID = nil; selectedPlayer = nil }
-    }
-
-    private func setGapBridging(_ value: Double) {
-        guard let id = selectedID else { return }
-        clip.setGapBridging(value, layerID: id)
-    }
-
-    /// One shared pass follows everyone in the clip. Saved players are handed
-    /// in as identity memory; bodies the pass discovers become new players.
-    /// Offer the plausible bodies for this player after the point tracking gave
-    /// up, so one tap puts the track back on him.
-    ///
-    /// The search only ranks; it never decides. Everything it can measure —
-    /// kit colour, tone, appearance embeddings — describes the strip rather than
-    /// the person, so against a team in one kit it can narrow the field and no
-    /// more. The person watching settles it instantly.
-    private func findPlayerAgain(_ id: UUID) {
-        guard trackingID == nil, clip.freezeDuration == nil,
-              let player = clip.trackingLibrary?.players.first(where: { $0.id == id }),
-              let identity = player.identity, identity.isConfirmed else { return }
-        let motion = player.motion
-        // Start just after the last frame he was actually seen.
-        let lastSeen = motion.lostAt ?? motion.samples.last?.time ?? clip.startSeconds
-        let from = min(clip.endSeconds - 0.2, max(clip.startSeconds, lastSeen + 0.2))
-        guard from < clip.endSeconds - 0.2 else { return }
-
-        playback.pause()
-        reacquisitionTask?.cancel()
-        reacquisitionCandidates = []
-        reacquisitionProgress = 0
-        reacquisitionSearching = true
-        reacquisitionFrom = from
-        reacquiring = player
-        let url = request.recording.fileURL, end = clip.endSeconds
-        reacquisitionTask = Task { @MainActor in
-            defer { reacquisitionSearching = false; reacquisitionTask = nil }
-            do {
-                let report: @Sendable (Double) -> Void = { fraction in
-                    Task { @MainActor in
-                        if Int(reacquisitionProgress * 100) != Int(fraction * 100) { reacquisitionProgress = fraction }
-                    }
-                }
-                let worker = Task.detached(priority: .userInitiated) {
-                    try await PlayerReacquisitionSearch.candidates(
-                        url: url, from: from, to: end, memory: identity, progress: report)
-                }
-                let found = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
-                guard reacquiring?.id == id else { return }
-                reacquisitionCandidates = found
-            } catch is CancellationError {
-            } catch { self.error = error.localizedDescription }
+        // The tap itself is certain; keep it even if following fails at once.
+        motion.place(seed, at: start)
+        clip.storePlayerTrack(motion)
+        let backward = {
+            guard start - section.lowerBound > 0.05,
+                  let saved = clip.trackingLibrary?.players.first(where: { $0.id == id }) else { finishFollowing(id); return }
+            var prior = saved.motion; prior.identity = saved.identity
+            runPlayerTracking(id: id, seed: seed, from: start, to: section.lowerBound, direction: .backward, prior: prior,
+                              confirmedSeed: true, fillOnlyRange: section, recordUndo: false) { finishFollowing(id) }
         }
+        if section.upperBound - start > 0.05 {
+            runPlayerTracking(id: id, seed: seed, from: start, to: min(clip.endSeconds, section.upperBound), direction: .forward,
+                              prior: motion, confirmedSeed: true, fillOnlyRange: section, recordUndo: false, then: backward)
+        } else { backward() }
     }
 
-    /// The user picked a body. Resume tracking from that frame, splicing onto
-    /// everything already confirmed before the gap.
-    private func confirmReacquisition(_ id: UUID, candidate: PlayerReacquisitionCandidate) {
-        reacquisitionTask?.cancel(); reacquisitionTask = nil
-        reacquiring = nil
+    private func finishFollowing(_ id: UUID, stopped: Bool = false) {
+        if let origin = followOrigin { seek(origin) }
+        followOrigin = nil
+        selectedPlayerTrackID = id
         guard let player = clip.trackingLibrary?.players.first(where: { $0.id == id }) else { return }
-        var motion = player.motion
-        motion.identity = player.identity
-        // The user's choice is ground truth, exactly like a manual correction,
-        // so the terminal loss is cleared rather than tracked around.
-        motion.lostAt = nil
-        checkpoint()
-        seek(candidate.time)
-        selectedPlayerTrackID = id
-        selectedPlayer = .init(time: candidate.time, box: candidate.box)
-        runPlayerTracking(id: id, seed: candidate.box, from: candidate.time, to: clip.endSeconds,
-                          direction: .forward, prior: motion, includeBodyMasks: includeBodyMasks)
-    }
-
-    private func trackAllPlayers() {
-        guard clip.freezeDuration == nil, trackingID == nil, clip.endSeconds - clip.startSeconds > 0.2 else { return }
-        let start = clip.startSeconds, end = clip.endSeconds, url = request.recording.fileURL
-        let priors = (clip.trackingLibrary?.players ?? []).map { PlayerRosterPrior(id: $0.id, motion: $0.motion, memory: $0.identity) }
-        // Camera-relative memory needs the clip camera; run that pass first
-        // when it is missing, so the roster never inherits a pan as motion.
-        let existingCamera = clip.hasFullCameraTrack ? clip.trackingLibrary?.sharedCamera : nil
-        let cameraRange = clip.cameraTrackingRange
-        pickingPlayerTrack = false; correctingTrackID = nil; placingPlayer = false; correctingPlayer = false
-        trackingTask?.cancel(); session.cancel(); playback.pause()
-        selectedID = nil; selectedPlayer = nil; tool = .select
-        let job = UUID()
-        trackingID = job; trackingJob = job; trackingProgress = 0
-        trackingTask = Task { @MainActor in
-            defer { if trackingJob == job { trackingID = nil; trackingTask = nil; trackingJob = nil } }
-            do {
-                let report: @Sendable (Double) -> Void = { fraction in
-                    Task { @MainActor in
-                        if trackingJob == job, Int(trackingProgress * 100) != Int(fraction * 100) { trackingProgress = fraction }
-                    }
-                }
-                let worker = Task.detached(priority: .userInitiated) { () -> (camera: AnnotationCameraMotion?, roster: PlayerRosterResult) in
-                    let tracked: AnnotationCameraMotion? = existingCamera == nil
-                        ? try await CameraMotionTracking.track(url: url, from: cameraRange.lowerBound, to: cameraRange.upperBound) { report($0 * 0.25) }
-                        : nil
-                    let camera = existingCamera ?? tracked
-                    let scaled = tracked != nil
-                    let roster = try await PlayerRosterTracking.track(url: url, from: start, to: end, priors: priors, camera: camera) {
-                        report(scaled ? 0.25 + $0 * 0.75 : $0)
-                    }
-                    return (tracked, roster)
-                }
-                let outcome = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
-                try Task.checkCancellation(); guard trackingJob == job else { return }
-                checkpoint()
-                if let camera = outcome.camera { clip.storeSharedCameraTrack(camera) }
-                let result = outcome.roster
-                let merged = clip.mergeRoster(result)
-                showsPlayers = true
-                let lost = clip.trackingLibrary?.players.filter { $0.motion.lostAt != nil }.count ?? 0
-                var summary = merged.tracked == 0 ? "No players could be followed in this clip." :
-                    "Followed \(merged.tracked) motion \(merged.tracked == 1 ? "track" : "tracks") (\(merged.new) new), with up to \(result.peakVisible) people visible at once, in \(String(format: "%.1f", result.elapsed)) s. Tracks may be separate sections of the same player; assign teams and link them in Squad tracks."
-                if lost > 0 { summary += " \(lost) \(lost == 1 ? "track needs" : "tracks need") correction; use the gap arrows on a selected player to review each section." }
-                error = summary
-            } catch is CancellationError {} catch { self.error = error.localizedDescription }
-        }
+        selectedPlayer = player.motion.box(at: time).map { .init(time: time, box: $0) }
+        let lost = AnalysisTrackingStrip.lostSections(player.motion, range: clipRange).count
+        if stopped { show("Stopped. \(player.name) is kept up to there.") }
+        else if lost == 0 { show("\(player.name) followed through the whole clip") }
+        else { show("\(player.name) was lost in \(lost) \(lost == 1 ? "place" : "places"). Tap Fix to show where they are.") }
     }
 
     /// Fold one published partial into the saved track. Forward splices through
@@ -1691,276 +1407,73 @@ struct AnalysisWorkspaceView: View {
     }
 
     /// One incremental player pass. Confirmed samples land in the clip while it
-    /// runs and the playhead follows the tracked frame, so stopping keeps
-    /// everything up to that point instead of throwing the pass away.
-    ///
-    /// Forward splices through `continuing(with:from:)`, which already replaces
-    /// only the tracked range and preserves the saved past and future; backward
-    /// joins through `prepending(_:seed:)`. Re-tracking a middle range is
-    /// therefore just a pass the user stops.
+    /// runs and the playhead follows the tracked frame, so the highlight moves
+    /// with the video and stopping keeps everything up to that point.
+    /// `then` runs after a pass that finished on its own (not stopped).
     private func runPlayerTracking(id: UUID, seed: CGRect, from start: Double, to end: Double,
                                    direction: PlayerTrackingDirection,
                                    prior: PlayerMotion?,
-                                   includeBodyMasks: Bool,
                                    confirmedSeed: Bool = false,
-                                   effects: AnalysisPlayerEffects? = nil,
-                                   then continuation: PlayerTrackingDirection? = nil,
-                                   replacementRange: ClosedRange<Double>? = nil,
                                    fillOnlyRange: ClosedRange<Double>? = nil,
-                                   recordUndo: Bool = true) {
-        guard clip.freezeDuration == nil, abs(end - start) > 0.05 else { return }
+                                   recordUndo: Bool = true,
+                                   then continuation: (() -> Void)? = nil) {
+        guard clip.freezeDuration == nil, abs(end - start) > 0.05 else { continuation?(); return }
         let url = request.recording.fileURL
         let job = UUID()
-        endFrameReview(); pickedReplacementRange = nil
         session.cancel(); playback.pause()
         selectedPlayerTrackID = id
         selectedPlayer = .init(time: start, box: seed)
         trackingID = id; trackingJob = job; trackingProgress = 0
-        trackingDirection = direction
-        trackingOrigin = start
-        trackingTime = start
         trackingPhase = .following
         if recordUndo { checkpoint() }
-        if replacementRange != nil, let prior { clip.storePlayerTrack(prior) }
-
         trackingStoredAt = Date.timeIntervalSinceReferenceDate
 
         trackingTask = Task { @MainActor in
             defer {
-                if trackingJob == job {
-                    trackingID = nil; trackingTask = nil; trackingJob = nil
-                    trackingDirection = nil; trackingOrigin = nil; trackingTime = nil
-                }
+                if trackingJob == job { trackingID = nil; trackingTask = nil; trackingJob = nil }
             }
             do {
                 let publish: @Sendable (PlayerTrackingCheckpoint) -> Void = { update in
                     Task { @MainActor in
                         guard trackingJob == job else { return }
                         trackingProgress = update.fraction
-                        trackingTime = update.time
                         trackingPhase = update.phase
                         previewSeek(update.time)
                         guard let partial = update.motion, partial.samples.count > 1 else { return }
                         let combined = folded(partial, into: prior, id: id, from: start, direction: direction,
                                               fillOnlyRange: fillOnlyRange)
                         selectedPlayer = combined.box(at: update.time).map { .init(time: update.time, box: $0) }
-                        // Persist occasionally as well, so a pass that is killed
-                        // by anything other than Stop still leaves its work.
+                        // Store often so the highlight itself follows the
+                        // player live, and a killed pass still leaves its work.
                         let now = Date.timeIntervalSinceReferenceDate
-                        guard now - trackingStoredAt >= 2 else { return }
+                        guard now - trackingStoredAt >= 0.4 else { return }
                         trackingStoredAt = now
                         clip.storePlayerTrack(combined)
                     }
                 }
                 let worker = Task.detached(priority: .userInitiated) {
                     try await SelectedPlayerTracking.track(url: url, seed: seed, from: start, to: end,
-                                                           direction: direction, prior: prior, includeBodyMasks: includeBodyMasks, confirmedSeed: confirmedSeed, checkpoint: publish)
+                                                           direction: direction, prior: prior, includeBodyMasks: false,
+                                                           confirmedSeed: confirmedSeed, checkpoint: publish)
                 }
                 let outcome = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
                 guard trackingJob == job else { return }
                 let combined = folded(outcome.motion, into: prior, id: id, from: start, direction: direction,
                                       fillOnlyRange: fillOnlyRange)
                 clip.storePlayerTrack(combined); selectedPlayerTrackID = id
-                let reached = direction == .forward
-                    ? (outcome.motion.samples.last?.time ?? start)
-                    : (outcome.motion.samples.first?.time ?? start)
-                seek(reached)
-                selectedPlayer = combined.box(at: reached).map { .init(time: reached, box: $0) }
-                if let effects {
-                    selectedID = clip.applyPlayerEffects(effects, replacing: [], box: seed, motion: combined, at: start)
-                    tool = .select
-                }
-                if outcome.stopped {
-                    error = "Stopped at \(timelineTimecode(reached - clip.startSeconds, includesTenths: true)). Everything tracked up to there is saved; use Track forward or Track backward from the playhead to continue."
-                } else if let next = continuation,
-                          next == .forward ? start < clip.endSeconds - 0.1 : start > clip.startSeconds + 0.1 {
-                    // Whole-clip tracking is the two halves in turn: the second
-                    // starts from the same seed frame, once this pass has
-                    // released tracking, and is stoppable in its own right.
-                    let player = clip.trackingLibrary?.players.first(where: { $0.id == id })
-                    Task { @MainActor in
-                        await Task.yield()
-                        guard let player, let box = player.motion.box(at: start) else { return }
-                        var motion = player.motion; motion.identity = player.identity
-                        runPlayerTracking(id: id, seed: box, from: start,
-                                          to: next == .forward ? replacementRange?.upperBound ?? clip.endSeconds : replacementRange?.lowerBound ?? clip.startSeconds,
-                                          direction: next, prior: motion, includeBodyMasks: includeBodyMasks,
-                                          replacementRange: replacementRange, recordUndo: replacementRange == nil)
-                    }
-                } else if direction == .forward, let lost = outcome.motion.lostAt {
-                    error = "Tracking stopped at \(timelineTimecode(lost - clip.startSeconds, includesTenths: true)). Paused at the last tracked frame. Use Correct to select this player and continue."
-                } else if direction == .backward, let first = combined.samples.first?.time, first - clip.startSeconds > 0.15 {
-                    error = "Followed back to \(timelineTimecode(first - clip.startSeconds, includesTenths: true)); before that the player could not be recognised. Use Place here or Correct on earlier frames if needed."
-                }
+                trackingID = nil; trackingTask = nil; trackingJob = nil
+                if outcome.stopped { finishFollowing(id, stopped: true) }
+                else if let continuation {
+                    // The next pass starts once this one has released tracking.
+                    Task { @MainActor in await Task.yield(); continuation() }
+                } else { finishFollowing(id) }
             } catch is CancellationError {
-            } catch { self.error = error.localizedDescription }
+            } catch { self.error = error.localizedDescription; followOrigin = nil }
         }
     }
 
-    /// Saves source motion directly; creating or correcting a player never needs
-    /// a temporary drawing and never replaces another player's identity.
-    /// Follow a saved player backwards from the current frame to the clip start,
-    /// optionally continuing to the clip end afterwards (whole clip).
-    private func trackPlayerBackward(_ id: UUID, thenForward: Bool, at requestedTime: Double? = nil) {
-        guard trackingID == nil, clip.freezeDuration == nil,
-              let saved = clip.trackingLibrary?.players.first(where: { $0.id == id }) else { return }
-        var motion = saved.motion; motion.identity = saved.identity
-        let start = requestedTime ?? time
-        guard let seed = motion.trackingSeed(at: start) else {
-            seek(start); pickPlayerTrack(correcting: id, direction: start - clip.startSeconds > 0.1 ? .backward : .forward, wholeClip: thenForward); return
-        }
-        guard start - clip.startSeconds > 0.1 || thenForward else { return }
-        let replacing = thenForward ? clip.startSeconds...clip.endSeconds : clip.startSeconds...start
-        motion = motion.clearingTracking(in: replacing)
-        motion.place(seed, at: start)
-        if thenForward {
-            motion.jerseyProfile = nil
-            if let identity = motion.identity {
-                motion.identity = identity.restartingAutomaticLearning()
-            }
-        }
-        if start - clip.startSeconds > 0.1 {
-            runPlayerTracking(id: id, seed: seed, from: start, to: clip.startSeconds, direction: .backward,
-                              prior: motion, includeBodyMasks: includeBodyMasks, then: thenForward ? .forward : nil,
-                              replacementRange: replacing)
-        } else if thenForward {
-            runPlayerTracking(id: id, seed: seed, from: start, to: clip.endSeconds, direction: .forward,
-                              prior: motion, includeBodyMasks: includeBodyMasks, replacementRange: replacing)
-        }
-    }
-
-    private func trackPlayerToEnd(_ id: UUID, from requestedTime: Double? = nil) {
-        guard trackingID == nil, clip.freezeDuration == nil,
-              let saved = clip.trackingLibrary?.players.first(where: { $0.id == id }) else { return }
-        var motion = saved.motion; motion.identity = saved.identity
-        let start = requestedTime ?? time
-        guard start < clip.endSeconds - 0.1 else { return }
-        guard let seed = motion.trackingSeed(at: start) else {
-            seek(start); pickPlayerTrack(correcting: id); return
-        }
-        let replacing = start...clip.endSeconds
-        motion = motion.clearingTracking(in: replacing)
-        motion.place(seed, at: start)
-        runPlayerTracking(id: id, seed: seed, from: start, to: clip.endSeconds, direction: .forward,
-                          prior: motion, includeBodyMasks: includeBodyMasks, replacementRange: replacing)
-    }
-
-    /// Track the missing interval nearest the playhead. The pass starts from
-    /// the closest confirmed sample on either side, then merges only new
-    /// samples inside that interval; existing samples are never replaced.
-    private func fillPlayerGap(_ id: UUID) {
-        guard trackingID == nil, clip.freezeDuration == nil,
-              let player = clip.trackingLibrary?.players.first(where: { $0.id == id }) else { return }
-        let motion = player.motion
-        let range = clip.startSeconds...clip.endSeconds
-        let gaps = motion.missingIntervals(in: range)
-        guard let gap = gaps.first(where: { $0.contains(time) }) ?? gaps.min(by: {
-            abs($0.lowerBound + ($0.upperBound - $0.lowerBound) / 2 - time) <
-            abs($1.lowerBound + ($1.upperBound - $1.lowerBound) / 2 - time)
-        }) else { return }
-
-        let before = motion.samples.last { $0.time < gap.lowerBound && !motion.isMissing(at: $0.time) }
-        let after = motion.samples.first { $0.time > gap.upperBound && !motion.isMissing(at: $0.time) }
-        var prior = motion; prior.identity = player.identity
-
-        if let before, gap.upperBound - before.time > 0.05 {
-            runPlayerTracking(id: id, seed: before.box, from: before.time, to: gap.upperBound,
-                              direction: .forward, prior: prior, includeBodyMasks: includeBodyMasks,
-                              fillOnlyRange: gap)
-        } else if let after, after.time - gap.lowerBound > 0.05 {
-            runPlayerTracking(id: id, seed: after.box, from: after.time, to: gap.lowerBound,
-                              direction: .backward, prior: prior, includeBodyMasks: includeBodyMasks,
-                              fillOnlyRange: gap)
-        }
-    }
-
-    private func trackIndependentPlayer(seed: CGRect, effects: AnalysisPlayerEffects? = nil, from requestedStart: Double? = nil) {
-        if let view = referenceView, let id = correctingTrackID { capturePlayerReference(id, seed: seed, view: view); return }
-        if placingPlayer, let id = correctingTrackID { placeSelectedPlayer(id, seed: seed); return }
-        let start = requestedStart ?? time
-        let direction = correctingTrackID == nil ? PlayerTrackingDirection.forward : pickedDirection
-        let replacing = pickedReplacementRange
-        let end = direction == .forward ? replacing?.upperBound ?? clip.endSeconds : replacing?.lowerBound ?? clip.startSeconds
-        guard trackingID == nil, clip.freezeDuration == nil, abs(end - start) > 0.05 else { return }
-        var previous = clip.trackingLibrary?.players.first(where: { $0.id == correctingTrackID })?.motion
-        previous?.identity = clip.trackingLibrary?.players.first(where: { $0.id == correctingTrackID })?.identity
-        if let replacing {
-            previous = previous?.clearingTracking(in: replacing)
-            previous?.place(seed, at: start)
-        } else {
-            previous = previous?.preparingCorrection(at: start, direction: direction)
-        }
-        let id = previous?.trackID ?? correctingTrackID ?? UUID()
-        let next: PlayerTrackingDirection? = replacing != nil
-            ? (direction == .backward && replacing!.upperBound - start > 0.05 ? .forward : nil)
-            : previous != nil && pickedWholeClip && direction == .backward ? .forward : previous == nil && start - clip.startSeconds > 0.1 ? .backward : nil
-        runPlayerTracking(id: id, seed: seed, from: start, to: end, direction: direction, prior: previous,
-                          includeBodyMasks: includeBodyMasks, confirmedSeed: true, effects: effects, then: next,
-                          replacementRange: replacing)
-    }
-
-    private func capturePlayerReference(_ id: UUID, seed: CGRect, view: PlayerIdentityView) {
-        guard trackingID == nil, !playback.isSeeking else { return }
-        let sourceTime = time, url = request.recording.fileURL
-        referenceView = nil; pickingPlayerTrack = false; placingPlayer = false; correctingTrackID = nil
-        trackingID = id; trackingProgress = 0
-        trackingTask = Task { @MainActor in
-            defer { trackingID = nil; trackingTask = nil }
-            do {
-                let worker = Task.detached(priority: .userInitiated) {
-                    try await PlayerAppearancePrinter.reference(url: url, box: seed, at: sourceTime)
-                }
-                let observation = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
-                try Task.checkCancellation()
-                guard observation.jersey != nil, !observation.crowded, !PlayerBodyExtent.isCropped(seed) else {
-                    error = "Choose a clear, fully visible view of this player for the identity reference."; return
-                }
-                guard let index = clip.trackingLibrary?.players.firstIndex(where: { $0.id == id }) else { return }
-                checkpoint()
-                var memory = clip.trackingLibrary?.players[index].identity ?? PlayerIdentityMemory()
-                memory.confirm(observation, view: view)
-                clip.trackingLibrary?.players[index].identity = memory
-                clip.trackingLibrary?.players[index].motion.jerseyProfile = memory.jersey
-                selectedPlayerTrackID = id
-                error = "\(view.title) reference saved."
-            } catch is CancellationError {} catch { self.error = error.localizedDescription }
-        }
-    }
-
-    private func setPlayerNumber(_ id: UUID, number: String) {
-        let value = number.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.isEmpty || PlayerNumberVotes.isShirtNumber(value),
-              let index = clip.trackingLibrary?.players.firstIndex(where: { $0.id == id }) else { return }
-        checkpoint()
-        var memory = clip.trackingLibrary?.players[index].identity ?? PlayerIdentityMemory()
-        memory.number.manual = value.isEmpty ? nil : value
-        if value.isEmpty { memory.number.counts = [:] }
-        clip.trackingLibrary?.players[index].identity = memory
-    }
-
-    private var measurementStatus: String? {
-        guard let calibration = clip.groundCalibration else { return nil }
-        return calibration.isApproximate ? "Approximate local measurements · not perspective corrected." : "Ground-calibrated estimates · speed uses the recorded source time."
-    }
-
-    private func openMeasurements() {
-        playback.pause()
-        var existing = clip.groundCalibration
-        // Edit the reference on its original source frame, not a moved camera pose.
-        let reference = existing?.referenceTime ?? time
-        if clip.freezeDuration != nil { existing?.fixedCamera = true }
-        groundRequest = .init(sourceTime: clip.freezeDuration == nil ? reference : clip.startSeconds,
-                              annotationTime: reference, existing: existing, isStill: clip.freezeDuration != nil,
-                              sourceRange: clip.startSeconds...clip.endSeconds, cameraMotion: clip.trackingLibrary?.sharedCamera)
-    }
-
-    private func applyGroundCalibration(_ value: GroundCalibration?) {
-        checkpoint(); playback.pause(); clip.groundCalibration = value
-        if let value, clip.freezeDuration == nil { seek(value.referenceTime) }
-        guard let value, value.valid, !value.fixedCamera, clip.freezeDuration == nil else { return }
-        clip.refreshSharedCameraBindings()
-        ensureSharedCameraTracking()
-    }
+    /// Drawings that follow a player on their own (not a highlight): a
+    /// one-off pass bound to the drawing, stored as a clip player.
     private func beginTracking(id: UUID, seed: CGRect, from start: Double, confirmedSeed: Bool = false) {
         guard clip.freezeDuration == nil, seed.width > 0.002, seed.height > 0.005,
               let index = clip.annotations.firstIndex(where: { $0.id == id }), clip.annotations[index].end > start else { return }
@@ -1975,18 +1488,17 @@ struct AnalysisWorkspaceView: View {
         // A repair is transactional: don't swap a complete saved track for a
         // one-frame placeholder while the worker is running.
         if original.playerMotion == nil {
-            clip.annotations[index].playerMotion = PlayerMotion(samples: [.init(time: start, box: seed)], lostAt: start + 0.1)
+            clip.annotations[index].playerMotion = PlayerMotion(samples: [.init(time: start, box: seed)], lostAt: start + 0.1, trackID: trackID)
         }
         let job = UUID()
-        trackingID = id; trackingJob = job; trackingProgress = 0
+        trackingID = trackID; trackingJob = job; trackingProgress = 0; trackingPhase = .following
+        selectedPlayerTrackID = trackID
         let url = request.recording.fileURL, end = clip.endSeconds
-        // Read once here: the worker below must not touch view state.
-        let includeBodyMasks = self.includeBodyMasks
         trackingTask = Task { @MainActor in
             defer { if trackingJob == job { trackingID = nil; trackingTask = nil; trackingJob = nil } }
             do {
                 let worker = Task.detached(priority: .userInitiated) {
-                    try await SelectedPlayerTracking.track(url: url, seed: seed, from: start, to: end, prior: prior, includeBodyMasks: includeBodyMasks, confirmedSeed: confirmedSeed) { fraction in
+                    try await SelectedPlayerTracking.track(url: url, seed: seed, from: start, to: end, prior: prior, includeBodyMasks: false, confirmedSeed: confirmedSeed) { fraction in
                         Task { @MainActor in if trackingJob == job { trackingProgress = fraction } }
                     }
                 }
@@ -2003,7 +1515,7 @@ struct AnalysisWorkspaceView: View {
                 clip.storePlayerTrack(combined); selectedPlayerTrackID = trackID
                 if let lost = motion.lostAt {
                     seek(motion.correctionTime ?? lost)
-                    error = "Tracking stopped at \(timelineTimecode(lost - clip.startSeconds, includesTenths: true)). Tap Correct, then select the same player to continue."
+                    show("Lost the player at \(timelineTimecode(lost - clip.startSeconds, includesTenths: true)). Tap Fix to show where they are.")
                 }
             } catch is CancellationError {
                 if trackingJob == job, let index = clip.annotations.firstIndex(where: { $0.id == id }) {
@@ -2028,10 +1540,9 @@ struct AnalysisWorkspaceView: View {
                 ?? PlayerMotion(samples: [seed], trackID: UUID(), referenceBox: seed.box)
         }).map { clip.trackingLibrary?.resuming($0) ?? $0 }
         checkpoint(); trackingTask?.cancel(); session.cancel(); playback.pause()
-        let job = UUID(); trackingID = id; trackingJob = job; trackingProgress = 0
+        let job = UUID(); trackingID = id; trackingJob = job; trackingProgress = 0; trackingPhase = .following
         let url = request.recording.fileURL
         let end = clip.endSeconds
-        let includeBodyMasks = self.includeBodyMasks
         trackingTask = Task { @MainActor in
             defer { if trackingJob == job { trackingID = nil; trackingTask = nil; trackingJob = nil } }
             do {
@@ -2047,7 +1558,7 @@ struct AnalysisWorkspaceView: View {
                         let trackingSeed = replacing == nil && old.samples.count > 1 ? old.samples.last ?? seed : seed
                         let confirmed = replacing != nil || old.samples.count <= 1
                         let prior = replacing != nil ? old.preparingCorrection(at: trackingSeed.time, direction: .forward) : old
-                        let motion = try await SelectedPlayerTracking.track(url: url, seed: trackingSeed.box, from: trackingSeed.time, to: end, prior: prior, includeBodyMasks: includeBodyMasks, confirmedSeed: confirmed) { fraction in
+                        let motion = try await SelectedPlayerTracking.track(url: url, seed: trackingSeed.box, from: trackingSeed.time, to: end, prior: prior, includeBodyMasks: false, confirmedSeed: confirmed) { fraction in
                             Task { @MainActor in if trackingJob == job { trackingProgress = (Double(offset) + fraction) / Double(seeds.count) } }
                         }
                         if let time = motion.correctionTime, time < (repairFailure?.time ?? .infinity) {
@@ -2070,23 +1581,18 @@ struct AnalysisWorkspaceView: View {
                     // Preserved future coverage can hide a failed repair's
                     // terminal loss in the merged track. Focus the actual pass.
                     correctingAnchor = failure.index; seek(failure.time)
-                    correctingPlayer = true; tool = .select; detect(motion: false)
+                    correctingPlayer = true; tool = .select; detect()
                 } else if let failed = motions.enumerated().filter({ $0.element.lostAt != nil }).min(by: { ($0.element.lostAt ?? .infinity) < ($1.element.lostAt ?? .infinity) }),
                    let lost = failed.element.lostAt {
                     correctingAnchor = failed.offset
                     seek(failed.element.correctionTime ?? lost)
-                    correctingPlayer = true; tool = .select; detect(motion: false)
+                    correctingPlayer = true; tool = .select; detect()
                 }
             } catch is CancellationError {} catch { self.error = error.localizedDescription }
         }
     }
 
-    private var cameraCoverageStatus: String {
-        if clip.hasFullCameraTrack { return "First to last frame · shared camera track" }
-        guard let camera = clip.trackingLibrary?.sharedCamera,
-              let first = camera.samples.first, let last = camera.samples.last else { return "Camera not tracked yet" }
-        return "Partial coverage · \(timelineTimecode(max(0, first.time - clip.startSeconds), includesTenths: false))–\(timelineTimecode(max(0, last.time - clip.startSeconds), includesTenths: false))"
-    }
+    // MARK: - Camera and pitch
 
     private func beginCameraTracking(fromCurrentFrame: Bool = true) {
         guard var mark = selected, mark.isLocked != true, clip.freezeDuration == nil else { return }
@@ -2105,10 +1611,10 @@ struct AnalysisWorkspaceView: View {
         clip.annotations[index] = mark
     }
 
-    /// Field setup, the clip action and Follow camera all use this single pass.
-    /// Calibration/binding time only defines geometry; it never limits coverage.
+    /// Pitch setup, the pitch lines and "Stick to the pitch" all use this single
+    /// camera pass. Calibration/binding time only defines geometry; it never limits coverage.
     private func ensureSharedCameraTracking(force: Bool = false, pending: AnalysisAnnotation? = nil, bindTime: Double? = nil) {
-        guard clip.freezeDuration == nil, trackingID == nil else { return }
+        guard clip.freezeDuration == nil, !isBusy else { return }
         if !force, clip.hasFullCameraTrack {
             if pending != nil { checkpoint() }
             clip.refreshSharedCameraBindings()
@@ -2117,9 +1623,10 @@ struct AnalysisWorkspaceView: View {
         }
         checkpoint(); trackingTask?.cancel(); session.cancel(); playback.pause()
         let job = UUID(), url = request.recording.fileURL, range = clip.cameraTrackingRange
-        trackingID = job; trackingJob = job; trackingProgress = 0
+        trackingID = job; trackingJob = job; trackingProgress = 0; trackingPhase = .following
+        readingCamera = true
         trackingTask = Task { @MainActor in
-            defer { if trackingJob == job { trackingID = nil; trackingTask = nil; trackingJob = nil } }
+            defer { if trackingJob == job { trackingID = nil; trackingTask = nil; trackingJob = nil; readingCamera = false } }
             do {
                 let worker = Task.detached(priority: .userInitiated) {
                     try await CameraMotionTracking.track(url: url, from: range.lowerBound, to: range.upperBound) { fraction in
@@ -2134,12 +1641,38 @@ struct AnalysisWorkspaceView: View {
                 attachToClipCamera(pending, at: bindTime)
                 if let lost = motion.lostAt {
                     seek(motion.samples.last?.time ?? lost)
-                    let result = adopted ? "The partial track was saved." : "The previous longer track was kept."
-                    error = "Camera motion could not be connected at \(timelineTimecode(lost - clip.startSeconds, includesTenths: true)). \(result) Field preview and camera-following layers share this coverage; a cut or obscured view may need a separate clip."
+                    show(adopted
+                        ? "Camera movement could only be followed up to \(timelineTimecode(lost - clip.startSeconds, includesTenths: true)). A cut or blocked view can cause this."
+                        : "Couldn't follow the camera further than before; the earlier result is kept.")
                 }
             } catch is CancellationError {} catch { self.error = error.localizedDescription }
         }
     }
+
+    private var measurementStatus: String? {
+        guard let calibration = clip.groundCalibration else { return nil }
+        return calibration.isApproximate ? "Approximate measurements" : "Measured from the pitch"
+    }
+
+    private func openMeasurements() {
+        playback.pause()
+        var existing = clip.groundCalibration
+        // Edit the reference on its original source frame, not a moved camera pose.
+        let reference = existing?.referenceTime ?? time
+        if clip.freezeDuration != nil { existing?.fixedCamera = true }
+        groundRequest = .init(sourceTime: clip.freezeDuration == nil ? reference : clip.startSeconds,
+                              annotationTime: reference, existing: existing, isStill: clip.freezeDuration != nil,
+                              sourceRange: clip.startSeconds...clip.endSeconds, cameraMotion: clip.trackingLibrary?.sharedCamera)
+    }
+
+    private func applyGroundCalibration(_ value: GroundCalibration?) {
+        checkpoint(); playback.pause(); clip.groundCalibration = value
+        if let value, clip.freezeDuration == nil { seek(value.referenceTime) }
+        guard let value, value.valid, !value.fixedCamera, clip.freezeDuration == nil else { return }
+        clip.refreshSharedCameraBindings()
+        ensureSharedCameraTracking()
+    }
+
     private func prepare() async {
         guard !initialised else { return }
         playback.commitSeek(request.seconds)
@@ -2159,7 +1692,7 @@ struct AnalysisWorkspaceView: View {
                 still = UIImage(cgImage: result.image)
             }
             initialised = true
-            if analysis?.frame(at: request.seconds) == nil { detect(motion: false) }
+            if analysis?.frame(at: request.seconds) == nil { detect() }
         } catch { self.error = error.localizedDescription }
     }
 }
@@ -2181,15 +1714,21 @@ private struct AnnotationDrawingSurface: UIViewRepresentable {
         override func draw(_ rect: CGRect) {
             guard let content, let context = UIGraphicsGetCurrentContext() else { return }
             if content.renderMarks { AnnotationRenderer.draw(content.marks, time: content.time, in: context, frame: content.frame, editing: true, ground: content.ground) }
-            context.setLineWidth(1)
+            func mapped(_ box: CGRect) -> CGRect {
+                CGRect(x: content.frame.minX + box.minX * content.frame.width, y: content.frame.minY + box.minY * content.frame.height,
+                       width: box.width * content.frame.width, height: box.height * content.frame.height)
+            }
+            // Tappable players: soft rounded outlines, so the video stays readable.
+            context.setLineWidth(1.5)
+            context.setStrokeColor(UIColor.white.withAlphaComponent(0.7).cgColor)
             for detection in content.detections {
-                let box = detection.rect
-                let mapped = CGRect(x: content.frame.minX + box.minX * content.frame.width, y: content.frame.minY + box.minY * content.frame.height, width: box.width * content.frame.width, height: box.height * content.frame.height)
-                context.setStrokeColor(UIColor.white.withAlphaComponent(0.65).cgColor); context.stroke(mapped)
+                context.addPath(UIBezierPath(roundedRect: mapped(detection.rect).insetBy(dx: -2, dy: -2), cornerRadius: 6).cgPath)
+                context.strokePath()
             }
             if let box = content.selectedPlayer {
-                let mapped = CGRect(x: content.frame.minX + box.minX * content.frame.width, y: content.frame.minY + box.minY * content.frame.height, width: box.width * content.frame.width, height: box.height * content.frame.height)
-                context.setStrokeColor(UIColor(Theme.signal).cgColor); context.setLineWidth(2); context.stroke(mapped.insetBy(dx: -3, dy: -3))
+                context.setStrokeColor(UIColor(Theme.signal).cgColor); context.setLineWidth(2.5)
+                context.addPath(UIBezierPath(roundedRect: mapped(box).insetBy(dx: -4, dy: -4), cornerRadius: 8).cgPath)
+                context.strokePath()
             }
             if let selected = content.marks.first(where: { $0.id == content.selectedID }), selected.isLocked != true,
                selected.isHidden != true, selected.isActiveInEditor(at: content.time) {
@@ -2202,7 +1741,7 @@ private struct AnnotationDrawingSurface: UIViewRepresentable {
                 context.setFillColor(UIColor.white.cgColor)
                 context.setStrokeColor(UIColor.black.cgColor); context.setLineWidth(2)
                 for point in selected.linkedPlayers == nil ? selected.editHandles(at: content.time, ground: content.ground) : [] {
-                    let handle = CGRect(x: content.frame.minX + point.x * content.frame.width - 6, y: content.frame.minY + point.y * content.frame.height - 6, width: 12, height: 12)
+                    let handle = CGRect(x: content.frame.minX + point.x * content.frame.width - 8, y: content.frame.minY + point.y * content.frame.height - 8, width: 16, height: 16)
                     context.fillEllipse(in: handle); context.strokeEllipse(in: handle)
                 }
             }

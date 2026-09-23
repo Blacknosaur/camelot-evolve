@@ -1,5 +1,8 @@
 import SwiftUI
 
+/// "How should this player stand out?" Big toggles for each highlight, one
+/// colour row, and the few choices that matter. Fine-tuning stays out of the
+/// way until an effect is on.
 struct AnalysisPlayerEffectsSheet: View {
     let name: String
     let existing: [AnalysisAnnotation]
@@ -16,88 +19,137 @@ struct AnalysisPlayerEffectsSheet: View {
         _options = State(initialValue: AnalysisPlayerEffects(layers: existing, name: name))
     }
 
+    private let columns = [GridItem(.adaptive(minimum: 96), spacing: 8)]
+
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    Toggle("Ring", systemImage: "circle", isOn: $options.ring)
-                        .disabled(locked(.player)).accessibilityIdentifier("analysis-player-ring")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    LazyVGrid(columns: columns, spacing: 8) {
+                        tile("Ring", symbol: "circle.dashed", isOn: $options.ring, tool: .player, id: "analysis-player-ring")
+                        tile("Spotlight", symbol: "light.beacon.max", isOn: $options.spotlight, tool: .spotlight, id: "analysis-player-spotlight")
+                        tile("Name", symbol: "textformat", isOn: $options.label, tool: .text, id: "analysis-player-label")
+                        if allowsTrajectory || options.trajectory {
+                            tile("Trail", symbol: "point.topleft.down.to.point.bottomright.curvepath", isOn: $options.trajectory, tool: .trajectory, id: "analysis-player-trajectory")
+                        }
+                        tile("Magnifier", symbol: "magnifyingglass.circle", isOn: $options.loupe, tool: .loupe, id: "analysis-player-loupe")
+                    }
+
                     if options.ring {
-                        Picker("Ring style", selection: $options.ringStyle) {
-                            ForEach(AnnotationEffect.playerStyles) { Text($0.title).tag($0) }
-                        }.disabled(locked(.player))
+                        section("Ring style") {
+                            chips(AnnotationEffect.playerStyles.map { ($0.playerStyleTitle, $0) }, selection: $options.ringStyle)
+                                .disabled(locked(.player))
+                        }
                     }
-                    Toggle("Spotlight", systemImage: "light.beacon.max", isOn: $options.spotlight)
-                        .disabled(locked(.spotlight)).accessibilityIdentifier("analysis-player-spotlight")
                     if options.spotlight {
-                        Picker("Spotlight style", selection: $options.spotlightStyle) {
-                            Text("Sky beam").tag(AnnotationEffect.neon)
-                            Text("Pulse").tag(AnnotationEffect.pulse)
-                            Text("Dim background").tag(AnnotationEffect.clean)
-                        }.disabled(locked(.spotlight))
-                    }
-                    Toggle("Loupe", systemImage: "magnifyingglass.circle", isOn: $options.loupe)
-                        .disabled(locked(.loupe)).accessibilityIdentifier("analysis-player-loupe")
-                    if options.loupe {
-                        NavigationLink("Loupe settings") {
-                            Form { AnalysisLoupeControls(style: $options.loupeStyle).disabled(locked(.loupe)) }.navigationTitle("Loupe")
+                        section("Spotlight style") {
+                            chips([("Beam", .neon), ("Pulse", .pulse), ("Dim the rest", .clean)], selection: $options.spotlightStyle)
+                                .disabled(locked(.spotlight))
                         }
                     }
-                    Toggle("Name label", systemImage: "textformat", isOn: $options.label)
-                        .disabled(locked(.text)).accessibilityIdentifier("analysis-player-label")
                     if options.label {
-                        TextField("Player name or number", text: $options.text)
-                            .disabled(locked(.text)).accessibilityIdentifier("analysis-player-label-text")
-                        if allowsTrajectory {
-                            Toggle("Show speed · km/h", isOn: $options.showsSpeed).disabled(locked(.text))
-                                .accessibilityIdentifier("analysis-player-speed")
-                            if options.showsSpeed {
-                                Text(measurementStatus ?? "Set a reference in Measurements to show speed. Until calibrated, the label shows —.")
-                                    .font(.caption).foregroundStyle(.secondary)
+                        section("Name") {
+                            TextField("Name or number", text: $options.text)
+                                .padding(.horizontal, 12).frame(minHeight: 44)
+                                .background(.white.opacity(0.07), in: .rect(cornerRadius: Theme.Radius.small))
+                                .disabled(locked(.text)).accessibilityIdentifier("analysis-player-label-text")
+                            if allowsTrajectory {
+                                Toggle("Show speed", isOn: $options.showsSpeed).disabled(locked(.text))
+                                    .accessibilityIdentifier("analysis-player-speed")
+                                if options.showsSpeed, measurementStatus == nil {
+                                    Text("Speed appears once the pitch is lined up (Pitch in the bottom bar).")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
                             }
                         }
                     }
-                } header: { Text("Player effects") } footer: {
-                    Text("Combine any options. They share one player track, with separate layers for timing and placement.")
-                }
-                if options.label {
-                    NavigationLink("Text formatting") {
-                        Form { AnalysisTextControls(style: $options.textStyle).disabled(locked(.text)) }.navigationTitle("Text formatting")
-                    }
-                }
-                if allowsTrajectory || options.trajectory {
-                    Section("Movement trail") {
-                        Toggle("Trajectory", systemImage: "point.topleft.down.to.point.bottomright.curvepath", isOn: $options.trajectory)
-                            .disabled(locked(.trajectory)).accessibilityIdentifier("analysis-player-trajectory")
-                        if options.trajectory {
-                            NavigationLink("Trail settings") {
-                                Form { AnalysisTrajectoryControls(style: $options.trajectoryStyle).disabled(locked(.trajectory)) }.navigationTitle("Trajectory")
+                    section("Colour") { AnalysisColorSwatches(color: $options.color) }
+
+                    if options.label || options.trajectory || options.loupe {
+                        section("Fine-tune") {
+                            if options.label {
+                                NavigationLink("Name style") {
+                                    Form { AnalysisTextControls(style: $options.textStyle).disabled(locked(.text)) }.navigationTitle("Name style")
+                                }
                             }
-                        }
+                            if options.trajectory {
+                                NavigationLink("Trail") {
+                                    Form { AnalysisTrajectoryControls(style: $options.trajectoryStyle).disabled(locked(.trajectory)) }.navigationTitle("Trail")
+                                }
+                            }
+                            if options.loupe {
+                                NavigationLink("Magnifier") {
+                                    Form { AnalysisLoupeControls(style: $options.loupeStyle).disabled(locked(.loupe)) }.navigationTitle("Magnifier")
+                                }
+                            }
+                        }.foregroundStyle(.white)
                     }
-                }
-                Section("Appearance") {
-                    ColorPicker("Color", selection: Binding(get: { Color(red: options.color.red, green: options.color.green, blue: options.color.blue) }, set: { value in
-                        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
-                        UIColor(value).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-                        options.color = .init(red: red, green: green, blue: blue)
-                    }), supportsOpacity: false)
-                    Text("Locked layers are unchanged. Use each layer's Drawing style controls for finer adjustments.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
+                }.padding(16)
             }
-            .navigationTitle(name).navigationBarTitleDisplayMode(.inline)
+            .background(Theme.inkPanel)
+            .navigationTitle(existing.isEmpty ? "Highlight \(name)" : name).navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(existing.isEmpty ? "Add" : "Apply") { apply(options); dismiss() }
+                    Button(existing.isEmpty ? "Add" : "Done") { apply(options); dismiss() }.bold()
                         .disabled(existing.isEmpty && options.tools.isEmpty)
                         .accessibilityIdentifier("analysis-apply-player-effects")
                 }
             }
-        }.presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
-            .preferredColorScheme(.dark).tint(Theme.signal)
+        }
+        .presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
+        .preferredColorScheme(.dark).tint(Theme.signal)
+    }
+
+    private func tile(_ title: String, symbol: String, isOn: Binding<Bool>, tool: AnalysisDrawingTool, id: String) -> some View {
+        Button { isOn.wrappedValue.toggle() } label: {
+            VStack(spacing: 6) {
+                Image(systemName: symbol).font(.system(size: 22, weight: .medium)).frame(height: 26)
+                Text(title).font(.subheadline.weight(.semibold))
+            }
+            .frame(maxWidth: .infinity, minHeight: 76)
+            .foregroundStyle(isOn.wrappedValue ? Theme.ink : .white)
+            .background(isOn.wrappedValue ? Theme.signal : .white.opacity(0.07), in: .rect(cornerRadius: Theme.Radius.medium))
+            .overlay(alignment: .topTrailing) {
+                if isOn.wrappedValue { Image(systemName: "checkmark.circle.fill").padding(6).foregroundStyle(Theme.ink) }
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(AnalysisPressStyle()).disabled(locked(tool))
+        .accessibilityLabel(title).accessibilityValue(isOn.wrappedValue ? "On" : "Off")
+        .accessibilityAddTraits(.isToggle)
+        .accessibilityIdentifier(id)
+    }
+
+    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+            content()
+        }
+    }
+
+    private func chips(_ items: [(String, AnnotationEffect)], selection: Binding<AnnotationEffect>) -> some View {
+        HStack(spacing: 6) {
+            ForEach(items, id: \.1) { title, value in
+                Button(title) { selection.wrappedValue = value }
+                    .buttonStyle(EditorActionStyle(prominent: selection.wrappedValue == value))
+                    .accessibilityAddTraits(selection.wrappedValue == value ? .isSelected : [])
+            }
+        }
     }
 
     private func locked(_ tool: AnalysisDrawingTool) -> Bool { existing.contains { $0.tool == tool && $0.isLocked == true } }
+}
+
+extension AnnotationEffect {
+    /// Names coaches recognise from broadcast graphics.
+    var playerStyleTitle: String {
+        switch self {
+        case .clean: "Simple"
+        case .neon: "Glow"
+        case .pulse: "Pulse"
+        case .radar: "Radar"
+        default: title
+        }
+    }
 }

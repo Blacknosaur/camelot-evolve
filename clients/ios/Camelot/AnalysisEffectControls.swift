@@ -65,12 +65,12 @@ struct AnalysisEffectControls: View {
                 ForEach(effects) { value in Text(value.title).tag(value) }
             }.pickerStyle(.segmented).accessibilityIdentifier("analysis-effect-style")
             if mark.supportsGrounding {
-                Toggle("Ground to field", isOn: Binding(get: { mark.isGrounded(hasField: hasGround) }, set: grounding))
+                Toggle("Lay flat on the pitch", isOn: Binding(get: { mark.isGrounded(hasField: hasGround) }, set: grounding))
                     .disabled(!hasGround && !mark.isGrounded(hasField: false)).accessibilityIdentifier("analysis-ground-effect")
                 if !hasGround {
-                    Text("Set a four-point field reference in Measure to enable perspective.").font(.caption).foregroundStyle(.secondary)
+                    Text("Line up the pitch first (Pitch in the bottom bar).").font(.caption).foregroundStyle(.secondary)
                 } else if mark.isGrounded(hasField: hasGround) {
-                    Text(groundAvailable ? "Uses field perspective and saved camera motion. Height is an estimate." : "No field tracking at this time. Grounded effects stay hidden.")
+                    Text(groundAvailable ? "Drawn in the pitch's perspective and kept in place as the camera moves." : "The pitch isn't lined up at this moment, so this stays hidden here.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -95,7 +95,7 @@ struct AnalysisEffectControls: View {
                     Slider(value: Binding(get: { mark.areaFill ?? 0.18 }, set: { fill($0) }), in: 0.05...0.6,
                            onEditingChanged: { if $0 { beginEdit() } }).accessibilityLabel("Area fill")
                 }
-                Text("Drag each corner on the video to reshape. Use Keyframes to animate the area.")
+                Text("Drag a corner on the video to reshape the area.")
                     .font(.footnote).foregroundStyle(.secondary)
             }
         }.disabled(mark.isLocked == true)
@@ -113,10 +113,10 @@ struct AnalysisZoomControls: View {
             Text("Zoom \((mark.zoomScale ?? 2).formatted(.number.precision(.fractionLength(1))))×")
             Slider(value: Binding(get: { mark.zoomScale ?? 2 }, set: { amount($0) }), in: 1...4,
                    onEditingChanged: { if $0 { beginEdit() } }).accessibilityIdentifier("analysis-zoom-amount")
-            Text("Ease in / out: \((mark.zoomRamp ?? 0.35).formatted(.number.precision(.fractionLength(2))))s")
+            Text("Smooth in and out: \((mark.zoomRamp ?? 0.35).formatted(.number.precision(.fractionLength(2)))) s")
             Slider(value: Binding(get: { mark.zoomRamp ?? 0.35 }, set: { ramp($0) }), in: 0...1.5,
                    onEditingChanged: { if $0 { beginEdit() } }).accessibilityLabel("Zoom ease in and out")
-            Text("Drag the focus on the video. Set its duration in Timing, then use Preview effect.")
+            Text("Drag on the video to move the zoom. Trim its bar on the timeline to set how long it lasts.")
                 .font(.footnote).foregroundStyle(.secondary)
         }.disabled(mark.isLocked == true)
     }

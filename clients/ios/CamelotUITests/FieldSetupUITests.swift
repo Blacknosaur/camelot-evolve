@@ -23,10 +23,9 @@ final class FieldSetupUITests: XCTestCase {
         XCTAssertTrue(app.buttons["open-analysis"].waitForExistence(timeout: 10)); app.buttons["open-analysis"].tap(); app.buttons["open-video-analysis"].tap()
         XCTAssertTrue(app.otherElements["analysis-workspace-canvas"].waitForExistence(timeout: 10))
         if app.alerts["Analysis"].waitForExistence(timeout: 3) { app.alerts["Analysis"].buttons["OK"].tap() }
-        app.buttons["analysis-tools"].tap()
-        app.buttons["analysis-tool-measure"].tap()
-        XCTAssertTrue(app.otherElements["ground-preview"].waitForExistence(timeout: 10))
-        if app.buttons["ground-adjustments"].exists, !app.buttons["ground-snap"].exists { app.buttons["ground-adjustments"].tap() }
+        app.openPitchSetup()
+        app.waitForPitchDetection()
+        app.openGroundAdjustments()
         XCTAssertTrue(app.buttons["ground-snap"].wait(for: \.isEnabled, toEqual: true, timeout: 10))
         return app
     }
@@ -45,9 +44,10 @@ final class FieldSetupUITests: XCTestCase {
     func testRoughWholePitchHandlesSnapToMarkingsAndApply() throws {
         let app = try openMeasurements()
         let preview = app.otherElements["ground-preview"]
+        // Choosing a method restarts the reference, dropping the automatic proposal.
+        app.buttons["ground-landmark-picker"].tap(); app.buttons["Whole pitch"].tap()
         XCTAssertTrue((preview.value as? String ?? "").contains("Overlay visible; 4 points"))
         XCTAssertFalse(app.otherElements["ground-quality"].exists)
-        app.buttons["ground-landmark-picker"].tap(); app.buttons["Whole pitch"].tap()
         // Place every corner a few points away from the real pitch corner.
         for (index, corner) in corners.enumerated() {
             app.buttons["ground-point-\(index)"].tap()
@@ -56,7 +56,7 @@ final class FieldSetupUITests: XCTestCase {
         XCTAssertFalse(app.buttons["ground-apply"].isEnabled)
         let before = preview.value as? String
         let rough = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); rough.name = "Rough whole-pitch handles"; rough.lifetime = .keepAlways; add(rough)
-        if app.buttons["ground-adjustments"].exists, !app.buttons["ground-snap"].exists { app.buttons["ground-adjustments"].tap() }
+        app.openGroundAdjustments()
         app.buttons["ground-snap"].tap()
         let quality = app.otherElements["ground-quality"]
         XCTAssertTrue(quality.waitForExistence(timeout: 30))
@@ -78,12 +78,11 @@ final class FieldSetupUITests: XCTestCase {
         XCTAssertTrue(app.buttons["ground-apply"].isEnabled)
         app.buttons["ground-apply"].tap()
         XCTAssertTrue(app.otherElements["analysis-workspace-canvas"].waitForExistence(timeout: 5))
-        app.buttons["analysis-clip-tracks"].tap(); app.buttons["Measurements & ground"].tap()
-        XCTAssertTrue(preview.waitForExistence(timeout: 10))
+        app.openPitchSetup()
         XCTAssertTrue((preview.value as? String ?? "").contains("4 points"))
         XCTAssertTrue(app.buttons["ground-apply"].wait(for: \.isEnabled, toEqual: true, timeout: 10), "A saved calibration reopens already reviewed")
         app.buttons["ground-cancel"].tap()
-        app.buttons["cancel-analysis-workspace"].tap()
+        app.closeAnalysisWithoutSaving()
     }
 
     @MainActor
@@ -92,7 +91,7 @@ final class FieldSetupUITests: XCTestCase {
         let preview = app.otherElements["ground-preview"]
         app.buttons["ground-landmark-picker"].tap(); app.buttons["Trace visible lines"].tap()
         XCTAssertTrue((preview.value as? String ?? "").contains("0 points"))
-        if app.buttons["ground-adjustments"].exists, !app.buttons["ground-snap"].exists { app.buttons["ground-adjustments"].tap() }
+        app.openGroundAdjustments()
         XCTAssertFalse(app.buttons["ground-snap"].isEnabled, "Nothing to snap before four lines are traced")
         XCTAssertTrue(app.buttons["ground-line-picker"].exists)
         let lineStatus = app.otherElements["ground-line-status"]
@@ -112,6 +111,6 @@ final class FieldSetupUITests: XCTestCase {
         let landscape = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); landscape.name = "Field setup landscape"; landscape.lifetime = .keepAlways; add(landscape)
         XCUIDevice.shared.orientation = .portrait
         app.buttons["ground-cancel"].tap()
-        app.buttons["cancel-analysis-workspace"].tap()
+        app.closeAnalysisWithoutSaving()
     }
 }

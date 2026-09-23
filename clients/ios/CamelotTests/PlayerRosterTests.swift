@@ -543,25 +543,6 @@ final class PlayerRosterTests: XCTestCase {
         XCTAssertFalse(AnalysisTrackingLibrary(players: [assigned, second]).canLinkPlayer(first.id, to: second.id))
     }
 
-    @MainActor
-    func testSquadTeamsRenderOnPhoneWithoutSavingProjectData() async throws {
-        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
-        let previous = scene.windows.first { $0.isKeyWindow }
-        let window = UIWindow(windowScene: scene)
-        defer { window.isHidden = true; previous?.makeKey() }
-        let players = PlayerTrackingTeam.allCases.enumerated().map { index, team in
-            AnalysisTrackingLibrary.Player(id: UUID(), name: "Track \(index + 1)", motion: .init(samples: [.init(time: 0, box: box(x: 0.2)), .init(time: 3, box: box(x: 0.2))]), team: team)
-        }
-        let view = AnalysisPlayerTracksSheet(players: players, clipStart: 0, clipEnd: 33, time: 1,
-            select: { _ in }, add: {}, rename: { _, _ in }, assignTeam: { _, _ in }, link: { _, _ in })
-        let host = UIHostingController(rootView: view)
-        window.rootViewController = host; window.makeKeyAndVisible()
-        try await Task.sleep(for: .milliseconds(350))
-        host.view.layoutIfNeeded()
-        let image = UIGraphicsImageRenderer(bounds: host.view.bounds).image { _ in host.view.drawHierarchy(in: host.view.bounds, afterScreenUpdates: true) }
-        let attachment = XCTAttachment(image: image); attachment.name = "Squad team assignment"; attachment.lifetime = .keepAlways; add(attachment)
-    }
-
     private func signature(_ color: SIMD3<Float>) -> PlayerJerseySignature {
         PlayerJerseySignature(colors: Array(repeating: color, count: 120))
     }

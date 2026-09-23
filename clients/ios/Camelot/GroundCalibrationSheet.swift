@@ -84,6 +84,11 @@ struct GroundCalibrationSheet: View {
     @State private var snappedPoints: [CGPoint]?
     @State private var snappedLines: [GroundLineObservation]?
     @State private var circleSensitivity: Double?
+    /// A new setup starts detecting as soon as the first frame is on screen.
+    @State private var autoDetected = false
+    /// Detection placed a reference; before that the default guess is hidden
+    /// so a half-finished search never looks like a wrong answer.
+    @State private var proposed = false
 
     init(url: URL, request: GroundCalibrationRequest, apply: @escaping (GroundCalibration?) -> Void) {
         self.url = url; self.request = request; self.apply = apply
@@ -108,6 +113,10 @@ struct GroundCalibrationSheet: View {
     }
 
     // MARK: - Draft model
+
+    private var revealsOverlay: Bool {
+        showsAdjustments || proposed || quality != nil || request.existing != nil
+    }
 
     private var aspect: Double { Double(image?.size.width ?? 16) / Double(max(1, image?.size.height ?? 9)) }
 
@@ -199,14 +208,16 @@ struct GroundCalibrationSheet: View {
                     }
                 }
             }.background(Theme.ink)
-                .navigationTitle("Field setup").navigationBarTitleDisplayMode(.inline)
+                .navigationTitle("Line up the pitch").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel") { dismiss() }.accessibilityIdentifier("ground-cancel")
                     }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Apply") { apply(calibration); dismiss() }
-                            .disabled(!canApply).accessibilityIdentifier("ground-apply")
+                    if request.existing != nil {
+                        ToolbarItem(placement: .destructiveAction) {
+                            Button("Remove", role: .destructive) { apply(nil); dismiss() }
+                                .accessibilityIdentifier("ground-remove")
+                        }
                     }
                 }
         }.preferredColorScheme(.dark).tint(Theme.signal)
@@ -233,7 +244,7 @@ struct GroundCalibrationSheet: View {
         if let image {
             GroundPointCanvas(image: image, points: editingPoints, count: editingCount,
                               suggestions: suggestions, calibration: calibration, landmark: landmark,
-                              active: $active, showOverlay: showOverlay, fineTuning: $fineTuning, pinnedLoupe: loupePinned,
+                              active: $active, showOverlay: showOverlay && revealsOverlay, fineTuning: $fineTuning, pinnedLoupe: loupePinned,
                               referenceLines: previewReferenceLines, drawingLine: usesLines || (!editingHalfway && circle?.farTouchline != nil))
                 .allowsHitTesting(frameReady)
                 .overlay { if loadingFrame { ProgressView().padding(12).background(.black.opacity(0.7), in: .circle) } }
@@ -302,6 +313,24 @@ struct GroundCalibrationSheet: View {
 
     private var controls: some View {
         VStack(spacing: 8) {
+            statusRow
+            HStack(spacing: 8) {
+                Button(quality == nil ? "Find the pitch" : "Try again", systemImage: "sparkles") { findClearFrame = false; aiScanID += 1 }
+                    .buttonStyle(EditorActionStyle(prominent: quality == nil && !scanning))
+                    .frame(maxWidth: .infinity).frame(height: 48)
+                    .disabled(!frameReady)
+                    .accessibilityIdentifier("ground-auto-align")
+                Button("Looks right", systemImage: "checkmark") { apply(calibration); dismiss() }
+                    .buttonStyle(EditorActionStyle(prominent: quality != nil))
+                    .frame(maxWidth: .infinity).frame(height: 48)
+                    .disabled(!canApply)
+                    .accessibilityIdentifier("ground-apply")
+            }
+            Button(showsAdjustments ? "Hide manual tools" : "Adjust by hand", systemImage: showsAdjustments ? "chevron.up" : "hand.draw") { showsAdjustments.toggle() }
+                .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 44)
+                .buttonStyle(.plain).foregroundStyle(Theme.signal)
+                .accessibilityIdentifier("ground-adjustments")
+            if showsAdjustments {
             HStack(spacing: 8) {
                 methodPicker
                 Spacer(minLength: 0)
@@ -312,17 +341,6 @@ struct GroundCalibrationSheet: View {
                         .accessibilityIdentifier("ground-goal-side")
                 }
             }
-            Button(quality == nil ? "Detect field" : "Detect again", systemImage: "sparkles") { findClearFrame = false; aiScanID += 1 }
-                .buttonStyle(EditorActionStyle(prominent: quality == nil))
-                .frame(maxWidth: .infinity).frame(height: 44)
-                .disabled(!frameReady)
-                .accessibilityIdentifier("ground-auto-align")
-            statusRow
-            Button(showsAdjustments ? "Hide adjustments" : "Adjust by hand", systemImage: showsAdjustments ? "chevron.up" : "slider.horizontal.below.rectangle") { showsAdjustments.toggle() }
-                .font(.caption.bold()).frame(maxWidth: .infinity, minHeight: 36)
-                .buttonStyle(.plain).foregroundStyle(Theme.signal)
-                .accessibilityIdentifier("ground-adjustments")
-            if showsAdjustments {
             HStack(spacing: 2) {
                 Button("Snap to lines", systemImage: "scope") { snapID += 1 }
                     .buttonStyle(EditorActionStyle(prominent: canSnap && quality == nil)).labelStyle(.titleAndIcon)
@@ -466,9 +484,9 @@ struct GroundCalibrationSheet: View {
         }
         if let quality {
             switch quality.grade {
-            case .good: return ("Snapped to the painted markings. Check the overlay away from your points, then confirm.", .positive)
-            case .check: return ("Partly supported by markings. Zoom in on the lines without evidence before confirming.", .warning)
-            case .poor: return ("Few markings support this alignment. Choose a clearer frame or adjust the reference.", .warning)
+            case .good: return ("The pitch lines match the video. Check they sit on the white lines, then tap Looks right.", .positive)
+            case .check: return ("Mostly matches. Check the lines furthest from the camera before you continue.", .warning)
+            case .poor: return ("Not a good match. Move to a frame with more white lines and tap Try again, or adjust by hand.", .warning)
             }
         }
         if usesLines {
@@ -486,6 +504,7 @@ struct GroundCalibrationSheet: View {
             return (circle.farTouchline != nil ? "Trace the far touchline. Confirm the actual pitch width in settings (currently \(pitchWidth.formatted()) m)." : "Place the point on the actual centre spot, or use Touchline if the spot is hidden.", .warning)
         }
         if mode == .localScale { return ("Place both points on the ground at a known distance, then set it in settings.", .neutral) }
+        if !showsAdjustments { return ("Tap Find the pitch and the app lines up the pitch markings for you.", .neutral) }
         return ("Drag the numbered handles onto the \(landmark.title.lowercased()) corners, then Snap to lines.", .neutral)
     }
 
@@ -638,6 +657,9 @@ struct GroundCalibrationSheet: View {
             sourceSize = metadata.displaySize; frameRate = rate; frameRange = lower...upper
             displayedTime = target; image = UIImage(cgImage: frame)
             evidence = nil
+            if !autoDetected, request.existing == nil, pendingReference == nil {
+                autoDetected = true; aiScanID += 1
+            }
             circleSensitivity = circle?.pixelSensitivity(imageSize: sourceSize)
             if let pending = pendingReference, abs(pending.time - target) < 1 / 600 {
                 pendingReference = nil; useProposal(pending.proposal)
@@ -666,7 +688,7 @@ struct GroundCalibrationSheet: View {
         guard let source = image?.cgImage else { return }
         let frame = displayedTime, pitchLength = pitchLength, pitchWidth = pitchWidth
         scanning = true; notice = nil
-        progressTitle = "Detecting the field and snapping to markings…"
+        progressTitle = "Finding the pitch…"
         defer { scanning = false }
         do {
             let worker = Task.detached(priority: .userInitiated) {
@@ -679,7 +701,7 @@ struct GroundCalibrationSheet: View {
                 useProposal(first); return
             }
             if !request.isStill {
-                progressTitle = "Searching the clip for a clear view of the field…"
+                progressTitle = "Looking for a clearer view of the pitch…"
                 let range = frameRange, url = url
                 let search = Task.detached(priority: .userInitiated) {
                     try await PitchRegionDetection.findReference(url: url, range: range, preferred: frame,
@@ -695,10 +717,10 @@ struct GroundCalibrationSheet: View {
             }
             if let first = result.first { useProposal(first); await finishAutomaticSetup() }
             else if canSnap { scanning = false; await snapToMarkings() }
-            else { notice = "No field markings recognised in this clip. Use Adjust by hand to place a reference on a clear frame." }
+            else { notice = "Couldn't find pitch markings in this clip. Use Adjust by hand on a frame where lines are visible." }
         } catch is CancellationError {} catch {
             if canSnap { scanning = false; await snapToMarkings() }
-            else { notice = "Automatic detection is unavailable here. Use Adjust by hand to place a reference, then Snap to lines." }
+            else { notice = "Automatic lining up isn't available here. Use Adjust by hand." }
         }
     }
 
@@ -711,6 +733,7 @@ struct GroundCalibrationSheet: View {
     }
 
     private func useProposal(_ proposal: PitchRegionDetection.Proposal) {
+        proposed = true
         chooseLandmark(proposal.landmark)
         if let registration = proposal.registration, registration.quality.grade != .poor {
             let anchors = GroundFieldOverlay.editingAnchors(registration.calibration, landmark: proposal.landmark)
@@ -726,8 +749,8 @@ struct GroundCalibrationSheet: View {
         circle = proposal.circle; centerPlaced = false; editingHalfway = false; active = 0
         checked = false; invalidateSnap()
         notice = proposal.circle == nil
-            ? "Starting alignment only. Refine the handles, then Snap to lines."
-            : "Circle found. Place the centre spot, then Snap to lines to refine the perspective."
+            ? "A rough match only. Use Adjust by hand to move the corners onto the lines."
+            : "Centre circle found. Use Adjust by hand to place the centre spot."
     }
 
     private func snapToMarkings() async {
@@ -740,7 +763,7 @@ struct GroundCalibrationSheet: View {
             notice = "Place a field reference before snapping."; return
         }
         let frame = displayedTime
-        scanning = true; progressTitle = "Snapping to the painted markings…"; notice = nil
+        scanning = true; progressTitle = "Matching the white lines…"; notice = nil
         defer { scanning = false }
         let existing = evidence
         let prepared = await Task.detached(priority: .userInitiated) { existing ?? PitchRegistration.Evidence(image: cgImage) }.value

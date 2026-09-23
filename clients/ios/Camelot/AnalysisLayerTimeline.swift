@@ -48,15 +48,6 @@ struct AnalysisLayerTimeline: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Spacer()
-                Text("\(Double(zoom).formatted(.number.precision(.fractionLength(1))))×").font(.caption2.monospacedDigit())
-                    .accessibilityIdentifier("analysis-timeline-scale")
-                Button("Zoom out timeline", systemImage: "minus.magnifyingglass") { setZoom(zoom / 2) }.disabled(zoom <= 1).accessibilityIdentifier("analysis-timeline-zoom-out")
-                Button("Fit timeline", systemImage: "arrow.left.and.right.righttriangle.left.righttriangle.right") { setZoom(1) }
-                    .accessibilityIdentifier("analysis-timeline-fit")
-                Button("Zoom in timeline", systemImage: "plus.magnifyingglass") { setZoom(zoom * 2) }.disabled(zoom >= maxZoom).accessibilityIdentifier("analysis-timeline-zoom-in")
-            }.labelStyle(.iconOnly).buttonStyle(AnalysisControlStyle()).padding(.horizontal, 8).padding(.vertical, 4)
             GeometryReader { geometry in
                 let viewport = max(64, geometry.size.width - edgeInset * 2)
                 let scale = viewport / max(0.01, span)
@@ -71,10 +62,10 @@ struct AnalysisLayerTimeline: View {
                                                    pan: { delta, finished in panTimeline(delta / scale, finished: finished) })
                                     .frame(height: 48)
                                     .contextMenu {
-                                        Button(mark.isHidden == true ? "Show layer" : "Hide layer", systemImage: "eye") { toggleHidden(mark.id) }
-                                        Button(mark.isLocked == true ? "Unlock layer" : "Lock layer", systemImage: "lock") { toggleLocked(mark.id) }
-                                        Button("Bring forward", systemImage: "arrow.up") { reorder(mark.id, 1) }
-                                        Button("Send backward", systemImage: "arrow.down") { reorder(mark.id, -1) }
+                                        Button(mark.isHidden == true ? "Show" : "Hide", systemImage: "eye") { toggleHidden(mark.id) }
+                                        Button(mark.isLocked == true ? "Unlock" : "Lock", systemImage: "lock") { toggleLocked(mark.id) }
+                                        Button("Move in front", systemImage: "arrow.up") { reorder(mark.id, 1) }
+                                        Button("Move behind", systemImage: "arrow.down") { reorder(mark.id, -1) }
                                     }
                             }
                             Color.clear.frame(height: max(44, geometry.size.height - 30 - CGFloat(rows.count * 48)))
@@ -89,6 +80,7 @@ struct AnalysisLayerTimeline: View {
                         }.frame(width: viewport).frame(minHeight: geometry.size.height, alignment: .top).contentShape(.rect)
                             .overlay(alignment: .topLeading) {
                                     Rectangle().fill(Theme.signal).frame(width: 1.5)
+                                    .opacity(annotations.isEmpty ? 0 : 1)
                                     .frame(width: 22)
                                     .offset(x: viewport / 2 - 11)
                                     .allowsHitTesting(false)
@@ -99,6 +91,23 @@ struct AnalysisLayerTimeline: View {
                 }.scrollDisabled(rowDragging || panStart != nil || rulerStart != nil)
             }
         }.background(Theme.inkTimeline)
+            .overlay {
+                if annotations.isEmpty {
+                    VStack(spacing: 6) {
+                        Image(systemName: "sparkles").font(.title3)
+                        Text("Highlights and drawings you add appear here.\nDrag their ends to set when they show.")
+                            .font(.footnote).multilineTextAlignment(.center)
+                    }.foregroundStyle(.secondary).padding(.top, 30).allowsHitTesting(false)
+                        .accessibilityIdentifier("analysis-timeline-empty")
+                }
+            }
+            .overlay(alignment: .topTrailing) {
+                if zoom > 1.01 {
+                    Button("Fit timeline", systemImage: "arrow.left.and.right") { setZoom(1) }
+                        .labelStyle(.iconOnly).buttonStyle(AnalysisControlStyle())
+                        .accessibilityIdentifier("analysis-timeline-fit")
+                }
+            }
             .coordinateSpace(name: "analysis-timeline")
             .simultaneousGesture(pinchGesture)
             .accessibilityElement(children: .contain).accessibilityIdentifier("analysis-layer-timeline")
@@ -221,8 +230,8 @@ struct AnalysisLayerTrack: View {
             RoundedRectangle(cornerRadius: 5).fill(tint.opacity(mark.isHidden == true ? 0.10 : selected ? 0.36 : 0.18))
                 .overlay { RoundedRectangle(cornerRadius: 5).strokeBorder(tint.opacity(selected ? 1 : 0.4), lineWidth: selected ? 1.5 : 1) }
                 .overlay(alignment: .topLeading) {
-                    Text(mark.motionMode == .camera ? "CAMERA" : mark.motionMode == .player ? (mark.linkedPlayers != nil ? "LINKED" : "FOLLOW") : mark.motionMode == .keyframes ? "KEYFRAMES" : mark.title)
-                        .font(.system(size: 8, weight: .semibold)).foregroundStyle(tint).lineLimit(1).padding(.horizontal, 10).padding(.top, 3)
+                    Text(mark.title)
+                        .font(.system(size: 10, weight: .semibold)).foregroundStyle(tint).lineLimit(1).padding(.horizontal, 10).padding(.top, 3)
                 }
                 .frame(width: width, height: 36).offset(x: x)
                 .contentShape(.rect)
@@ -235,7 +244,7 @@ struct AnalysisLayerTrack: View {
                     let start = max(clippedStart, min(clippedEnd, mark.trackedSpan?.lowerBound ?? clippedStart))
                     let end = max(start, min(clippedEnd, mark.trackedSpan?.upperBound ?? clippedStart))
                     let rect = CGRect(x: (start - visibleStart) * scale, y: 32, width: max(0, (end - start) * scale), height: 3)
-                    context.fill(Path(rect), with: .color(.cyan))
+                    context.fill(Path(rect), with: .color(Theme.signal))
                     if start > clippedStart + 0.05 {
                         context.fill(Path(CGRect(x: (clippedStart - visibleStart) * scale, y: 32, width: (start - clippedStart) * scale, height: 3)), with: .color(.orange))
                     }

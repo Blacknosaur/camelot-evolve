@@ -9,9 +9,13 @@ enum AnalysisDrawingTool: String, Codable, CaseIterable, Identifiable, Sendable 
     var title: String {
         switch self {
         case .ellipse: "Circle"
-        case .player: "Player"
-        case .zone: "Polygon"
+        case .rectangle: "Box"
+        case .player: "Ring"
+        case .zone: "Area"
         case .connection: "Connect"
+        case .loupe: "Magnifier"
+        case .trajectory: "Trail"
+        case .text: "Text"
         default: rawValue.capitalized
         }
     }

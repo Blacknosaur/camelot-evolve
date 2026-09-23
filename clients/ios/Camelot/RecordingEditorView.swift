@@ -353,9 +353,9 @@ struct RecordingEditorView: View {
         ScrollView(.horizontal) {
             HStack(spacing: 6) {
                 Menu {
-                    Button("Live video", systemImage: "play.rectangle") { openAnalysis(.video) }
+                    Button("Highlight & draw on the clip", systemImage: "play.rectangle") { openAnalysis(.video) }
                         .accessibilityIdentifier("open-video-analysis")
-                    Button("Freeze frame", systemImage: "pause.rectangle") { openAnalysis(.freezeFrame) }
+                    Button("Freeze this frame & draw", systemImage: "pause.rectangle") { openAnalysis(.freezeFrame) }
                         .accessibilityIdentifier("open-freeze-analysis")
                 } label: { Label("Analyse", systemImage: "scope") }
                     .accessibilityIdentifier("open-analysis")

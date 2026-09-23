@@ -1,5 +1,53 @@
 # Annotation and on-device analysis
 
+## Task-first Analyse workspace — 23 September 2026
+
+The Analyse screen was rebuilt for coaches with little editing experience. The
+engines (single-player tracking, pitch registration, camera motion, rendering and
+the saved clip format) are unchanged; the screen around them is new.
+
+- **One top bar:** close (asks before discarding edits), Undo, Redo, Done.
+- **The video gets the height the footage needs** in portrait; the rest goes to
+  the timeline and one bottom bar. Dragging the divider still resizes.
+- **The bottom bar shows exactly one thing:** at rest, five labelled tiles
+  (Player, Draw, Text, Zoom, Pitch); during a task, its palette or a one-line
+  instruction with Cancel; with something selected, that item's actions.
+- **Player:** tap a player (or draw a box) → a sheet of big toggles (Ring,
+  Spotlight, Name, Trail, Magnifier) with a few style chips and six colours →
+  Add. The highlight appears at once on a one-frame track and the pass then
+  follows the player forward (the video runs along, like playback) and back to
+  the clip start. The track is stored every 0.4 s, so the highlight itself
+  moves with the player while it runs. Stop keeps everything so far.
+- **Player bar:** name (tap to rename), Highlight, Fix, ⋯, and a strip showing
+  where the player is followed (lime) and lost (orange); tapping the strip
+  seeks. **Fix** is the only repair: go to any frame where the player is
+  visible and tap them. Inside a lost part only that part is filled (forward to
+  its end, then back to its start, never overwriting kept tracking); on a frame
+  that was followed the track was on someone else, so it re-follows from there
+  (the existing correction path, bounded by later manual picks).
+- **Draw:** Arrow, Line, Pen, Circle, Box, Area, Connect, Magnifier plus colour
+  swatches. A selected drawing shows Movement (Stays put / Stick to the pitch /
+  Follow a player / Animate by hand), Style and ⋯ (play, start/end here,
+  duplicate, lock, delete). Style is one page: colour, Thin/Medium/Thick, the
+  shape's effect, measurements and "When it shows".
+- **Pitch** opens "Line up the pitch", which starts detecting on open and ends
+  in **Looks right** / **Try again**; the method menu, handles, nudges, loupe
+  and dimensions are under **Adjust by hand**. Asking for distances or speed
+  without a pitch opens it.
+- **Removed from the UI** (engine code kept): Track all players, tracking
+  directions (forward/backward/fill gap), frame-by-frame review, redo-a-section
+  ranges, identity references and shirt numbers, body outlines, team
+  assignment and linking, gap-bridging and smoothing sliders, the saved-tracks
+  list, timeline zoom buttons. Defaults: new tracks hide uncertain positions
+  and keep the default smoothing.
+- Detection failures no longer raise an alert; a note suggests drawing a box.
+
+Verification: `CamelotUITests/AnalysisWalkthroughUITests` seeds its own
+"UITest Analyse" project, walks every state and saves screenshots
+(`TEST_RUNNER_CAMELOT_SAMPLE_VIDEO`, `TEST_RUNNER_CAMELOT_SHOTS_DIR`), then
+removes the project. Vision does not run on the simulator, so live following
+and Fix need the phone.
+
 ## One-second gaps and identity-gated returns — 21 September 2026
 
 The automatic interpolation ceiling is now 1 second between confirmed endpoints;
