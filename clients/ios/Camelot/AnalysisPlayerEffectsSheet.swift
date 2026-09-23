@@ -18,11 +18,6 @@ struct AnalysisPlayerEffectsSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                AnalysisSheetHeader(title: name, cancel: { dismiss() }, actionTitle: existing.isEmpty ? "Add" : "Apply",
-                                    actionID: "analysis-apply-player-effects", disabled: existing.isEmpty && options.tools.isEmpty) {
-                    apply(options); dismiss()
-                }
             Form {
                 Section {
                     Toggle("Ring", systemImage: "circle", isOn: $options.ring)
@@ -44,7 +39,9 @@ struct AnalysisPlayerEffectsSheet: View {
                     Toggle("Loupe", systemImage: "magnifyingglass.circle", isOn: $options.loupe)
                         .disabled(locked(.loupe)).accessibilityIdentifier("analysis-player-loupe")
                     if options.loupe {
-                        AnalysisLoupeControls(style: $options.loupeStyle).disabled(locked(.loupe))
+                        NavigationLink("Loupe settings") {
+                            Form { AnalysisLoupeControls(style: $options.loupeStyle).disabled(locked(.loupe)) }.navigationTitle("Loupe")
+                        }
                     }
                     Toggle("Name label", systemImage: "textformat", isOn: $options.label)
                         .disabled(locked(.text)).accessibilityIdentifier("analysis-player-label")
@@ -64,15 +61,19 @@ struct AnalysisPlayerEffectsSheet: View {
                     Text("Combine any options. They share one player track, with separate layers for timing and placement.")
                 }
                 if options.label {
-                    Section("Text formatting") {
-                        AnalysisTextControls(style: $options.textStyle).disabled(locked(.text))
+                    NavigationLink("Text formatting") {
+                        Form { AnalysisTextControls(style: $options.textStyle).disabled(locked(.text)) }.navigationTitle("Text formatting")
                     }
                 }
                 if allowsTrajectory || options.trajectory {
                     Section("Movement trail") {
                         Toggle("Trajectory", systemImage: "point.topleft.down.to.point.bottomright.curvepath", isOn: $options.trajectory)
                             .disabled(locked(.trajectory)).accessibilityIdentifier("analysis-player-trajectory")
-                        if options.trajectory { AnalysisTrajectoryControls(style: $options.trajectoryStyle).disabled(locked(.trajectory)) }
+                        if options.trajectory {
+                            NavigationLink("Trail settings") {
+                                Form { AnalysisTrajectoryControls(style: $options.trajectoryStyle).disabled(locked(.trajectory)) }.navigationTitle("Trajectory")
+                            }
+                        }
                     }
                 }
                 Section("Appearance") {
@@ -85,8 +86,16 @@ struct AnalysisPlayerEffectsSheet: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
-            }.toolbar(.hidden, for: .navigationBar)
-        }.presentationDetents([.large]).presentationDragIndicator(.visible)
+            .navigationTitle(name).navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(existing.isEmpty ? "Add" : "Apply") { apply(options); dismiss() }
+                        .disabled(existing.isEmpty && options.tools.isEmpty)
+                        .accessibilityIdentifier("analysis-apply-player-effects")
+                }
+            }
+        }.presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
             .preferredColorScheme(.dark).tint(Theme.signal)
     }
 

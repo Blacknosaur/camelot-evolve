@@ -2,6 +2,15 @@ import XCTest
 @testable import Camelot
 
 final class GroundCalibrationTests: XCTestCase {
+    func testCroppedFeetAndDisplayHoldsNeverProduceMeasuredSpeed() {
+        let calibration = GroundCalibration(mode: .localScale, points: [.zero, .init(x: 1, y: 0)],
+                                             lengthMeters: 10, referenceTime: 0, imageAspectRatio: 1, fixedCamera: true)
+        let samples = (0...30).map { i in
+            PlayerMotionSample(time: Double(i) / 30, box: .init(x: 0.3, y: 0.8, width: 0.06, height: 0.2))
+        }
+        XCTAssertNil(calibration.speed(of: PlayerMotion(samples: samples), at: 0.5))
+    }
+
     func testLocalScaleCorrectsAspectRatio() throws {
         let calibration = GroundCalibration(mode: .localScale,
                                              points: [.init(x: 0.2, y: 0.2), .init(x: 0.4, y: 0.2)],

@@ -1,0 +1,828 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		009741D85B86ED3D08EA2113 /* AnalysisConstructionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03558834AF4A802752101F66 /* AnalysisConstructionOverlay.swift */; };
+		05784F7826E6D236D965C08E /* GroundLandmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D0CFBA95F99D7E129DDB66 /* GroundLandmark.swift */; };
+		05F939B9002144BEF35D45E0 /* AnalysisTrackingLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BE88ADC91C311933252AE9 /* AnalysisTrackingLibrary.swift */; };
+		0ACC13BB8C12547164EC2CF1 /* EditorEventBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD1941C6ED51C0EADE3BDBA /* EditorEventBrowser.swift */; };
+		0D691A5124FED2DD94888E04 /* AnalysisControlStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 043DFC441D499413EAD54564 /* AnalysisControlStyle.swift */; };
+		112B5AFB1D216B78069FEA39 /* PlayerAnalysisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4BAE9EABCF6981FECCC4049 /* PlayerAnalysisTests.swift */; };
+		15318BF59855ECA179727A16 /* RecordingRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06714564F6336EE1F2FCE079 /* RecordingRecovery.swift */; };
+		16DD6901256AC8067BE6DF6C /* RecordingEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BBE709FFE294BAF2410A37 /* RecordingEditorView.swift */; };
+		1DCA13090CCF88DDBF1E0775 /* ColorConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1852504715ECC2E2426C0441 /* ColorConversion.swift */; };
+		1EF79C082B0E7BCB2AD2E513 /* GroundCalibrationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063920E1E082A515F9EEA265 /* GroundCalibrationSheet.swift */; };
+		21A9409227785FC60F75A092 /* AnalysisFieldGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8DF682BEC8B332DC6F1DAB /* AnalysisFieldGuide.swift */; };
+		2FEFE3A7FD0F4E08461E82F4 /* AnalysisLayerEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0DD97E95D35EDBB4F1AA7D /* AnalysisLayerEditing.swift */; };
+		327F220024DE3355EF7A7B2D /* CompositionPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785DD2237CA54CB19AC21FC6 /* CompositionPlayerView.swift */; };
+		356C52EF83793E2AD939DC97 /* AnnotationMeasurements.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE180869FF464C950722C3B /* AnnotationMeasurements.swift */; };
+		35FD7C6B39760815A8C4D520 /* AnalysisPlayerEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FA559D66D805B0C2C470F2 /* AnalysisPlayerEffects.swift */; };
+		38299EBAA93BFD9123E7604A /* AnnotationViewport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82C81381949516BFE33DBB2 /* AnnotationViewport.swift */; };
+		38A0ACE53DE23AEFFA03B487 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEBC8CBD98ABDF725940AE2 /* CameraView.swift */; };
+		3E4A81935948C7FE393BBA11 /* GroundReferenceDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C96160EBA53F714691DF6E84 /* GroundReferenceDetectionTests.swift */; };
+		4AD8210B6089AD5E73C7A25F /* DebugSeeding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96CFA485B77E4256F75BBA3C /* DebugSeeding.swift */; };
+		4B6AA03F81604655D7A6525A /* EditorSequencePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74752D7ECFB1CB15E5530467 /* EditorSequencePreview.swift */; };
+		4EF7B9CA86D41DA402BC0DC3 /* GroundEffectProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD413DD5DAC0111091CB170E /* GroundEffectProjection.swift */; };
+		5160E035F16901AF15D27CAF /* AnalysisLayerTimelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162EEEC48568955F1D06F658 /* AnalysisLayerTimelineTests.swift */; };
+		549A7710C73F7219F5E957C9 /* FieldPlacementInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CBC4A64C628FE8B1BCCC75D /* FieldPlacementInteraction.swift */; };
+		575C3BE694A78592A3E26394 /* sequence-test.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 7EA10D73E6B70D75D32D272D /* sequence-test.mp4 */; };
+		59287DE563C2C9C8A60C226C /* AnnotationLoupe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407117614EADC62E883325E6 /* AnnotationLoupe.swift */; };
+		67D7017ACA7D8103BD4B6A8D /* AnalysisPlayerTracksSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA253657259B42B05DD4442 /* AnalysisPlayerTracksSheet.swift */; };
+		6BC2781C93B9CCF830A9D187 /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAAA5277FDE216FD438C59C /* ProjectsView.swift */; };
+		71EC9612C3C06F4AC129FB8A /* AnalysisLoupeControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A5F8A147A9CF25F355A671 /* AnalysisLoupeControls.swift */; };
+		743B1A47423F7AB0D7F063F7 /* PlayerTrackRepair.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3283E4B5E5ACD08C71B519D /* PlayerTrackRepair.swift */; };
+		74518E09EE6C24B57D305940 /* GroundReferenceDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8847051950A61F83F9396AE3 /* GroundReferenceDetection.swift */; };
+		755A38DCE23C06532679B3A5 /* GroundFieldOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BDCA22D5CEB0AF347AF3C9 /* GroundFieldOverlay.swift */; };
+		7778DA1DECAC92418B970A5D /* EditorWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E012EE8C1702B1790B365F6 /* EditorWorkspace.swift */; };
+		7ED8D9A5997BC308D57D4C46 /* RecordingLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FCF82AB6FFB299DCA619D0 /* RecordingLibrary.swift */; };
+		835896874012380F917DBAD0 /* AnnotationLineStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A8A29C6785010EF97EDF52 /* AnnotationLineStyleTests.swift */; };
+		8372C2BB71D617B4273092DD /* AnalysisOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D8EDDF248B41B5A383CAFA /* AnalysisOverlayView.swift */; };
+		83B30716AF8E3CD7E5731D2E /* CameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614D1C8F21508F9BEDDB4CB8 /* CameraControls.swift */; };
+		88EC2BB9B5AD780F6F61D7DD /* CameraZoomDial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5854B83117AE7E309300B2CC /* CameraZoomDial.swift */; };
+		8A0B8B945794DF90C44D7A13 /* AnalysisTextControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 633213E7015E3F13CCA32114 /* AnalysisTextControls.swift */; };
+		8AD2A555F6A9AD6F2353BAC9 /* FieldLineDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040D81A0D178944035CE4C6C /* FieldLineDetection.swift */; };
+		91712AB743135B68D6A2791D /* PlayerTrackingIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8ECB78675CF0245768D8E67 /* PlayerTrackingIdentityTests.swift */; };
+		929FB20FE33963F828B46A7A /* AnalysisVideoCompositor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82CE139EB79044D528868E71 /* AnalysisVideoCompositor.swift */; };
+		939FCFA822349E267316CA9B /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD78AD3582EB9594955685 /* OnboardingView.swift */; };
+		942FBE0C4D407568F5A14D96 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A8EA69B562E66C65D973B7 /* App.swift */; };
+		96E6200EAE6DDAC7021C7DDA /* AnalysisInspectorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9DE4B7F295674C8EE12D0C /* AnalysisInspectorSheet.swift */; };
+		9FD5170170C8B09AF8D4E0D6 /* VideoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A186EE5889D888CE1287FF1 /* VideoThumbnail.swift */; };
+		A2CCCBD129E8ECB70E33A16E /* AppWindows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC277B87E691BA992228641 /* AppWindows.swift */; };
+		A32E40CC3B5A552F1008589B /* GroundShapeGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161915FC0C8F5CC89FEC78E6 /* GroundShapeGeometry.swift */; };
+		A576018904246ED8064EC786 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD451BC7CEFC78099D80740C /* AppState.swift */; };
+		A700990FE6FC0877AC3A31E7 /* AnalysisEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA19B25B9B0D25567ADB9AF5 /* AnalysisEngine.swift */; };
+		A950B5E4FE0080F4720A587B /* AnalysisEffectControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4AE3FF5ED282DCD139B972 /* AnalysisEffectControls.swift */; };
+		AAD42AB5B8C8DA9408FAA0E4 /* EditorTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6C24B9A3EE6DEEDD1F7B6A /* EditorTimeline.swift */; };
+		AB8128515E466BF2BD4DB0D5 /* AnalysisFieldPlacementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F77AEBE2A4B96D86E0DFFCE /* AnalysisFieldPlacementView.swift */; };
+		AFE71D322608230C814DC29B /* AnnotationLineStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F55AF82DDE41FFF0FB64F3B /* AnnotationLineStyle.swift */; };
+		B553FECA535A5FBE64FA5C8E /* CameraEventCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1195B7DA65C001D1A3C2E3 /* CameraEventCapture.swift */; };
+		B819B73E40B1DCF1D93911EC /* AnalysisFieldPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB5CD7D1A1910C8C35896AD /* AnalysisFieldPreview.swift */; };
+		B871398E9B253A96CF1DBA87 /* FieldPlacementInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28406B941AFEB399E1F4826C /* FieldPlacementInteractionTests.swift */; };
+		BBA3C6DEEDFAAEB6C0CD41A8 /* AnalysisPerfTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15C1487368A86BF9A52B0B2 /* AnalysisPerfTests.swift */; };
+		BE98CC42E06F8F77FFF5AFA7 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7170D233E4573DD7E8254E09 /* APIClient.swift */; };
+		BF6F86C08B156B8600DAAF9A /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971224812E6202496B0D8D06 /* DesignSystem.swift */; };
+		C0A7D2CF1F88E33280B13178 /* BasketballDetector.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = FE7DB4AD9C6E3D0DF05716B1 /* BasketballDetector.mlpackage */; };
+		C3518B25777A72DFE1B7F4A8 /* AppAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F3C96E1781219FF233000B /* AppAppearance.swift */; };
+		C927F9BBDE0EDE539E23B785 /* AnnotationShapeEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3350246BB20952AC8AB588 /* AnnotationShapeEditing.swift */; };
+		CC88DAA9595617E61348429B /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568C77571953AE3E567B92E7 /* MainTabView.swift */; };
+		CCE0F9D1F4016B118DCF6274 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD4BEA489DA4AD2F99C34DF /* Models.swift */; };
+		CF0A7829EF34CD46A94EF601 /* CameraFeatureRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34149298965A46984CEB3A /* CameraFeatureRegistration.swift */; };
+		CF97D1DDB9F584F01C0379E7 /* MODEL_NOTICE.md in Resources */ = {isa = PBXBuildFile; fileRef = 2DDFCD2F486CEC561425954B /* MODEL_NOTICE.md */; };
+		D2230DA01CCB7353F2F0B829 /* AnalysisFieldDetectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03AF0CE93C060FF18BDE675A /* AnalysisFieldDetectionSheet.swift */; };
+		D2C12A8FB38D5395FDFCA655 /* TimelineGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2ECE1E43ECD7CD09CE20E0 /* TimelineGeometryTests.swift */; };
+		D5C1A32B9DEA30DFDC2D2670 /* FieldPlacementTouchSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52F6C16F8B7F2D4625DBA6C /* FieldPlacementTouchSurface.swift */; };
+		D6D744F19FD530B9F5B04FB5 /* GroundCalibration.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD7BDC719006CAF9282111B /* GroundCalibration.swift */; };
+		D7482F2194659CAA7AE17A97 /* AnalysisAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189D0AD15C97AF876C753A1C /* AnalysisAnnotation.swift */; };
+		D830D9A81A66B8DB725DFA35 /* EditorPlaybackControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBFA0D43A0FE566529116EC7 /* EditorPlaybackControls.swift */; };
+		D881AAD58874E55D15A64E17 /* SelectedPlayerTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 116677DEEA39C35238D6F080 /* SelectedPlayerTracking.swift */; };
+		D8F95F01BC72873E2A48E5F5 /* PlayerTrajectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3E5A340905E734740EBE3C /* PlayerTrajectory.swift */; };
+		DC42EC448BD97ADD2D48ED1F /* AnalysisLoupePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCCF4F8BE32F549784BEFF01 /* AnalysisLoupePreview.swift */; };
+		DDDD33AA83A1E34311C63B4E /* AnnotationRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78441653AAF2BA131C1D7B09 /* AnnotationRenderer.swift */; };
+		DDF64C44D5709AC6DAB5019A /* AnalysisSheetHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5429509AF7A7A924A222C34C /* AnalysisSheetHeader.swift */; };
+		E143423CD88CFECA4DF4E5D7 /* AnnotationCameraMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A45F906DDCB35DF7F23D009 /* AnnotationCameraMotion.swift */; };
+		E501F66A51975E45897836B7 /* ProjectDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4D2A8E51A9D3D3DA017544 /* ProjectDetailView.swift */; };
+		E56EF59523F6329708B0211D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 533B2F97C4F2421032852A76 /* Assets.xcassets */; };
+		E73641C28C21B55E8446B465 /* AnnotationTextLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12B1A32D5335888491E8EA1 /* AnnotationTextLayout.swift */; };
+		E82256BC337BB72011B63852 /* AnalysisLayerTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B618FB4D67BBA190C19A05AC /* AnalysisLayerTimeline.swift */; };
+		E84F637821CD4CAF79D54CEF /* GroundLandmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7478484651B41A345C9E67 /* GroundLandmarkTests.swift */; };
+		E92CB76D1A7DC916B0088461 /* RecordingAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = A484FD6564BD85EEEAEF5F27 /* RecordingAnalysis.swift */; };
+		EA72E5DC0A4F11DEFA6F03D1 /* PlayerTrackingIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F99E0072749A522418CE71E /* PlayerTrackingIdentity.swift */; };
+		ED1DDCB8428B586B02E4A101 /* VisionPlayerTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C1C34C01ED97E402973F76 /* VisionPlayerTracker.swift */; };
+		F0D6E86161CB5ED6100C1346 /* AnalysisTrajectoryControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168E77FB312C01D9AA0EE55C /* AnalysisTrajectoryControls.swift */; };
+		F107A310A993ACC50BDC2231 /* GameAnnotationEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47ACE053A7F4C50AA9DD50D /* GameAnnotationEffects.swift */; };
+		F43C66B0A5437D52C437895E /* VideoImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C1ABEC79DD7E28E1D235D2 /* VideoImporter.swift */; };
+		F5C69A23CBCF0F4D7A1D6AF8 /* EventTagStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27446D4DE0F3EF2B435C108 /* EventTagStrip.swift */; };
+		F684B8E893B8451AA70E15BF /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4F7432661C630E898E9D280 /* RootView.swift */; };
+		F9325E8A01357188AD3B6637 /* GroundCalibrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62719C98A7C530A9CD5B6384 /* GroundCalibrationTests.swift */; };
+		FA4C513E8929EAB9F7BFD806 /* AnalysisConnectionAnchors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6DF2D9F4879AF80F11B255 /* AnalysisConnectionAnchors.swift */; };
+		FC2B76F4A9F841C2322B86D2 /* AnalysisPlayerEffectsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E9A9C8866A44471BB5FCC47 /* AnalysisPlayerEffectsSheet.swift */; };
+		FDCB706EA11777A6E3C4ABEC /* EditorGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39DA231C86073659493B76F3 /* EditorGeometry.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A8594BCB92E922DBC17160DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C1BECE53DACD8D75CCCBD19E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1E4BB68D4B1DEB636CBB7DCD;
+			remoteInfo = CamelotMac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		03558834AF4A802752101F66 /* AnalysisConstructionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisConstructionOverlay.swift; sourceTree = "<group>"; };
+		03AF0CE93C060FF18BDE675A /* AnalysisFieldDetectionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldDetectionSheet.swift; sourceTree = "<group>"; };
+		040D81A0D178944035CE4C6C /* FieldLineDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldLineDetection.swift; sourceTree = "<group>"; };
+		043DFC441D499413EAD54564 /* AnalysisControlStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisControlStyle.swift; sourceTree = "<group>"; };
+		063920E1E082A515F9EEA265 /* GroundCalibrationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibrationSheet.swift; sourceTree = "<group>"; };
+		06714564F6336EE1F2FCE079 /* RecordingRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingRecovery.swift; sourceTree = "<group>"; };
+		07BBE709FFE294BAF2410A37 /* RecordingEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingEditorView.swift; sourceTree = "<group>"; };
+		09C1C34C01ED97E402973F76 /* VisionPlayerTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionPlayerTracker.swift; sourceTree = "<group>"; };
+		0A34149298965A46984CEB3A /* CameraFeatureRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFeatureRegistration.swift; sourceTree = "<group>"; };
+		0B1195B7DA65C001D1A3C2E3 /* CameraEventCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraEventCapture.swift; sourceTree = "<group>"; };
+		0C8D253515062B13A75A22C7 /* CamelotMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CamelotMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D9DE4B7F295674C8EE12D0C /* AnalysisInspectorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisInspectorSheet.swift; sourceTree = "<group>"; };
+		0E012EE8C1702B1790B365F6 /* EditorWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorWorkspace.swift; sourceTree = "<group>"; };
+		0E9A9C8866A44471BB5FCC47 /* AnalysisPlayerEffectsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerEffectsSheet.swift; sourceTree = "<group>"; };
+		116677DEEA39C35238D6F080 /* SelectedPlayerTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPlayerTracking.swift; sourceTree = "<group>"; };
+		15BDCA22D5CEB0AF347AF3C9 /* GroundFieldOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundFieldOverlay.swift; sourceTree = "<group>"; };
+		161915FC0C8F5CC89FEC78E6 /* GroundShapeGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundShapeGeometry.swift; sourceTree = "<group>"; };
+		162EEEC48568955F1D06F658 /* AnalysisLayerTimelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerTimelineTests.swift; sourceTree = "<group>"; };
+		168E77FB312C01D9AA0EE55C /* AnalysisTrajectoryControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTrajectoryControls.swift; sourceTree = "<group>"; };
+		1852504715ECC2E2426C0441 /* ColorConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorConversion.swift; sourceTree = "<group>"; };
+		189D0AD15C97AF876C753A1C /* AnalysisAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisAnnotation.swift; sourceTree = "<group>"; };
+		1A186EE5889D888CE1287FF1 /* VideoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoThumbnail.swift; sourceTree = "<group>"; };
+		1EC277B87E691BA992228641 /* AppWindows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppWindows.swift; sourceTree = "<group>"; };
+		1F0DD97E95D35EDBB4F1AA7D /* AnalysisLayerEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerEditing.swift; sourceTree = "<group>"; };
+		214BF5315DF3CC56C03815CA /* CamelotMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CamelotMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		28406B941AFEB399E1F4826C /* FieldPlacementInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementInteractionTests.swift; sourceTree = "<group>"; };
+		2A2ECE1E43ECD7CD09CE20E0 /* TimelineGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineGeometryTests.swift; sourceTree = "<group>"; };
+		2DDFCD2F486CEC561425954B /* MODEL_NOTICE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = MODEL_NOTICE.md; sourceTree = "<group>"; };
+		2E7478484651B41A345C9E67 /* GroundLandmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundLandmarkTests.swift; sourceTree = "<group>"; };
+		2F55AF82DDE41FFF0FB64F3B /* AnnotationLineStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLineStyle.swift; sourceTree = "<group>"; };
+		35A8EA69B562E66C65D973B7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		35D0CFBA95F99D7E129DDB66 /* GroundLandmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundLandmark.swift; sourceTree = "<group>"; };
+		35F3C96E1781219FF233000B /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
+		39DA231C86073659493B76F3 /* EditorGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorGeometry.swift; sourceTree = "<group>"; };
+		3A45F906DDCB35DF7F23D009 /* AnnotationCameraMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationCameraMotion.swift; sourceTree = "<group>"; };
+		3CBC4A64C628FE8B1BCCC75D /* FieldPlacementInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementInteraction.swift; sourceTree = "<group>"; };
+		3F99E0072749A522418CE71E /* PlayerTrackingIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackingIdentity.swift; sourceTree = "<group>"; };
+		407117614EADC62E883325E6 /* AnnotationLoupe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLoupe.swift; sourceTree = "<group>"; };
+		4A6C24B9A3EE6DEEDD1F7B6A /* EditorTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTimeline.swift; sourceTree = "<group>"; };
+		533B2F97C4F2421032852A76 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		53A8A29C6785010EF97EDF52 /* AnnotationLineStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLineStyleTests.swift; sourceTree = "<group>"; };
+		5429509AF7A7A924A222C34C /* AnalysisSheetHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisSheetHeader.swift; sourceTree = "<group>"; };
+		568C77571953AE3E567B92E7 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		5854B83117AE7E309300B2CC /* CameraZoomDial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraZoomDial.swift; sourceTree = "<group>"; };
+		58A5F8A147A9CF25F355A671 /* AnalysisLoupeControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLoupeControls.swift; sourceTree = "<group>"; };
+		614D1C8F21508F9BEDDB4CB8 /* CameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraControls.swift; sourceTree = "<group>"; };
+		62719C98A7C530A9CD5B6384 /* GroundCalibrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibrationTests.swift; sourceTree = "<group>"; };
+		633213E7015E3F13CCA32114 /* AnalysisTextControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTextControls.swift; sourceTree = "<group>"; };
+		65FCF82AB6FFB299DCA619D0 /* RecordingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingLibrary.swift; sourceTree = "<group>"; };
+		6B6DF2D9F4879AF80F11B255 /* AnalysisConnectionAnchors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisConnectionAnchors.swift; sourceTree = "<group>"; };
+		6DEBC8CBD98ABDF725940AE2 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		6E3E5A340905E734740EBE3C /* PlayerTrajectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrajectory.swift; sourceTree = "<group>"; };
+		7170D233E4573DD7E8254E09 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		74752D7ECFB1CB15E5530467 /* EditorSequencePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorSequencePreview.swift; sourceTree = "<group>"; };
+		78441653AAF2BA131C1D7B09 /* AnnotationRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationRenderer.swift; sourceTree = "<group>"; };
+		785DD2237CA54CB19AC21FC6 /* CompositionPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionPlayerView.swift; sourceTree = "<group>"; };
+		7AD4BEA489DA4AD2F99C34DF /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		7EA10D73E6B70D75D32D272D /* sequence-test.mp4 */ = {isa = PBXFileReference; path = "sequence-test.mp4"; sourceTree = "<group>"; };
+		82CE139EB79044D528868E71 /* AnalysisVideoCompositor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisVideoCompositor.swift; sourceTree = "<group>"; };
+		830F4503B5A71CCC6F6FE8CE /* CamelotMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CamelotMac.entitlements; sourceTree = "<group>"; };
+		8847051950A61F83F9396AE3 /* GroundReferenceDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundReferenceDetection.swift; sourceTree = "<group>"; };
+		96CFA485B77E4256F75BBA3C /* DebugSeeding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSeeding.swift; sourceTree = "<group>"; };
+		971224812E6202496B0D8D06 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		99C1ABEC79DD7E28E1D235D2 /* VideoImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoImporter.swift; sourceTree = "<group>"; };
+		9F77AEBE2A4B96D86E0DFFCE /* AnalysisFieldPlacementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldPlacementView.swift; sourceTree = "<group>"; };
+		A12B1A32D5335888491E8EA1 /* AnnotationTextLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationTextLayout.swift; sourceTree = "<group>"; };
+		A484FD6564BD85EEEAEF5F27 /* RecordingAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingAnalysis.swift; sourceTree = "<group>"; };
+		A4F7432661C630E898E9D280 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		A52F6C16F8B7F2D4625DBA6C /* FieldPlacementTouchSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementTouchSurface.swift; sourceTree = "<group>"; };
+		AA19B25B9B0D25567ADB9AF5 /* AnalysisEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEngine.swift; sourceTree = "<group>"; };
+		B15C1487368A86BF9A52B0B2 /* AnalysisPerfTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPerfTests.swift; sourceTree = "<group>"; };
+		B27446D4DE0F3EF2B435C108 /* EventTagStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTagStrip.swift; sourceTree = "<group>"; };
+		B47ACE053A7F4C50AA9DD50D /* GameAnnotationEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAnnotationEffects.swift; sourceTree = "<group>"; };
+		B618FB4D67BBA190C19A05AC /* AnalysisLayerTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerTimeline.swift; sourceTree = "<group>"; };
+		B82C81381949516BFE33DBB2 /* AnnotationViewport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationViewport.swift; sourceTree = "<group>"; };
+		B8ECB78675CF0245768D8E67 /* PlayerTrackingIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackingIdentityTests.swift; sourceTree = "<group>"; };
+		BAD1941C6ED51C0EADE3BDBA /* EditorEventBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorEventBrowser.swift; sourceTree = "<group>"; };
+		BDB5CD7D1A1910C8C35896AD /* AnalysisFieldPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldPreview.swift; sourceTree = "<group>"; };
+		BF8DF682BEC8B332DC6F1DAB /* AnalysisFieldGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldGuide.swift; sourceTree = "<group>"; };
+		C6BE88ADC91C311933252AE9 /* AnalysisTrackingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTrackingLibrary.swift; sourceTree = "<group>"; };
+		C6FA559D66D805B0C2C470F2 /* AnalysisPlayerEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerEffects.swift; sourceTree = "<group>"; };
+		C96160EBA53F714691DF6E84 /* GroundReferenceDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundReferenceDetectionTests.swift; sourceTree = "<group>"; };
+		CB3350246BB20952AC8AB588 /* AnnotationShapeEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationShapeEditing.swift; sourceTree = "<group>"; };
+		CB4AE3FF5ED282DCD139B972 /* AnalysisEffectControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEffectControls.swift; sourceTree = "<group>"; };
+		CDD7BDC719006CAF9282111B /* GroundCalibration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibration.swift; sourceTree = "<group>"; };
+		D1A0B6FF3B694064B385C00E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		DA4D2A8E51A9D3D3DA017544 /* ProjectDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailView.swift; sourceTree = "<group>"; };
+		DCCF4F8BE32F549784BEFF01 /* AnalysisLoupePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLoupePreview.swift; sourceTree = "<group>"; };
+		DD413DD5DAC0111091CB170E /* GroundEffectProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundEffectProjection.swift; sourceTree = "<group>"; };
+		DD451BC7CEFC78099D80740C /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		E3283E4B5E5ACD08C71B519D /* PlayerTrackRepair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackRepair.swift; sourceTree = "<group>"; };
+		E4BAE9EABCF6981FECCC4049 /* PlayerAnalysisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerAnalysisTests.swift; sourceTree = "<group>"; };
+		E5D8EDDF248B41B5A383CAFA /* AnalysisOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisOverlayView.swift; sourceTree = "<group>"; };
+		EBE180869FF464C950722C3B /* AnnotationMeasurements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationMeasurements.swift; sourceTree = "<group>"; };
+		EEA253657259B42B05DD4442 /* AnalysisPlayerTracksSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerTracksSheet.swift; sourceTree = "<group>"; };
+		EEAAA5277FDE216FD438C59C /* ProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsView.swift; sourceTree = "<group>"; };
+		F5FD78AD3582EB9594955685 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		FBFA0D43A0FE566529116EC7 /* EditorPlaybackControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPlaybackControls.swift; sourceTree = "<group>"; };
+		FE7DB4AD9C6E3D0DF05716B1 /* BasketballDetector.mlpackage */ = {isa = PBXFileReference; path = BasketballDetector.mlpackage; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0FE1A53301B8F5500C98E702 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				7EA10D73E6B70D75D32D272D /* sequence-test.mp4 */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		131ED59C4E188C55AFAC7E5D = {
+			isa = PBXGroup;
+			children = (
+				C42B48DC292843FA6F5099AF /* Camelot */,
+				B016F475E668F0F571241AD5 /* CamelotMac */,
+				A19B857F628347974F022535 /* CamelotMacTests */,
+				939A8E3DBEA488726CC70444 /* CamelotShared */,
+				9620F39ECBA860C37E3141CE /* Models */,
+				FACF3E75F95C6128FB76CF3D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		939A8E3DBEA488726CC70444 /* CamelotShared */ = {
+			isa = PBXGroup;
+			children = (
+				189D0AD15C97AF876C753A1C /* AnalysisAnnotation.swift */,
+				043DFC441D499413EAD54564 /* AnalysisControlStyle.swift */,
+				CB4AE3FF5ED282DCD139B972 /* AnalysisEffectControls.swift */,
+				AA19B25B9B0D25567ADB9AF5 /* AnalysisEngine.swift */,
+				BF8DF682BEC8B332DC6F1DAB /* AnalysisFieldGuide.swift */,
+				BDB5CD7D1A1910C8C35896AD /* AnalysisFieldPreview.swift */,
+				1F0DD97E95D35EDBB4F1AA7D /* AnalysisLayerEditing.swift */,
+				B618FB4D67BBA190C19A05AC /* AnalysisLayerTimeline.swift */,
+				58A5F8A147A9CF25F355A671 /* AnalysisLoupeControls.swift */,
+				C6FA559D66D805B0C2C470F2 /* AnalysisPlayerEffects.swift */,
+				5429509AF7A7A924A222C34C /* AnalysisSheetHeader.swift */,
+				633213E7015E3F13CCA32114 /* AnalysisTextControls.swift */,
+				C6BE88ADC91C311933252AE9 /* AnalysisTrackingLibrary.swift */,
+				82CE139EB79044D528868E71 /* AnalysisVideoCompositor.swift */,
+				3A45F906DDCB35DF7F23D009 /* AnnotationCameraMotion.swift */,
+				2F55AF82DDE41FFF0FB64F3B /* AnnotationLineStyle.swift */,
+				407117614EADC62E883325E6 /* AnnotationLoupe.swift */,
+				EBE180869FF464C950722C3B /* AnnotationMeasurements.swift */,
+				78441653AAF2BA131C1D7B09 /* AnnotationRenderer.swift */,
+				CB3350246BB20952AC8AB588 /* AnnotationShapeEditing.swift */,
+				A12B1A32D5335888491E8EA1 /* AnnotationTextLayout.swift */,
+				B82C81381949516BFE33DBB2 /* AnnotationViewport.swift */,
+				7170D233E4573DD7E8254E09 /* APIClient.swift */,
+				35F3C96E1781219FF233000B /* AppAppearance.swift */,
+				DD451BC7CEFC78099D80740C /* AppState.swift */,
+				614D1C8F21508F9BEDDB4CB8 /* CameraControls.swift */,
+				0B1195B7DA65C001D1A3C2E3 /* CameraEventCapture.swift */,
+				0A34149298965A46984CEB3A /* CameraFeatureRegistration.swift */,
+				96CFA485B77E4256F75BBA3C /* DebugSeeding.swift */,
+				971224812E6202496B0D8D06 /* DesignSystem.swift */,
+				39DA231C86073659493B76F3 /* EditorGeometry.swift */,
+				74752D7ECFB1CB15E5530467 /* EditorSequencePreview.swift */,
+				B27446D4DE0F3EF2B435C108 /* EventTagStrip.swift */,
+				040D81A0D178944035CE4C6C /* FieldLineDetection.swift */,
+				3CBC4A64C628FE8B1BCCC75D /* FieldPlacementInteraction.swift */,
+				B47ACE053A7F4C50AA9DD50D /* GameAnnotationEffects.swift */,
+				CDD7BDC719006CAF9282111B /* GroundCalibration.swift */,
+				DD413DD5DAC0111091CB170E /* GroundEffectProjection.swift */,
+				15BDCA22D5CEB0AF347AF3C9 /* GroundFieldOverlay.swift */,
+				35D0CFBA95F99D7E129DDB66 /* GroundLandmark.swift */,
+				8847051950A61F83F9396AE3 /* GroundReferenceDetection.swift */,
+				161915FC0C8F5CC89FEC78E6 /* GroundShapeGeometry.swift */,
+				7AD4BEA489DA4AD2F99C34DF /* Models.swift */,
+				3F99E0072749A522418CE71E /* PlayerTrackingIdentity.swift */,
+				E3283E4B5E5ACD08C71B519D /* PlayerTrackRepair.swift */,
+				6E3E5A340905E734740EBE3C /* PlayerTrajectory.swift */,
+				A484FD6564BD85EEEAEF5F27 /* RecordingAnalysis.swift */,
+				65FCF82AB6FFB299DCA619D0 /* RecordingLibrary.swift */,
+				06714564F6336EE1F2FCE079 /* RecordingRecovery.swift */,
+				A4F7432661C630E898E9D280 /* RootView.swift */,
+				116677DEEA39C35238D6F080 /* SelectedPlayerTracking.swift */,
+				09C1C34C01ED97E402973F76 /* VisionPlayerTracker.swift */,
+			);
+			path = CamelotShared;
+			sourceTree = "<group>";
+		};
+		9620F39ECBA860C37E3141CE /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FE7DB4AD9C6E3D0DF05716B1 /* BasketballDetector.mlpackage */,
+				2DDFCD2F486CEC561425954B /* MODEL_NOTICE.md */,
+			);
+			name = Models;
+			path = ../ios/Camelot/Resources/Models;
+			sourceTree = "<group>";
+		};
+		A19B857F628347974F022535 /* CamelotMacTests */ = {
+			isa = PBXGroup;
+			children = (
+				162EEEC48568955F1D06F658 /* AnalysisLayerTimelineTests.swift */,
+				B15C1487368A86BF9A52B0B2 /* AnalysisPerfTests.swift */,
+				53A8A29C6785010EF97EDF52 /* AnnotationLineStyleTests.swift */,
+				28406B941AFEB399E1F4826C /* FieldPlacementInteractionTests.swift */,
+				62719C98A7C530A9CD5B6384 /* GroundCalibrationTests.swift */,
+				2E7478484651B41A345C9E67 /* GroundLandmarkTests.swift */,
+				C96160EBA53F714691DF6E84 /* GroundReferenceDetectionTests.swift */,
+				E4BAE9EABCF6981FECCC4049 /* PlayerAnalysisTests.swift */,
+				B8ECB78675CF0245768D8E67 /* PlayerTrackingIdentityTests.swift */,
+				2A2ECE1E43ECD7CD09CE20E0 /* TimelineGeometryTests.swift */,
+				0FE1A53301B8F5500C98E702 /* Fixtures */,
+			);
+			path = CamelotMacTests;
+			sourceTree = "<group>";
+		};
+		B016F475E668F0F571241AD5 /* CamelotMac */ = {
+			isa = PBXGroup;
+			children = (
+				6B6DF2D9F4879AF80F11B255 /* AnalysisConnectionAnchors.swift */,
+				03558834AF4A802752101F66 /* AnalysisConstructionOverlay.swift */,
+				03AF0CE93C060FF18BDE675A /* AnalysisFieldDetectionSheet.swift */,
+				9F77AEBE2A4B96D86E0DFFCE /* AnalysisFieldPlacementView.swift */,
+				0D9DE4B7F295674C8EE12D0C /* AnalysisInspectorSheet.swift */,
+				DCCF4F8BE32F549784BEFF01 /* AnalysisLoupePreview.swift */,
+				E5D8EDDF248B41B5A383CAFA /* AnalysisOverlayView.swift */,
+				0E9A9C8866A44471BB5FCC47 /* AnalysisPlayerEffectsSheet.swift */,
+				EEA253657259B42B05DD4442 /* AnalysisPlayerTracksSheet.swift */,
+				168E77FB312C01D9AA0EE55C /* AnalysisTrajectoryControls.swift */,
+				35A8EA69B562E66C65D973B7 /* App.swift */,
+				1EC277B87E691BA992228641 /* AppWindows.swift */,
+				830F4503B5A71CCC6F6FE8CE /* CamelotMac.entitlements */,
+				6DEBC8CBD98ABDF725940AE2 /* CameraView.swift */,
+				5854B83117AE7E309300B2CC /* CameraZoomDial.swift */,
+				1852504715ECC2E2426C0441 /* ColorConversion.swift */,
+				785DD2237CA54CB19AC21FC6 /* CompositionPlayerView.swift */,
+				BAD1941C6ED51C0EADE3BDBA /* EditorEventBrowser.swift */,
+				FBFA0D43A0FE566529116EC7 /* EditorPlaybackControls.swift */,
+				4A6C24B9A3EE6DEEDD1F7B6A /* EditorTimeline.swift */,
+				0E012EE8C1702B1790B365F6 /* EditorWorkspace.swift */,
+				A52F6C16F8B7F2D4625DBA6C /* FieldPlacementTouchSurface.swift */,
+				063920E1E082A515F9EEA265 /* GroundCalibrationSheet.swift */,
+				D1A0B6FF3B694064B385C00E /* Info.plist */,
+				568C77571953AE3E567B92E7 /* MainTabView.swift */,
+				F5FD78AD3582EB9594955685 /* OnboardingView.swift */,
+				DA4D2A8E51A9D3D3DA017544 /* ProjectDetailView.swift */,
+				EEAAA5277FDE216FD438C59C /* ProjectsView.swift */,
+				07BBE709FFE294BAF2410A37 /* RecordingEditorView.swift */,
+				99C1ABEC79DD7E28E1D235D2 /* VideoImporter.swift */,
+				1A186EE5889D888CE1287FF1 /* VideoThumbnail.swift */,
+			);
+			path = CamelotMac;
+			sourceTree = "<group>";
+		};
+		C42B48DC292843FA6F5099AF /* Camelot */ = {
+			isa = PBXGroup;
+			children = (
+				533B2F97C4F2421032852A76 /* Assets.xcassets */,
+			);
+			name = Camelot;
+			path = ../ios/Camelot;
+			sourceTree = "<group>";
+		};
+		FACF3E75F95C6128FB76CF3D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				214BF5315DF3CC56C03815CA /* CamelotMac.app */,
+				0C8D253515062B13A75A22C7 /* CamelotMacTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1E4BB68D4B1DEB636CBB7DCD /* CamelotMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0044F574A478CF8B0E186963 /* Build configuration list for PBXNativeTarget "CamelotMac" */;
+			buildPhases = (
+				606904198E5872C362F9C71E /* Sources */,
+				B281D50BB6166E8596C7D4CD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CamelotMac;
+			packageProductDependencies = (
+			);
+			productName = CamelotMac;
+			productReference = 214BF5315DF3CC56C03815CA /* CamelotMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		356D4305F0F46E7B9F7D18BA /* CamelotMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 45BA7E32CD17F246914972EF /* Build configuration list for PBXNativeTarget "CamelotMacTests" */;
+			buildPhases = (
+				86CA2217B6EAAF0E4465577E /* Sources */,
+				8169DB95A37C80675C9C3A7C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E530559E20C4F39524005935 /* PBXTargetDependency */,
+			);
+			name = CamelotMacTests;
+			packageProductDependencies = (
+			);
+			productName = CamelotMacTests;
+			productReference = 0C8D253515062B13A75A22C7 /* CamelotMacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C1BECE53DACD8D75CCCBD19E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					1E4BB68D4B1DEB636CBB7DCD = {
+						DevelopmentTeam = 83ZRPDHF3Y;
+						ProvisioningStyle = Automatic;
+					};
+					356D4305F0F46E7B9F7D18BA = {
+						DevelopmentTeam = 83ZRPDHF3Y;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = E0C82416DDF00C31B77441D3 /* Build configuration list for PBXProject "CamelotMac" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 131ED59C4E188C55AFAC7E5D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1E4BB68D4B1DEB636CBB7DCD /* CamelotMac */,
+				356D4305F0F46E7B9F7D18BA /* CamelotMacTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8169DB95A37C80675C9C3A7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				575C3BE694A78592A3E26394 /* sequence-test.mp4 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B281D50BB6166E8596C7D4CD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E56EF59523F6329708B0211D /* Assets.xcassets in Resources */,
+				CF97D1DDB9F584F01C0379E7 /* MODEL_NOTICE.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		606904198E5872C362F9C71E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE98CC42E06F8F77FFF5AFA7 /* APIClient.swift in Sources */,
+				D7482F2194659CAA7AE17A97 /* AnalysisAnnotation.swift in Sources */,
+				FA4C513E8929EAB9F7BFD806 /* AnalysisConnectionAnchors.swift in Sources */,
+				009741D85B86ED3D08EA2113 /* AnalysisConstructionOverlay.swift in Sources */,
+				0D691A5124FED2DD94888E04 /* AnalysisControlStyle.swift in Sources */,
+				A950B5E4FE0080F4720A587B /* AnalysisEffectControls.swift in Sources */,
+				A700990FE6FC0877AC3A31E7 /* AnalysisEngine.swift in Sources */,
+				D2230DA01CCB7353F2F0B829 /* AnalysisFieldDetectionSheet.swift in Sources */,
+				21A9409227785FC60F75A092 /* AnalysisFieldGuide.swift in Sources */,
+				AB8128515E466BF2BD4DB0D5 /* AnalysisFieldPlacementView.swift in Sources */,
+				B819B73E40B1DCF1D93911EC /* AnalysisFieldPreview.swift in Sources */,
+				96E6200EAE6DDAC7021C7DDA /* AnalysisInspectorSheet.swift in Sources */,
+				2FEFE3A7FD0F4E08461E82F4 /* AnalysisLayerEditing.swift in Sources */,
+				E82256BC337BB72011B63852 /* AnalysisLayerTimeline.swift in Sources */,
+				71EC9612C3C06F4AC129FB8A /* AnalysisLoupeControls.swift in Sources */,
+				DC42EC448BD97ADD2D48ED1F /* AnalysisLoupePreview.swift in Sources */,
+				8372C2BB71D617B4273092DD /* AnalysisOverlayView.swift in Sources */,
+				35FD7C6B39760815A8C4D520 /* AnalysisPlayerEffects.swift in Sources */,
+				FC2B76F4A9F841C2322B86D2 /* AnalysisPlayerEffectsSheet.swift in Sources */,
+				67D7017ACA7D8103BD4B6A8D /* AnalysisPlayerTracksSheet.swift in Sources */,
+				DDF64C44D5709AC6DAB5019A /* AnalysisSheetHeader.swift in Sources */,
+				8A0B8B945794DF90C44D7A13 /* AnalysisTextControls.swift in Sources */,
+				05F939B9002144BEF35D45E0 /* AnalysisTrackingLibrary.swift in Sources */,
+				F0D6E86161CB5ED6100C1346 /* AnalysisTrajectoryControls.swift in Sources */,
+				929FB20FE33963F828B46A7A /* AnalysisVideoCompositor.swift in Sources */,
+				E143423CD88CFECA4DF4E5D7 /* AnnotationCameraMotion.swift in Sources */,
+				AFE71D322608230C814DC29B /* AnnotationLineStyle.swift in Sources */,
+				59287DE563C2C9C8A60C226C /* AnnotationLoupe.swift in Sources */,
+				356C52EF83793E2AD939DC97 /* AnnotationMeasurements.swift in Sources */,
+				DDDD33AA83A1E34311C63B4E /* AnnotationRenderer.swift in Sources */,
+				C927F9BBDE0EDE539E23B785 /* AnnotationShapeEditing.swift in Sources */,
+				E73641C28C21B55E8446B465 /* AnnotationTextLayout.swift in Sources */,
+				38299EBAA93BFD9123E7604A /* AnnotationViewport.swift in Sources */,
+				942FBE0C4D407568F5A14D96 /* App.swift in Sources */,
+				C3518B25777A72DFE1B7F4A8 /* AppAppearance.swift in Sources */,
+				A576018904246ED8064EC786 /* AppState.swift in Sources */,
+				A2CCCBD129E8ECB70E33A16E /* AppWindows.swift in Sources */,
+				C0A7D2CF1F88E33280B13178 /* BasketballDetector.mlpackage in Sources */,
+				83B30716AF8E3CD7E5731D2E /* CameraControls.swift in Sources */,
+				B553FECA535A5FBE64FA5C8E /* CameraEventCapture.swift in Sources */,
+				CF0A7829EF34CD46A94EF601 /* CameraFeatureRegistration.swift in Sources */,
+				38A0ACE53DE23AEFFA03B487 /* CameraView.swift in Sources */,
+				88EC2BB9B5AD780F6F61D7DD /* CameraZoomDial.swift in Sources */,
+				1DCA13090CCF88DDBF1E0775 /* ColorConversion.swift in Sources */,
+				327F220024DE3355EF7A7B2D /* CompositionPlayerView.swift in Sources */,
+				4AD8210B6089AD5E73C7A25F /* DebugSeeding.swift in Sources */,
+				BF6F86C08B156B8600DAAF9A /* DesignSystem.swift in Sources */,
+				0ACC13BB8C12547164EC2CF1 /* EditorEventBrowser.swift in Sources */,
+				FDCB706EA11777A6E3C4ABEC /* EditorGeometry.swift in Sources */,
+				D830D9A81A66B8DB725DFA35 /* EditorPlaybackControls.swift in Sources */,
+				4B6AA03F81604655D7A6525A /* EditorSequencePreview.swift in Sources */,
+				AAD42AB5B8C8DA9408FAA0E4 /* EditorTimeline.swift in Sources */,
+				7778DA1DECAC92418B970A5D /* EditorWorkspace.swift in Sources */,
+				F5C69A23CBCF0F4D7A1D6AF8 /* EventTagStrip.swift in Sources */,
+				8AD2A555F6A9AD6F2353BAC9 /* FieldLineDetection.swift in Sources */,
+				549A7710C73F7219F5E957C9 /* FieldPlacementInteraction.swift in Sources */,
+				D5C1A32B9DEA30DFDC2D2670 /* FieldPlacementTouchSurface.swift in Sources */,
+				F107A310A993ACC50BDC2231 /* GameAnnotationEffects.swift in Sources */,
+				D6D744F19FD530B9F5B04FB5 /* GroundCalibration.swift in Sources */,
+				1EF79C082B0E7BCB2AD2E513 /* GroundCalibrationSheet.swift in Sources */,
+				4EF7B9CA86D41DA402BC0DC3 /* GroundEffectProjection.swift in Sources */,
+				755A38DCE23C06532679B3A5 /* GroundFieldOverlay.swift in Sources */,
+				05784F7826E6D236D965C08E /* GroundLandmark.swift in Sources */,
+				74518E09EE6C24B57D305940 /* GroundReferenceDetection.swift in Sources */,
+				A32E40CC3B5A552F1008589B /* GroundShapeGeometry.swift in Sources */,
+				CC88DAA9595617E61348429B /* MainTabView.swift in Sources */,
+				CCE0F9D1F4016B118DCF6274 /* Models.swift in Sources */,
+				939FCFA822349E267316CA9B /* OnboardingView.swift in Sources */,
+				743B1A47423F7AB0D7F063F7 /* PlayerTrackRepair.swift in Sources */,
+				EA72E5DC0A4F11DEFA6F03D1 /* PlayerTrackingIdentity.swift in Sources */,
+				D8F95F01BC72873E2A48E5F5 /* PlayerTrajectory.swift in Sources */,
+				E501F66A51975E45897836B7 /* ProjectDetailView.swift in Sources */,
+				6BC2781C93B9CCF830A9D187 /* ProjectsView.swift in Sources */,
+				E92CB76D1A7DC916B0088461 /* RecordingAnalysis.swift in Sources */,
+				16DD6901256AC8067BE6DF6C /* RecordingEditorView.swift in Sources */,
+				7ED8D9A5997BC308D57D4C46 /* RecordingLibrary.swift in Sources */,
+				15318BF59855ECA179727A16 /* RecordingRecovery.swift in Sources */,
+				F684B8E893B8451AA70E15BF /* RootView.swift in Sources */,
+				D881AAD58874E55D15A64E17 /* SelectedPlayerTracking.swift in Sources */,
+				F43C66B0A5437D52C437895E /* VideoImporter.swift in Sources */,
+				9FD5170170C8B09AF8D4E0D6 /* VideoThumbnail.swift in Sources */,
+				ED1DDCB8428B586B02E4A101 /* VisionPlayerTracker.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		86CA2217B6EAAF0E4465577E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5160E035F16901AF15D27CAF /* AnalysisLayerTimelineTests.swift in Sources */,
+				BBA3C6DEEDFAAEB6C0CD41A8 /* AnalysisPerfTests.swift in Sources */,
+				835896874012380F917DBAD0 /* AnnotationLineStyleTests.swift in Sources */,
+				B871398E9B253A96CF1DBA87 /* FieldPlacementInteractionTests.swift in Sources */,
+				F9325E8A01357188AD3B6637 /* GroundCalibrationTests.swift in Sources */,
+				E84F637821CD4CAF79D54CEF /* GroundLandmarkTests.swift in Sources */,
+				3E4A81935948C7FE393BBA11 /* GroundReferenceDetectionTests.swift in Sources */,
+				112B5AFB1D216B78069FEA39 /* PlayerAnalysisTests.swift in Sources */,
+				91712AB743135B68D6A2791D /* PlayerTrackingIdentityTests.swift in Sources */,
+				D2C12A8FB38D5395FDFCA655 /* TimelineGeometryTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E530559E20C4F39524005935 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1E4BB68D4B1DEB636CBB7DCD /* CamelotMac */;
+			targetProxy = A8594BCB92E922DBC17160DC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		11A0CDE504BDCEE5143D2810 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = CamelotMac/CamelotMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 83ZRPDHF3Y;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		5F1E4FFF8E50CB9BDF957449 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				API_HOST = 192.168.1.203;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CamelotMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.evolve.mac;
+				PRODUCT_NAME = Camelot;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		6995A4DE2491FBDFBBBAC667 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				API_HOST = 192.168.1.203;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CamelotMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.evolve.mac;
+				PRODUCT_NAME = Camelot;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		935ACA5232BC5A363BB968A7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.CamelotMacTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Camelot.app/Contents/MacOS/Camelot";
+			};
+			name = Release;
+		};
+		E276E2DE404A1C309BF8D428 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = CamelotMac/CamelotMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 83ZRPDHF3Y;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		F24AC97BD15CEB368E724FCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.camelot.CamelotMacTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Camelot.app/Contents/MacOS/Camelot";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0044F574A478CF8B0E186963 /* Build configuration list for PBXNativeTarget "CamelotMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5F1E4FFF8E50CB9BDF957449 /* Debug */,
+				6995A4DE2491FBDFBBBAC667 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		45BA7E32CD17F246914972EF /* Build configuration list for PBXNativeTarget "CamelotMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F24AC97BD15CEB368E724FCF /* Debug */,
+				935ACA5232BC5A363BB968A7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E0C82416DDF00C31B77441D3 /* Build configuration list for PBXProject "CamelotMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				11A0CDE504BDCEE5143D2810 /* Debug */,
+				E276E2DE404A1C309BF8D428 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C1BECE53DACD8D75CCCBD19E /* Project object */;
+}

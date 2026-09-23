@@ -1,0 +1,9 @@
+{
+  "name": "Camelot",
+  "short_name": "Camelot",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0c0e",
+  "theme_color": "#2973fa",
+  "icons": []
+}

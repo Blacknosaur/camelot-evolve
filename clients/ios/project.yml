@@ -18,6 +18,22 @@ targets:
         buildPhase: sources
       - path: Camelot/Resources/Models/MODEL_NOTICE.md
         buildPhase: resources
+      - path: Camelot/Resources/Models/PitchRegions.mlpackage
+        buildPhase: sources
+      - path: Camelot/Resources/Models/PITCH_MODEL_NOTICE.md
+        buildPhase: resources
+      - path: Camelot/Resources/Models/edgetam_image_encoder_pos.mlpackage
+        buildPhase: sources
+      - path: Camelot/Resources/Models/edgetam_prompt_encoder.mlpackage
+        buildPhase: sources
+      - path: Camelot/Resources/Models/edgetam_mask_decoder_mem.mlpackage
+        buildPhase: sources
+      - path: Camelot/Resources/Models/edgetam_memory_attention.mlpackage
+        buildPhase: sources
+      - path: Camelot/Resources/Models/edgetam_memory_encoder.mlpackage
+        buildPhase: sources
+      - path: Camelot/Resources/Models/edgetam_no_mem_embed_f32.bin
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.camelot.evolve
@@ -25,6 +41,31 @@ targets:
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: Camelot/Info.plist
         API_HOST: 192.168.1.203
+  CamelotCamera:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - CamelotCamera
+      - Camelot/MultiCamProtocol.swift
+      - Camelot/MultiCamSession.swift
+      - Camelot/MultiCamSocketServer.swift
+      - Camelot/MultiCamVideoCodec.swift
+      - Camelot/MultiCamCaptureEngine.swift
+      - Camelot/MultiCamFeedView.swift
+      - Camelot/MultiCamPeerController.swift
+      - Camelot/MultiCamPeerViews.swift
+      - Camelot/DesignSystem.swift
+      - Camelot/EventKind.swift
+      - Camelot/EventTagStrip.swift
+      - Camelot/CameraControls.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.blacknosaur.camelot.camera
+        PRODUCT_NAME: CamelotCamera
+        DEVELOPMENT_TEAM: 9V4MJ8TDVJ
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: CamelotCamera/Info.plist
   CamelotUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -49,6 +90,10 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: YES
 schemes:
+  CamelotCamera:
+    build:
+      targets:
+        CamelotCamera: all
   Camelot:
     build:
       targets:

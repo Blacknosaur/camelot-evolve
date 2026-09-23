@@ -17,3 +17,8 @@ clients/ios/DerivedData/
 *.xcuserstate
 xcuserdata/
 
+
+# Android build artifacts and machine-local config
+clients/android/.gradle/
+clients/android/**/build/
+clients/android/local.properties

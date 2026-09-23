@@ -74,7 +74,12 @@ extension CompositionClip {
                 }
             } else {
                 let points = tool == .text ? [CGPoint(x: box.midX, y: box.minY - 0.02)] : tool == .loupe ? [CGPoint(x: box.midX, y: box.midY)] : [box.origin, CGPoint(x: box.maxX, y: box.maxY)]
-                var mark = AnalysisAnnotation(tool: tool, points: points, start: min(time, annotationEnd - 0.05), end: min(annotationEnd, time + 6))
+                // Effects cover the whole clip. A six-second window from the
+                // playhead meant every effect had to be extended by hand before
+                // it was useful; trimming one that is too long is the easier
+                // edit, and an effect is hidden anyway wherever its player is
+                // not tracked.
+                var mark = AnalysisAnnotation(tool: tool, points: points, start: startSeconds, end: annotationEnd)
                 options.style(&mark)
                 mark.playerEffectGroupID = groupID; mark.playerEffectBox = box
                 mark.playerMotion = motion?.bound(at: time, smoothing: tool == .text ? 0.95 : nil)

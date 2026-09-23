@@ -19,7 +19,7 @@ final class AppState {
     var organizationName: String?
     var syncMessage: String?
     var isCapturing = false
-    private let deviceID: UUID
+    let deviceID: UUID
 
     init() {
         if ProcessInfo.processInfo.arguments.contains("-resetOnboarding") {

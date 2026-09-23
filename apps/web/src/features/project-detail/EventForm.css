@@ -1,0 +1,16 @@
+.ef { display: flex; flex-direction: column; gap: var(--space-xl); padding-top: var(--space-sm); }
+.ef-summary { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md); border-radius: var(--radius-md); background: color-mix(in srgb, var(--tint) 14%, transparent); color: var(--tint); }
+.ef-summary-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--tint); color: #fff; flex: none; }
+.ef-summary-icon svg { width: 20px; height: 20px; }
+.ef-summary-title { font-weight: 700; font-size: 17px; }
+.ef-summary-subtitle { font-size: 13px; color: var(--fg-secondary); }
+.ef-kinds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: var(--space-md); }
+.ef-kind { display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 60px; padding: 8px 4px; border: 2px solid transparent; border-radius: var(--radius-sm); background: var(--fill-tertiary); color: var(--fg); font-size: 13px; font-weight: 600; }
+.ef-kind svg { width: 20px; height: 20px; color: var(--tint); }
+.ef-kind[aria-checked="true"] { border-color: var(--tint); background: color-mix(in srgb, var(--tint) 12%, transparent); }
+.ef-colors { display: flex; flex-wrap: wrap; gap: 10px; padding: var(--space-md); }
+.ef-color { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; }
+.ef-color-dot { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: var(--tint); color: #fff; box-shadow: 0 0 0 2px var(--bg-elevated); transition: box-shadow 0.15s, transform 0.15s; }
+.ef-color-dot svg { width: 14px; height: 14px; }
+.ef-color[aria-checked="true"] .ef-color-dot { box-shadow: 0 0 0 2px var(--bg-elevated), 0 0 0 4px var(--fg); transform: scale(1.05); }
+.ef-note { width: 100%; border: 0; background: none; color: var(--fg); font: inherit; resize: vertical; padding: 8px 0; outline: none; }

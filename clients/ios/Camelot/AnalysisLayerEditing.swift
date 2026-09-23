@@ -66,6 +66,12 @@ extension AnalysisAnnotation {
                 return CGPoint(x: reference.midX + point.x - box.midX, y: reference.maxY + point.y - box.maxY)
             }
         } else if let motion = displayPlayerMotion, let reference = motion.reference, let box = motion.box(at: time) {
+            if [.player, .spotlight].contains(tool) {
+                guard let body = motion.effectBodyBox(at: time), let feet = motion.groundPoint(at: time) else { return }
+                self.points = points.map { CGPoint(x: reference.midX + ($0.x - feet.x) * reference.width / max(0.001, body.width),
+                                                   y: reference.maxY + ($0.y - feet.y) * reference.height / max(0.001, body.height)) }
+                return
+            }
             if tool == .text || tool == .loupe {
                 self.points = points.map { CGPoint(x: $0.x + reference.midX - box.midX, y: $0.y + reference.midY - box.midY) }
                 return
@@ -91,5 +97,13 @@ extension AnalysisAnnotation {
         }
         return lower <= upper ? lower...upper : nil
     }
-    var trackingGaps: [ClosedRange<Double>] { (linkedPlayers ?? playerMotion.map { [$0] } ?? []).flatMap { $0.gaps ?? [] } }
+    /// The stripe describes missing display coverage, not missing measurements.
+    /// Preserve raw gaps on the motion for review and safe tracking seeds.
+    var trackingGaps: [ClosedRange<Double>] {
+        (linkedPlayers ?? playerMotion.map { [$0] } ?? []).flatMap { motion in
+            (motion.gaps ?? []).filter { gap in
+                motion.box(at: gap.lowerBound + (gap.upperBound - gap.lowerBound) / 2) == nil
+            }
+        }
+    }
 }

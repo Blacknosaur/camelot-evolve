@@ -1,0 +1,23 @@
+.ob { min-height: 100%; overflow: auto; background: var(--bg); }
+.ob-layout { display: flex; flex-direction: column; gap: var(--space-xl); max-width: var(--readable-width); margin: 0 auto; padding: calc(var(--space-xl) + env(safe-area-inset-top)) var(--space-xl) calc(var(--space-xl) + env(safe-area-inset-bottom)); }
+.ob-layout-wide { flex-direction: row; align-items: center; max-width: 1100px; min-height: 100dvh; gap: var(--space-xxl); padding: var(--space-xxl); }
+.ob-layout-wide .ob-hero { flex: 1; }
+.ob-layout-wide .ob-card { flex: none; width: min(var(--readable-width), 100%); }
+.ob-hero { display: flex; flex-direction: column; gap: var(--space-md); }
+.ob-brand { display: flex; align-items: center; gap: var(--space-md); }
+.ob-logo { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: var(--radius-md); background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 85%, #fff), var(--brand)); color: #fff; }
+.ob-logo svg { width: 34px; height: 34px; }
+.ob-logo-compact { width: 48px; height: 48px; }
+.ob-logo-compact svg { width: 26px; height: 26px; }
+.ob-brand-name { font-size: 22px; font-weight: 700; }
+.ob-headline { margin: 0; font-size: 34px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+.ob-lede { margin: 0; font-size: 17px; color: var(--fg-secondary); line-height: 1.4; }
+.ob-card { padding: var(--space-xl); }
+.ob-form { display: flex; flex-direction: column; gap: var(--space-lg); }
+.ob-fields { display: flex; flex-direction: column; gap: var(--space-md); }
+.ob-eye { display: inline-flex; align-items: center; justify-content: center; width: var(--tap-target); height: var(--tap-target); border: 0; background: none; color: var(--fg-secondary); border-radius: var(--radius-sm); }
+.ob-eye svg { width: 20px; height: 20px; }
+.ob-connection { display: flex; flex-direction: column; align-items: center; gap: var(--space-sm); }
+.ob-issue { margin: 0; font-size: 11px; color: var(--fg-secondary); text-align: center; }
+.ob-retry { font-size: 13px; font-weight: 700; }
+.ob-retry svg { width: 14px; height: 14px; }

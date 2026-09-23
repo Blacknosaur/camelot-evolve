@@ -1,0 +1,16 @@
+[package]
+name = "camelot-vision"
+version = "0.0.0"
+edition = "2021"
+description = "Image-processing kernels for the Camelot web client (feature tracking, line detection, histograms), compiled to WASM and run inside Web Workers."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

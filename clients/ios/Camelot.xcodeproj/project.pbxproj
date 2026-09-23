@@ -7,114 +7,237 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0151EF362DD3D4978A957BC8 /* MultiCamHostViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 336AE43B870C53FA577DFC44 /* MultiCamHostViews.swift */; };
+		031942C1EC094FFE3FB976E4 /* PITCH_MODEL_NOTICE.md in Resources */ = {isa = PBXBuildFile; fileRef = 86A4E6243D780DF4CF3FA453 /* PITCH_MODEL_NOTICE.md */; };
+		0431DA6E72438C02116585EC /* NumberNineReacquisitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59331C2D31063DD180BD6A4 /* NumberNineReacquisitionTests.swift */; };
+		0577D4186A8E08A9D6F6039A /* ProjectLibraryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF812B8242D997C8C2CF32C /* ProjectLibraryUITests.swift */; };
 		05E1C16C89AF3D3B22038BBC /* CameraEventCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375434FC4971F03979CD3CA8 /* CameraEventCapture.swift */; };
 		08FF68EA02F5EC9FEA959698 /* EditorAnalysisUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F48C83CCD5565E016E98A99 /* EditorAnalysisUITests.swift */; };
+		0A5A1A412A7B91F07AF71795 /* FieldFrameSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 408588334814DA72BD073DA7 /* FieldFrameSource.swift */; };
 		0BB2D696F11C12A57E04BB96 /* CameraCaptureInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A7C01A724E04DC409467FD /* CameraCaptureInteractionTests.swift */; };
+		0C30A149AF1A3868A52DF754 /* EventKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A982117EDF42D7032C7BCC1 /* EventKind.swift */; };
+		0C5AF2D2D7FB0A8CF58B5F7F /* PlayerRosterFootageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0635938AE922C58664199628 /* PlayerRosterFootageTests.swift */; };
+		0C5F1B7E64431B66FF8CC79A /* MultiCamFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E44BEDD385BAEFAC42E432 /* MultiCamFeedView.swift */; };
+		0E01C3C47368B238E55B9EF4 /* TacticalBoard3DCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F6BAD624DF20AFD286E435 /* TacticalBoard3DCamera.swift */; };
+		0E0B0B1E8564568D4FD57F83 /* GroundFieldOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = E34D7FC1E9896E0DF3EAD686 /* GroundFieldOverlay.swift */; };
+		0F0A83A27B2B11E0429DCF31 /* PlayerTrackRepairTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1B8935B54EE352B95FF630 /* PlayerTrackRepairTests.swift */; };
 		131126C9893A37C9AD1E3392 /* AnalysisEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00A28C21E728A346FBC523C /* AnalysisEngine.swift */; };
+		1417EB0DC3D9D445A8800C04 /* SquadModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3296D16636168C3231BFA0D8 /* SquadModels.swift */; };
+		1494E6AC086C31F4BF3D2271 /* SquadPlayerEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4453BAE5E5A420764C492EB /* SquadPlayerEditor.swift */; };
+		149C93DB200F21060CEE24A0 /* MultiCamProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8AED0A549BCDDCE432A04B9 /* MultiCamProtocol.swift */; };
+		152E70C179585D326F31E884 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D081429DA8A6150728D1106A /* DesignSystem.swift */; };
 		15774224965DE7374B592957 /* GameAnalysisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724825CEF0604A1B31F698CF /* GameAnalysisTests.swift */; };
 		15BFF62CA584F0406ACA283A /* GroundLandmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6087FB3222ECC79EB13B4F /* GroundLandmarkTests.swift */; };
+		15F49C34996FC40D2006DAA4 /* AnalysisPlayerReacquisitionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D800D70EAEE0990765704429 /* AnalysisPlayerReacquisitionSheet.swift */; };
 		16BBA218200A2A76C5EC160F /* AnalysisEngineDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7472CE16BCA44166D246B576 /* AnalysisEngineDeviceTests.swift */; };
 		17A3643907F10933368C67CB /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF615562DC52421903831E2 /* RootView.swift */; };
+		1B5A6975DE794D479FA6BBA1 /* EdgeTAMModelProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252694083F9776AA5EFEF5D9 /* EdgeTAMModelProbe.swift */; };
 		1C12B04E3A529F6082D1DE03 /* EditorGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75A1D34C70FD73F55C4BFE8 /* EditorGeometry.swift */; };
 		1D216148C113B4161A7AF023 /* AnalysisAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA1D788790987F56410BF72 /* AnalysisAnnotation.swift */; };
+		1EB8AC2C25922D4D0C8D365B /* TacticalBoardTrainingRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6D0B3D3EE4C8C14B8CBE21A /* TacticalBoardTrainingRenderer.swift */; };
 		1EE68D70BD3488A20DB39EF4 /* AnnotationLoupe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F864709041DCAEFE999A74B /* AnnotationLoupe.swift */; };
+		215EBF903FD6018470A39C8A /* TacticalBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAAAECC51CA4AAB4C29CEF5 /* TacticalBoardView.swift */; };
 		21A676E1EAD3F4C02B0C1F5E /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74B24595D6DDA4243690519 /* App.swift */; };
 		2411FB65B6581B811B67DFF2 /* AnnotationViewport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3081DAE5E331B1CDA0A38E57 /* AnnotationViewport.swift */; };
+		2620B5B3D3126DAFF5239286 /* MultiCamPeerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1429FB0F2C967BC43F7DE673 /* MultiCamPeerController.swift */; };
+		26496CD26238A2D4DE7F2DA2 /* MultiCamCaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053E8AA5B948EC0863DA9107 /* MultiCamCaptureEngine.swift */; };
+		2BC6A0A09D2275C3BC32A86D /* EventKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A982117EDF42D7032C7BCC1 /* EventKind.swift */; };
 		2BDE977B8CD448FBA5B9A8E0 /* AnalysisFieldGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = E78EC01FA5BC5C8DF2F33EC9 /* AnalysisFieldGuide.swift */; };
 		2C1B9778FE558A19B4F3FB6C /* AnalysisVisualEffectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404C642C01BA4F124B5FDB89 /* AnalysisVisualEffectsTests.swift */; };
 		2CCAD1BAC4E4D85ED452E0A5 /* EditorSequencePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F296DE56CCEB0B417AF9CDA /* EditorSequencePreview.swift */; };
+		2CF34671E106B001AE3D31D7 /* MultiCamStitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2EBEF0D3796AEF641BD9466 /* MultiCamStitcher.swift */; };
+		2F4D3569E276C98B4874B131 /* TacticalBoardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F539227901281C8F0ADA153 /* TacticalBoardUITests.swift */; };
+		2FACC78B872E5DC033136439 /* PlayerTrackingBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC5045E78E399F74F726F22 /* PlayerTrackingBenchmark.swift */; };
 		3293ADDB72A10FD09DD8BDDF /* BasketballDetector.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = B86326F64CE4A3C34F4A46FD /* BasketballDetector.mlpackage */; };
 		36492A8F10A689E8743490E7 /* ProjectDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183F4DB5EE7FC1D6649D50FF /* ProjectDetailView.swift */; };
+		391456F5C9CBC946A955CF56 /* GroundShapeGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2FA0BCC9CC09D8F7705A8E /* GroundShapeGeometryTests.swift */; };
 		39AEA768992E2BB479B45F74 /* FieldPlacementInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E644DAC0739B2A9BECD616 /* FieldPlacementInteractionTests.swift */; };
+		39D03FC44E40656C685AEC31 /* TacticalBoardSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0074A928041FCA414C77C8C /* TacticalBoardSurface.swift */; };
+		3AD44AE2E4FF2256EE0EF839 /* EdgeTAMSegmenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2738351116DE81738361F792 /* EdgeTAMSegmenterTests.swift */; };
+		3CBA039F61C3883F00322471 /* ProjectVideoFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57B584FECE4D408D45A149D /* ProjectVideoFilter.swift */; };
 		3CF0B726B4C1F907D01EB6D8 /* AnalysisLayerEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB4A42B198EB5023F50ECD5 /* AnalysisLayerEditing.swift */; };
+		3D32F19EB66E991BD2E8D236 /* EDGETAM_NOTICE.md in Resources */ = {isa = PBXBuildFile; fileRef = 331E75BB2DDA1D8CE349E868 /* EDGETAM_NOTICE.md */; };
 		3E4CA30D6896C5F30B267361 /* OnboardingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC17B45B045485BA3AD1E97 /* OnboardingUITests.swift */; };
 		4337EF4AF307D90955F855D1 /* AnalysisPlayerEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E2157597897F2DBF4F464 /* AnalysisPlayerEffects.swift */; };
+		43CC2D0DC48B9634B062AB0C /* SquadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70289BC34137AC445A7CE1BA /* SquadView.swift */; };
+		43DCFC5386402149AA14BD02 /* MultiCamSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3291520D1604E16CF125D0 /* MultiCamSession.swift */; };
 		4442E889312844BD704EA7A9 /* SelectedPlayerTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9079418E2BABF21C67BA615B /* SelectedPlayerTracking.swift */; };
+		457F0C6B126205F84CEC1A61 /* PlayerPoseOnFootageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1686C97AC6D41CBBC45C6D8 /* PlayerPoseOnFootageTests.swift */; };
+		4598E29B632AA344AD8B4AD9 /* SquadDebugSeeding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0EB9BE49E1146DFF7E94F1A /* SquadDebugSeeding.swift */; };
 		488D6CA8CF4A661AD9E9F963 /* AnnotationCameraMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A9CEA50CEE4E2BBBD3864C /* AnnotationCameraMotion.swift */; };
 		4891B1F25294E391C2818CE6 /* AnalysisCompactUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61BCA85088CFA92F2ADD4A1E /* AnalysisCompactUITests.swift */; };
 		4A0119101F6F120D4FF85B83 /* AnalysisTrackingLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057E6F3E6C19A2D9FB83BD0D /* AnalysisTrackingLibrary.swift */; };
+		4A3C6DE730E1D3DB149B8DEE /* MultiCamStitchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881FB49445D1556F41698664 /* MultiCamStitchView.swift */; };
+		4B7F2C416A1491045B861BE9 /* MultiCamSocketServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A218BE82EC72058B2F6594 /* MultiCamSocketServer.swift */; };
 		4CE4E6A5D9B18CA13FDEAFCE /* RecordingRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = E367E0BD2AB15043CB9E905C /* RecordingRecovery.swift */; };
+		4CEEFD39B22EA869ED7B4D0E /* TacticalBoardModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A280CC8305B94A7041FF6E /* TacticalBoardModels.swift */; };
 		4DB237A42169E2E831CD3611 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B98DA7FAD00660BADF41D9 /* APIClient.swift */; };
+		4E03A8328C5C919A4E5DCE66 /* PlayerTrackRepair.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7C042A4949E6D98B5686C6C /* PlayerTrackRepair.swift */; };
+		4E288959FC18721E5927B295 /* IncrementalTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0178F7706591382B6E3F43FE /* IncrementalTrackingTests.swift */; };
+		4EB60D6D7DA1308128612990 /* MultiCamSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3291520D1604E16CF125D0 /* MultiCamSession.swift */; };
 		4F790B6A43CF6AE5DA3F665A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 29034215932A102F5DD7EB49 /* Assets.xcassets */; };
 		5286A0CE15DCB47A91466ED7 /* EditorSequenceMediaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C827F2CB7DB3195DBCF9FE /* EditorSequenceMediaTests.swift */; };
 		53697B2AF1DF939DA39CAF27 /* FieldPlacementTouchSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A3FD251A68C81E47E39072 /* FieldPlacementTouchSurface.swift */; };
+		54513EBED87DD6F5A82255DD /* MultiCamPeerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E40CB0FA4930FF3D064F4C3 /* MultiCamPeerViews.swift */; };
 		55DE271065D6D6E95F2F702A /* PlayerTrackingIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8BBE2454C19346C77C8396 /* PlayerTrackingIdentityTests.swift */; };
+		596C68D72B7AFC3F414CC6A3 /* PitchRegionDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AE97FDC6AB0C1D69DC08B3B /* PitchRegionDetection.swift */; };
 		5B9EC44E978211C7F2740484 /* AnalysisControlStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926D0178253C25D41EE2C987 /* AnalysisControlStyle.swift */; };
+		5C27504E5D6DD563F5C7FC46 /* GroundCircleReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1177A6710A2F6A60FC2EDA13 /* GroundCircleReference.swift */; };
+		5C2E20FF9A8EB33DB57E8840 /* PitchRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEB151B30E1B9F645BBA2D /* PitchRegistration.swift */; };
 		5D34D46FF6E0249AAEF9D9FD /* GroundCalibrationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB7FD778FCF539F64E37322 /* GroundCalibrationSheet.swift */; };
+		5F95BDB8CE270B09D72FD903 /* PlayerReacquisitionSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BF99B603782B94BAB38298A /* PlayerReacquisitionSearch.swift */; };
+		5FBEA5FD999CB95323E2D1BD /* TacticalBoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C957B895D9B428DA2F5146D7 /* TacticalBoardTests.swift */; };
 		5FE8BEA75A123182C7634AC7 /* AnalysisEffectControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD476C8A6B2C25605840A344 /* AnalysisEffectControls.swift */; };
 		6007E3292C385E52249CFD6E /* AnalysisLayerTimelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1FCAABC1DD4A11625A38A52 /* AnalysisLayerTimelineTests.swift */; };
 		60D1426E5D2405D75ECAFD97 /* AnnotationRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C2D184CC65110FCAC68C4 /* AnnotationRenderer.swift */; };
+		60D31361015ED4E50752B8DE /* MultiCamCaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053E8AA5B948EC0863DA9107 /* MultiCamCaptureEngine.swift */; };
 		6297B1E11DD74F5D72CC7067 /* AnnotationLoupeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147D9DFDCFF7B9CA8F4CB44E /* AnnotationLoupeTests.swift */; };
 		63A5FD4DC75200C3A64F5C6D /* ScreenshotWalkthroughTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371AF7D38767498CF2899565 /* ScreenshotWalkthroughTests.swift */; };
 		649E045650D4ADB8053FE623 /* AnalysisEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3558A38E725273B56244268 /* AnalysisEditingTests.swift */; };
 		64FAB2649CDAF9153A4D6756 /* AnalysisPlayerTracksSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A0FFC8C98DA6A807E61A15 /* AnalysisPlayerTracksSheet.swift */; };
 		653F8D472CA5D931EBF6DC40 /* AppAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFE55F9ABB90578EFE3A275 /* AppAppearance.swift */; };
+		67334B12B32EC4686CA7D463 /* MultiCamVideoCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4441E0940F24FC6D0DC901F5 /* MultiCamVideoCodec.swift */; };
+		6C1DCA5AE299313FEFE088E3 /* ProjectVideoFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FA64C7418DED848387C571 /* ProjectVideoFilterTests.swift */; };
 		6D2402D708763C15DA8A8BAC /* FieldLineDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A87C895F1020F68155A6D64 /* FieldLineDetection.swift */; };
+		6E72D36BE51DC7C02DF89153 /* TacticalBoard3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA137E6547DF086FFBC46CEF /* TacticalBoard3DView.swift */; };
+		6E942A8694919CB2CDEBBDE1 /* PlayerTrackStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B68D92F5ECE799AC4BD5D8 /* PlayerTrackStateTests.swift */; };
+		6FD520C6E4F9FA747483C8F0 /* PlayerPoseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ECA032902FB0B28F49BE95 /* PlayerPoseTests.swift */; };
+		6FEB6AE3C062F52B2937A8F0 /* MultiCamFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E44BEDD385BAEFAC42E432 /* MultiCamFeedView.swift */; };
+		70D4FD0C0F33A2FB2DC5DFEB /* edgetam_no_mem_embed_f32.bin in Resources */ = {isa = PBXBuildFile; fileRef = 0E7EFA01B2F5185368E4CD3E /* edgetam_no_mem_embed_f32.bin */; };
+		713FEB2301BA14090BEBF429 /* CameraZoomModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F9167F9842A9B10F2BED8E /* CameraZoomModelTests.swift */; };
 		71EC68B3CF99BF6D9368B1FC /* AnnotationTextLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F823623470694D9D0137AD /* AnnotationTextLayout.swift */; };
 		73108A73E9FA075214785428 /* EditorWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6452F6EC8F4DE5FF232A4DAE /* EditorWorkspace.swift */; };
+		7314C648ED47C3230FBDA129 /* EdgeTAMSegmenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBC0385580157EC45C37F31D /* EdgeTAMSegmenter.swift */; };
 		737F3FBB2BABECC2518A6A24 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA9421F6B63D17148E0668D /* CameraView.swift */; };
+		74EE682AAAA2E5723DFC1499 /* edgetam_mask_decoder_mem.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = E3B3A17C4A2B626C38EF9FEA /* edgetam_mask_decoder_mem.mlpackage */; };
+		7845ED5D6C8791B9A9C06C52 /* EventTagStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A232A13562F8BC6BFF2062CB /* EventTagStrip.swift */; };
+		78A5EC743F7AFDDD8C85A40E /* UnifiedCameraTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9F959B0D1C1FE6FA842C83 /* UnifiedCameraTrackingTests.swift */; };
 		7942CFA8349C816EDD0D0037 /* CompositionPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B79AC2B39289BBED3C7524F9 /* CompositionPlayerView.swift */; };
 		7C12EE5671A86E187AA3CCF0 /* PlayerTrajectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202F64CA13EE91452E85BB5B /* PlayerTrajectory.swift */; };
 		7E1C3B27CEBEBCA144B12F1D /* PlayerTrajectoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C3095A7023029D5C7DB1A0 /* PlayerTrajectoryTests.swift */; };
+		7F4BD87657608FAD8CCBCF8B /* PitchRegions.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = E9F69DA61293B27666724274 /* PitchRegions.mlpackage */; };
+		7F69FADE35C20175F6BAE64B /* TacticalBoardExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1105943AB12413F44ABA718 /* TacticalBoardExportSheet.swift */; };
+		80C058EF947B8B7A133D0379 /* edgetam_memory_encoder.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 36BDFDC08957076E09AF4810 /* edgetam_memory_encoder.mlpackage */; };
 		830867C36A8232BA866EA340 /* GroundCalibrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B2F8F5AB412EFE9D758378 /* GroundCalibrationTests.swift */; };
+		8413EB68B8DEAC405E3DB0C5 /* TacticalBoardLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EC9D6B601B45D9A5888127B /* TacticalBoardLibrary.swift */; };
 		87F6802C0A8D446D01CFEAE0 /* EditorEventWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859D2BF948B22F3077E82C5 /* EditorEventWorkflowTests.swift */; };
+		882B8C6998DDED2A98DE0BBF /* PlayerROI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01530E03AF68B760F10A732 /* PlayerROI.swift */; };
 		89448EBE3083F4604E114502 /* VideoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7038444B7377DEA297F47C9 /* VideoThumbnail.swift */; };
 		89BE487185326CB60D538849 /* AnalysisPartialFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1811FE22AEEF5B1A82874 /* AnalysisPartialFieldTests.swift */; };
+		8BDA472431ADB86474D44CAD /* MultiCamProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8AED0A549BCDDCE432A04B9 /* MultiCamProtocol.swift */; };
+		8C81992FEEAD90541341D097 /* FieldSetupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588A5DE92C079C2A36863B99 /* FieldSetupUITests.swift */; };
 		8CD330393B6A51DD6C9554BC /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4F6E7DFB01CA8ED0C39DF5 /* AppState.swift */; };
+		8D9184532B26D850F10D19B7 /* TacticalBoardAnimationRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFBAFA75CAEF25E1803E02D /* TacticalBoardAnimationRenderer.swift */; };
+		8DDCAF18443A3B7944A2F221 /* PlayerTrackingEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3634B84CE3153A0FADE4495 /* PlayerTrackingEngineTests.swift */; };
 		8FB0327867EA411EA302E6CC /* AnalysisLoupePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6BC96E04126FA3FCBD931C /* AnalysisLoupePreview.swift */; };
+		91043584C05E84D03D061595 /* SquadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94CB1ECBFF5C52D5A7B23DF /* SquadTests.swift */; };
 		91D13646714543548F2D98BC /* AnalysisTextControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76EC719B4D3C82DFB9A9FC93 /* AnalysisTextControls.swift */; };
+		91E40296E53179AACB776AC2 /* edgetam_prompt_encoder.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = D196710C02137B6DE80DA335 /* edgetam_prompt_encoder.mlpackage */; };
 		93DAF90A1E58EEDE5F0B6043 /* EditorQuickTagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186EA8DE501BADD976A3138D /* EditorQuickTagTests.swift */; };
 		961019B52BA6BB8D479E4600 /* AnalysisLoupeControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE94039C7B48FF26F5AC153E /* AnalysisLoupeControls.swift */; };
+		9698818FB3704EF0A3DCA664 /* MultiCamRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6C3711D6639C90BA850D27 /* MultiCamRegistration.swift */; };
+		978168745DAA601105870798 /* PlayerAppearanceGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC729B09E397DF7418CC87A /* PlayerAppearanceGallery.swift */; };
+		97D3B327516971BA076DE870 /* MultiCamProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843C3CF22E46770F00666E63 /* MultiCamProtocolTests.swift */; };
+		98762798431755FE7D6F9B26 /* GroundShapeGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D94E401B5A48C61996D8976 /* GroundShapeGeometry.swift */; };
+		98F36C80CDB5544FFC62E5FA /* GroundLineAlignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40968B2A25162EAD0C0D4CD /* GroundLineAlignment.swift */; };
+		9A03A34C5B470519F27E7319 /* PlayerTrackState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38800E56BDC67F4A1132FF5C /* PlayerTrackState.swift */; };
+		9A05EEBA9CAF990385EE5BD8 /* AnalysisPlayerTrackingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A9E2F1852821CC66B62513 /* AnalysisPlayerTrackingSheet.swift */; };
 		9BD12DF5C11AE6909D4C54BD /* RecordingEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D09E0A9E68075A557569BB /* RecordingEditorView.swift */; };
+		A008A45C8E9FD7BB17258F2F /* CameraGestureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A9291E04938018C3789155 /* CameraGestureTests.swift */; };
 		A0BCBF1AF9015801AB7C7950 /* sequence-test.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = D893E0454DE534FAB6A58FA0 /* sequence-test.mp4 */; };
 		A0D6300978ABB5C7CE9CD057 /* EditorPlaybackControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = E424A41B044C38BD3BD53167 /* EditorPlaybackControls.swift */; };
+		A13DC43215535D898A93CAED /* AnalysisSourceFilmstrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1017140A622C1E30D0C0723F /* AnalysisSourceFilmstrip.swift */; };
 		A151FD91DD2C74BE10D43587 /* AnalysisConnectionAnchors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D936D0E099A970039939819 /* AnalysisConnectionAnchors.swift */; };
 		A6B92C42A85378648F658440 /* CameraAppearanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56DBBDB484A59436F7B6860A /* CameraAppearanceTests.swift */; };
+		A7BCFC44B321F3F8A65B4E32 /* SquadLineupSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925FAA6ADC0B2FB12DFF3B7F /* SquadLineupSheet.swift */; };
+		A8D16E0CD333E68D35433B15 /* TacticalBoardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013309AD7773A54105C1B7AD /* TacticalBoardRenderer.swift */; };
 		A92E1ABBF76282946954DEE8 /* RecordingAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CEB511E230D691DF967F6E /* RecordingAnalysis.swift */; };
 		A93F852FB630531B4AFE004C /* GroundReferenceDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B87B8A3FA44E274CFD8D1F0 /* GroundReferenceDetection.swift */; };
 		A9C19B6B1F425DE34CC4A57C /* AnalysisSharedTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94495530F1CDF3C5836F8D06 /* AnalysisSharedTrackingTests.swift */; };
+		AB5108002B7D3E41B867A364 /* MultiCamVideoCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4441E0940F24FC6D0DC901F5 /* MultiCamVideoCodec.swift */; };
 		AC5E10E0E2AD6607514401DA /* GroundReferenceDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B064B52D9CC3C74831F105 /* GroundReferenceDetectionTests.swift */; };
+		AC65AACB345CD96C1708C44B /* MultiCamAlignmentCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA67C7D7C09D68CB01A0BD33 /* MultiCamAlignmentCheck.swift */; };
 		AD31B742059AEDF5B18D3F36 /* CameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434D04B7F0926D5FF6B75204 /* CameraControls.swift */; };
+		AEB6346AADCCA3DAD098D852 /* CameraPrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00B7D6F8380AEC4D8597B5F /* CameraPrecisionTests.swift */; };
+		AEBB68AF7337CE9C708D7D7E /* CamelotCameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533B9C811DE7C45E2EBD84C3 /* CamelotCameraApp.swift */; };
 		B02506FE03EB61DFBA784C82 /* EditorTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8416F2A219F37A3DA98AAD /* EditorTimeline.swift */; };
+		B18878D71BA5D4CD9155CC7C /* MultiCamHostUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 698581390678E0EE6C3E2DF8 /* MultiCamHostUITests.swift */; };
 		B360FD3E9CFBD8563B764CEE /* VisionPlayerTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB9D0018BE5365C97F82772 /* VisionPlayerTracker.swift */; };
+		B3A29514BDE4468FC984FEFE /* FieldPreviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8C39D1FE57A6511220CC15 /* FieldPreviewTests.swift */; };
+		B3E89AABC50E5D9AA3CE4A8A /* PlayerMaskStabilizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECAA89C269960C802EB386B /* PlayerMaskStabilizer.swift */; };
+		B5E460AE3BDB9A37361103DD /* CameraFeatureRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421C567120E2F590170242B6 /* CameraFeatureRegistration.swift */; };
 		B65E33A8303EA35A86E1A2A6 /* VideoImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9455A378F3B47079A638D81A /* VideoImporter.swift */; };
 		B7FB67E04781C5AECB476D13 /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5981C3D82C6D5D08601AB772 /* ProjectsView.swift */; };
 		B884186B552F6F7EE0D5E28D /* AnalysisVideoCompositor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E17037A33028880B900C7B /* AnalysisVideoCompositor.swift */; };
+		B8A7E2A80BA92CB0FF7CB15F /* CameraFocusOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 566871296D0A6B277091584B /* CameraFocusOverlay.swift */; };
+		B8E5C87D12B2908526CD7CAC /* TacticalBoard3DEquipment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94792F040978703CFCCB5DBD /* TacticalBoard3DEquipment.swift */; };
 		B942F6FCC7ED8944D22EFACD /* AnalysisSheetHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE99C23BE6BC5AC37F4C0305 /* AnalysisSheetHeader.swift */; };
+		B979349083C42A8F17C85EBE /* edgetam_image_encoder_pos.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = D552A59E2FA4BD304C641553 /* edgetam_image_encoder_pos.mlpackage */; };
+		BA61105829B0AD5A4B91BAC6 /* AnalysisToolPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63FCEFFBF77F36C149BA15D /* AnalysisToolPickerSheet.swift */; };
 		BD09E51A6232FB4BA839F8D4 /* GroundCalibration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BD969908213596B31BEC5DA /* GroundCalibration.swift */; };
 		BD1DE13772D13BA08BE86965 /* AnnotationLineStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AAF9D73CCD2FB1161F2499D /* AnnotationLineStyle.swift */; };
+		BEC066F9BCE7105F6364C17D /* MultiCamPeerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1429FB0F2C967BC43F7DE673 /* MultiCamPeerController.swift */; };
 		C0598922D748FA6FCEA9B889 /* RecordingLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058D4624515CE911185DE73F /* RecordingLibrary.swift */; };
 		C0FE93B3F3BEA7A36272591B /* EditorEventBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66D57A86C890CC10B1382087 /* EditorEventBrowser.swift */; };
-		C1F4525A3EEDE54A5382DFC5 /* AnalysisFieldPlacementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEFCE44787D9FDFE8BA0C3C /* AnalysisFieldPlacementView.swift */; };
 		C429D333EC2DF288A626F237 /* AnnotationMeasurements.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4F5307E3C903C41EB81598C /* AnnotationMeasurements.swift */; };
-		C4F0D81B5A4358B65B2C63DE /* AnalysisFieldDetectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2997B25011753F1FCC98F38E /* AnalysisFieldDetectionSheet.swift */; };
 		C52332F0BE0B799A453AA218 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D081429DA8A6150728D1106A /* DesignSystem.swift */; };
+		C84DD99ACD3B1A7AD232C5D6 /* GroundEffectProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C818279C5611A482E7EC2A /* GroundEffectProjection.swift */; };
 		C8B6F1F3177CAE8E5A87D861 /* GameAnnotationEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C75FF2285809F801820CC45 /* GameAnnotationEffects.swift */; };
+		C9C6FB82118999E28B54E3FD /* MultiCamSocketServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A218BE82EC72058B2F6594 /* MultiCamSocketServer.swift */; };
+		CA355D521297CA2E0CA929AE /* SquadUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF7DB7F41BFC874CAD5F74 /* SquadUITests.swift */; };
 		CAF070C186AB051AB75B83E1 /* PlayerAnalysisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5571B4F98A0F80C339E76781 /* PlayerAnalysisTests.swift */; };
 		CDC697B98492BF4C38096373 /* EditorInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62AFE96A7C1037EB5DD5CA7 /* EditorInteractionTests.swift */; };
+		CE65DEBAFE8AC294177E905A /* PlayerTemporalSegmentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6561FB1E9ABD9B6ADBB4F4A5 /* PlayerTemporalSegmentation.swift */; };
+		CE8CF592AAB926424D181527 /* TacticalBoard3DScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC1B08081B293EDFAACBB79 /* TacticalBoard3DScene.swift */; };
+		D009603DCF0550FEFF961A0C /* AnalysisFieldPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406FEFC5DF311D697EA3F6D2 /* AnalysisFieldPreview.swift */; };
+		D2FA2A94A81D23A85E1FCA59 /* PlayerRosterTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097E50CEFB5E2162519E6945 /* PlayerRosterTracking.swift */; };
+		D3B447A33A0DFA3F3792ED37 /* TacticalBoardExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22400537A7CF2420A6F29BCE /* TacticalBoardExporter.swift */; };
 		D4117B9B28B6FBF6F16A9BC0 /* AnnotationMeasurementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E524835920BC939191E04B9 /* AnnotationMeasurementTests.swift */; };
 		D41B93A53F68B0C5FA39501E /* CameraRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2AFACE3113B5DC8F7E50E99 /* CameraRotationTests.swift */; };
+		D6540C435801C2F4D1A16EC8 /* PlayerPose.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0A72154424EED045C2AC09 /* PlayerPose.swift */; };
+		D677D6B6787D850096386295 /* MultiCamDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F97F647B8174332335C049 /* MultiCamDeviceTests.swift */; };
+		D8A7D7D75B97ACD72514CA4B /* FieldFrameSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBEB40D7957D6A96E3E67FDF /* FieldFrameSelectionTests.swift */; };
 		D8D9CA781D24D95D7AA534EF /* AnnotationShapeEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5722D3C08C6B9966E2BDFC41 /* AnnotationShapeEditing.swift */; };
 		DA4EFF3DEFDECFA908761290 /* FieldPlacementInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A52EB69186AE586AA4E7B7 /* FieldPlacementInteraction.swift */; };
+		DA5C78E5B9C8F7A65ECCD60F /* PlayerRoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A6417B637E055CAB88E51A /* PlayerRoster.swift */; };
 		DE177EF88D5DD87ECADABADB /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C3FDCEF7D3F856B07CBF44 /* Models.swift */; };
+		E0D262960E057C6B4D37795A /* SquadBoardIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A629CD3F7F056735593057 /* SquadBoardIntegration.swift */; };
 		E2826286BF02A7F72CAA33E5 /* DebugSeeding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E89D007F2BA10DF564FD0C78 /* DebugSeeding.swift */; };
+		E324CAD555E074DDF1E95FD1 /* BoardTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C10CDB79846F968AAF0B2C0 /* BoardTestSupport.swift */; };
 		E37200225F70C833A03A339C /* PlayerTrackingIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1E169099C0008E1140B75 /* PlayerTrackingIdentity.swift */; };
 		E44766E3E57ED4BD84FD1864 /* AnalysisTrajectoryControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45AA9F0D5D6587180E73F142 /* AnalysisTrajectoryControls.swift */; };
+		E699BC8716492A7EFB6B00D3 /* CameraControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434D04B7F0926D5FF6B75204 /* CameraControls.swift */; };
 		E6A300BA3B5DD1FE8222932F /* AnalysisInspectorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9475C8756BEBA825C7710854 /* AnalysisInspectorSheet.swift */; };
 		E824047A8E607B3944ACB8B9 /* AnalysisConstructionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE66D1C6D1BAC001F25086A /* AnalysisConstructionOverlay.swift */; };
+		E84E59AE3E7F3EC64B7B4044 /* TacticalBoard3DAssets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65949AA9FD34C33FB3E492F /* TacticalBoard3DAssets.swift */; };
 		E8AE784949AE38D59864EDB6 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845784DD256A167AE2E51EC6 /* OnboardingView.swift */; };
 		E924F805A29FA6EE14893C99 /* VisionFeasibilityBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE62822BB419C81F2C78EAD3 /* VisionFeasibilityBenchmark.swift */; };
 		EA1F3981950F045CDC19613E /* TimelineGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C17F1EAFC526ABDB621053A /* TimelineGeometryTests.swift */; };
+		EB391618AC354B1AA39B3541 /* TacticalBoardTouchSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = B193464F3FF43C09B19384E9 /* TacticalBoardTouchSurface.swift */; };
 		EC99B4D974C7DA8854D4E74F /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FF02B8417510DF39069DEEB /* MainTabView.swift */; };
+		EEF816782C52138AC9330916 /* PlayerMarkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95B3BE3759EB6E32E8C2881 /* PlayerMarkerTests.swift */; };
+		EFAE7EE06CB21339060226B0 /* TacticalBoardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6DB90E50D852BE7041EE90 /* TacticalBoardsView.swift */; };
+		EFC51079F78DC3655B3CCC95 /* CameraZoomModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F47FF5FB28B2126962859F9 /* CameraZoomModel.swift */; };
 		F028A60F4A3B96B7FD8A181C /* AnalysisOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC74A7782C32C3CBCD2A1D8 /* AnalysisOverlayView.swift */; };
+		F0DFC7E6A6440DBEA51720CB /* SquadPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23E632D78AE019836E473CA6 /* SquadPhotoStore.swift */; };
+		F123E12F65283515DD113E55 /* edgetam_memory_attention.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = E2FCF1087065F5E5EEE4895A /* edgetam_memory_attention.mlpackage */; };
+		F29A58F70099D978B9691072 /* BoardPerfProbeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D672CA69AEB535EB4BA559C0 /* BoardPerfProbeTests.swift */; };
 		F4D73E687026AB3D64698A4C /* MODEL_NOTICE.md in Resources */ = {isa = PBXBuildFile; fileRef = 489EFE905A322469AC71ECED /* MODEL_NOTICE.md */; };
 		F6518CCB0D958C3F2FBB7D54 /* GroundLandmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5361CF25C181685D4203D053 /* GroundLandmark.swift */; };
+		F897835209F93FA537941370 /* MultiCamControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DB87FC1F262A433599688DB /* MultiCamControllers.swift */; };
+		F8C1DFC65793B498D5809FBA /* GroundedEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035785F34D9663178FA5BFE3 /* GroundedEffectTests.swift */; };
 		F913F5F360D54C810C21CE07 /* CameraZoomDial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D93759E949392ED1312B46 /* CameraZoomDial.swift */; };
+		FA8119A947777DD7094222AA /* DesignSystem+App.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBF13572DE9D040014DBBC13 /* DesignSystem+App.swift */; };
+		FB6FA4671061472D137BAA42 /* MultiCamPeerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E40CB0FA4930FF3D064F4C3 /* MultiCamPeerViews.swift */; };
 		FBB476690E87B5A9F9E14996 /* AnnotationLineStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95FC323E205618ED5D213B79 /* AnnotationLineStyleTests.swift */; };
 		FBB8BFA27B8AD80CC712799C /* AnalysisLayerTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B44199AF7A375932F23887 /* AnalysisLayerTimeline.swift */; };
 		FCFD17870A8BE65172139998 /* FieldLineDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A14167CD5C5BAC20E868D2E /* FieldLineDetectionTests.swift */; };
+		FD6A3C90C453CBB41D495F64 /* PlayerRosterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B1FDF8866BFE2067EB7009E /* PlayerRosterTests.swift */; };
+		FDD7AB39A5B6FE4EB796D186 /* PitchRegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D70B1CDFF89D2DA5819A2B5F /* PitchRegistrationTests.swift */; };
 		FDD7E74CD9A0CC5927C29860 /* EventTagStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A232A13562F8BC6BFF2062CB /* EventTagStrip.swift */; };
 		FE38A28DA2EA9BA94DFD51F2 /* AnalysisPlayerEffectsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4891CBF113077277F0CBF798 /* AnalysisPlayerEffectsSheet.swift */; };
+		FE534F8C598DDD4D34CAD4AF /* TacticalBoard3DTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5512EF52DDE89DB0E4BF9C65 /* TacticalBoard3DTests.swift */; };
+		FFDBDE16EA46577CBA8C865D /* PlayerTrackBridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E93072612A0E2EE938F24D /* PlayerTrackBridging.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,118 +258,231 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		013309AD7773A54105C1B7AD /* TacticalBoardRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardRenderer.swift; sourceTree = "<group>"; };
+		0178F7706591382B6E3F43FE /* IncrementalTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncrementalTrackingTests.swift; sourceTree = "<group>"; };
+		035785F34D9663178FA5BFE3 /* GroundedEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundedEffectTests.swift; sourceTree = "<group>"; };
+		04B68D92F5ECE799AC4BD5D8 /* PlayerTrackStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackStateTests.swift; sourceTree = "<group>"; };
+		053E8AA5B948EC0863DA9107 /* MultiCamCaptureEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamCaptureEngine.swift; sourceTree = "<group>"; };
 		057E6F3E6C19A2D9FB83BD0D /* AnalysisTrackingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTrackingLibrary.swift; sourceTree = "<group>"; };
 		058D4624515CE911185DE73F /* RecordingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingLibrary.swift; sourceTree = "<group>"; };
+		0635938AE922C58664199628 /* PlayerRosterFootageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRosterFootageTests.swift; sourceTree = "<group>"; };
+		097E50CEFB5E2162519E6945 /* PlayerRosterTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRosterTracking.swift; sourceTree = "<group>"; };
 		09D93759E949392ED1312B46 /* CameraZoomDial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraZoomDial.swift; sourceTree = "<group>"; };
 		0C8416F2A219F37A3DA98AAD /* EditorTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTimeline.swift; sourceTree = "<group>"; };
+		0E7EFA01B2F5185368E4CD3E /* edgetam_no_mem_embed_f32.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = edgetam_no_mem_embed_f32.bin; sourceTree = "<group>"; };
+		1017140A622C1E30D0C0723F /* AnalysisSourceFilmstrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisSourceFilmstrip.swift; sourceTree = "<group>"; };
+		1177A6710A2F6A60FC2EDA13 /* GroundCircleReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCircleReference.swift; sourceTree = "<group>"; };
+		12A9291E04938018C3789155 /* CameraGestureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraGestureTests.swift; sourceTree = "<group>"; };
+		1429FB0F2C967BC43F7DE673 /* MultiCamPeerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamPeerController.swift; sourceTree = "<group>"; };
 		147D9DFDCFF7B9CA8F4CB44E /* AnnotationLoupeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLoupeTests.swift; sourceTree = "<group>"; };
+		17F97F647B8174332335C049 /* MultiCamDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamDeviceTests.swift; sourceTree = "<group>"; };
 		183F4DB5EE7FC1D6649D50FF /* ProjectDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailView.swift; sourceTree = "<group>"; };
 		1859D2BF948B22F3077E82C5 /* EditorEventWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorEventWorkflowTests.swift; sourceTree = "<group>"; };
 		186EA8DE501BADD976A3138D /* EditorQuickTagTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorQuickTagTests.swift; sourceTree = "<group>"; };
+		1A982117EDF42D7032C7BCC1 /* EventKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventKind.swift; sourceTree = "<group>"; };
 		1B87B8A3FA44E274CFD8D1F0 /* GroundReferenceDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundReferenceDetection.swift; sourceTree = "<group>"; };
 		1D8BBE2454C19346C77C8396 /* PlayerTrackingIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackingIdentityTests.swift; sourceTree = "<group>"; };
 		1D936D0E099A970039939819 /* AnalysisConnectionAnchors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisConnectionAnchors.swift; sourceTree = "<group>"; };
 		1EC17B45B045485BA3AD1E97 /* OnboardingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingUITests.swift; sourceTree = "<group>"; };
 		1F296DE56CCEB0B417AF9CDA /* EditorSequencePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorSequencePreview.swift; sourceTree = "<group>"; };
 		1F90A5A902A17C35F4BF0421 /* Camelot.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Camelot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FC5045E78E399F74F726F22 /* PlayerTrackingBenchmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackingBenchmark.swift; sourceTree = "<group>"; };
 		202F64CA13EE91452E85BB5B /* PlayerTrajectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrajectory.swift; sourceTree = "<group>"; };
 		20A7C01A724E04DC409467FD /* CameraCaptureInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureInteractionTests.swift; sourceTree = "<group>"; };
+		22400537A7CF2420A6F29BCE /* TacticalBoardExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardExporter.swift; sourceTree = "<group>"; };
 		22A0FFC8C98DA6A807E61A15 /* AnalysisPlayerTracksSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerTracksSheet.swift; sourceTree = "<group>"; };
+		23E632D78AE019836E473CA6 /* SquadPhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadPhotoStore.swift; sourceTree = "<group>"; };
+		24A218BE82EC72058B2F6594 /* MultiCamSocketServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamSocketServer.swift; sourceTree = "<group>"; };
+		252694083F9776AA5EFEF5D9 /* EdgeTAMModelProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeTAMModelProbe.swift; sourceTree = "<group>"; };
+		2738351116DE81738361F792 /* EdgeTAMSegmenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeTAMSegmenterTests.swift; sourceTree = "<group>"; };
 		29034215932A102F5DD7EB49 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		2997B25011753F1FCC98F38E /* AnalysisFieldDetectionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldDetectionSheet.swift; sourceTree = "<group>"; };
 		2B1C2D184CC65110FCAC68C4 /* AnnotationRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationRenderer.swift; sourceTree = "<group>"; };
 		2B6087FB3222ECC79EB13B4F /* GroundLandmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundLandmarkTests.swift; sourceTree = "<group>"; };
 		2D4F6E7DFB01CA8ED0C39DF5 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		2F47FF5FB28B2126962859F9 /* CameraZoomModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraZoomModel.swift; sourceTree = "<group>"; };
 		2F864709041DCAEFE999A74B /* AnnotationLoupe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLoupe.swift; sourceTree = "<group>"; };
 		3081DAE5E331B1CDA0A38E57 /* AnnotationViewport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationViewport.swift; sourceTree = "<group>"; };
 		31CEB511E230D691DF967F6E /* RecordingAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingAnalysis.swift; sourceTree = "<group>"; };
 		31E17037A33028880B900C7B /* AnalysisVideoCompositor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisVideoCompositor.swift; sourceTree = "<group>"; };
+		3296D16636168C3231BFA0D8 /* SquadModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadModels.swift; sourceTree = "<group>"; };
+		331E75BB2DDA1D8CE349E868 /* EDGETAM_NOTICE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = EDGETAM_NOTICE.md; sourceTree = "<group>"; };
+		336AE43B870C53FA577DFC44 /* MultiCamHostViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamHostViews.swift; sourceTree = "<group>"; };
+		36BDFDC08957076E09AF4810 /* edgetam_memory_encoder.mlpackage */ = {isa = PBXFileReference; path = edgetam_memory_encoder.mlpackage; sourceTree = "<group>"; };
+		36C818279C5611A482E7EC2A /* GroundEffectProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundEffectProjection.swift; sourceTree = "<group>"; };
 		371AF7D38767498CF2899565 /* ScreenshotWalkthroughTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotWalkthroughTests.swift; sourceTree = "<group>"; };
 		375434FC4971F03979CD3CA8 /* CameraEventCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraEventCapture.swift; sourceTree = "<group>"; };
+		38800E56BDC67F4A1132FF5C /* PlayerTrackState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackState.swift; sourceTree = "<group>"; };
+		3A8C39D1FE57A6511220CC15 /* FieldPreviewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPreviewTests.swift; sourceTree = "<group>"; };
 		3CB9D0018BE5365C97F82772 /* VisionPlayerTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionPlayerTracker.swift; sourceTree = "<group>"; };
+		3E3291520D1604E16CF125D0 /* MultiCamSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamSession.swift; sourceTree = "<group>"; };
 		404C642C01BA4F124B5FDB89 /* AnalysisVisualEffectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisVisualEffectsTests.swift; sourceTree = "<group>"; };
+		406FEFC5DF311D697EA3F6D2 /* AnalysisFieldPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldPreview.swift; sourceTree = "<group>"; };
+		408588334814DA72BD073DA7 /* FieldFrameSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldFrameSource.swift; sourceTree = "<group>"; };
+		421C567120E2F590170242B6 /* CameraFeatureRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFeatureRegistration.swift; sourceTree = "<group>"; };
 		425E2157597897F2DBF4F464 /* AnalysisPlayerEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerEffects.swift; sourceTree = "<group>"; };
+		42E44BEDD385BAEFAC42E432 /* MultiCamFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamFeedView.swift; sourceTree = "<group>"; };
 		434D04B7F0926D5FF6B75204 /* CameraControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraControls.swift; sourceTree = "<group>"; };
+		4441E0940F24FC6D0DC901F5 /* MultiCamVideoCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamVideoCodec.swift; sourceTree = "<group>"; };
 		44F823623470694D9D0137AD /* AnnotationTextLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationTextLayout.swift; sourceTree = "<group>"; };
+		45A280CC8305B94A7041FF6E /* TacticalBoardModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardModels.swift; sourceTree = "<group>"; };
 		45AA9F0D5D6587180E73F142 /* AnalysisTrajectoryControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTrajectoryControls.swift; sourceTree = "<group>"; };
 		4891CBF113077277F0CBF798 /* AnalysisPlayerEffectsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerEffectsSheet.swift; sourceTree = "<group>"; };
 		489EFE905A322469AC71ECED /* MODEL_NOTICE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = MODEL_NOTICE.md; sourceTree = "<group>"; };
+		4B6DB90E50D852BE7041EE90 /* TacticalBoardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardsView.swift; sourceTree = "<group>"; };
 		4E524835920BC939191E04B9 /* AnnotationMeasurementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationMeasurementTests.swift; sourceTree = "<group>"; };
+		4F9F959B0D1C1FE6FA842C83 /* UnifiedCameraTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedCameraTrackingTests.swift; sourceTree = "<group>"; };
 		50D1E169099C0008E1140B75 /* PlayerTrackingIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackingIdentity.swift; sourceTree = "<group>"; };
+		52A9E2F1852821CC66B62513 /* AnalysisPlayerTrackingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerTrackingSheet.swift; sourceTree = "<group>"; };
+		533B9C811DE7C45E2EBD84C3 /* CamelotCameraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamelotCameraApp.swift; sourceTree = "<group>"; };
 		5361CF25C181685D4203D053 /* GroundLandmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundLandmark.swift; sourceTree = "<group>"; };
+		5512EF52DDE89DB0E4BF9C65 /* TacticalBoard3DTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoard3DTests.swift; sourceTree = "<group>"; };
 		5571B4F98A0F80C339E76781 /* PlayerAnalysisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerAnalysisTests.swift; sourceTree = "<group>"; };
+		566871296D0A6B277091584B /* CameraFocusOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFocusOverlay.swift; sourceTree = "<group>"; };
 		56DBBDB484A59436F7B6860A /* CameraAppearanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAppearanceTests.swift; sourceTree = "<group>"; };
+		56F9167F9842A9B10F2BED8E /* CameraZoomModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraZoomModelTests.swift; sourceTree = "<group>"; };
 		5722D3C08C6B9966E2BDFC41 /* AnnotationShapeEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationShapeEditing.swift; sourceTree = "<group>"; };
+		588A5DE92C079C2A36863B99 /* FieldSetupUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldSetupUITests.swift; sourceTree = "<group>"; };
+		5944B862697C1D4AFF34DA15 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5981C3D82C6D5D08601AB772 /* ProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsView.swift; sourceTree = "<group>"; };
 		5A14167CD5C5BAC20E868D2E /* FieldLineDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldLineDetectionTests.swift; sourceTree = "<group>"; };
 		5A87C895F1020F68155A6D64 /* FieldLineDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldLineDetection.swift; sourceTree = "<group>"; };
 		5AAF9D73CCD2FB1161F2499D /* AnnotationLineStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLineStyle.swift; sourceTree = "<group>"; };
+		5AE97FDC6AB0C1D69DC08B3B /* PitchRegionDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PitchRegionDetection.swift; sourceTree = "<group>"; };
 		5C17F1EAFC526ABDB621053A /* TimelineGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineGeometryTests.swift; sourceTree = "<group>"; };
-		5DEFCE44787D9FDFE8BA0C3C /* AnalysisFieldPlacementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldPlacementView.swift; sourceTree = "<group>"; };
+		5E40CB0FA4930FF3D064F4C3 /* MultiCamPeerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamPeerViews.swift; sourceTree = "<group>"; };
 		5EA1D788790987F56410BF72 /* AnalysisAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisAnnotation.swift; sourceTree = "<group>"; };
 		5EB4A42B198EB5023F50ECD5 /* AnalysisLayerEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerEditing.swift; sourceTree = "<group>"; };
 		5F48C83CCD5565E016E98A99 /* EditorAnalysisUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorAnalysisUITests.swift; sourceTree = "<group>"; };
+		5F6C3711D6639C90BA850D27 /* MultiCamRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamRegistration.swift; sourceTree = "<group>"; };
 		61BCA85088CFA92F2ADD4A1E /* AnalysisCompactUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisCompactUITests.swift; sourceTree = "<group>"; };
 		6452F6EC8F4DE5FF232A4DAE /* EditorWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorWorkspace.swift; sourceTree = "<group>"; };
+		6561FB1E9ABD9B6ADBB4F4A5 /* PlayerTemporalSegmentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTemporalSegmentation.swift; sourceTree = "<group>"; };
 		66D57A86C890CC10B1382087 /* EditorEventBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorEventBrowser.swift; sourceTree = "<group>"; };
 		68C3FDCEF7D3F856B07CBF44 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		698581390678E0EE6C3E2DF8 /* MultiCamHostUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamHostUITests.swift; sourceTree = "<group>"; };
+		6AC729B09E397DF7418CC87A /* PlayerAppearanceGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerAppearanceGallery.swift; sourceTree = "<group>"; };
 		6BD969908213596B31BEC5DA /* GroundCalibration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibration.swift; sourceTree = "<group>"; };
 		6C890CFB628814DEF0CBBC18 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6D94E401B5A48C61996D8976 /* GroundShapeGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundShapeGeometry.swift; sourceTree = "<group>"; };
+		70289BC34137AC445A7CE1BA /* SquadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadView.swift; sourceTree = "<group>"; };
 		724825CEF0604A1B31F698CF /* GameAnalysisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAnalysisTests.swift; sourceTree = "<group>"; };
 		72B064B52D9CC3C74831F105 /* GroundReferenceDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundReferenceDetectionTests.swift; sourceTree = "<group>"; };
 		7472CE16BCA44166D246B576 /* AnalysisEngineDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEngineDeviceTests.swift; sourceTree = "<group>"; };
 		76B2F8F5AB412EFE9D758378 /* GroundCalibrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibrationTests.swift; sourceTree = "<group>"; };
 		76EC719B4D3C82DFB9A9FC93 /* AnalysisTextControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTextControls.swift; sourceTree = "<group>"; };
+		7EC9D6B601B45D9A5888127B /* TacticalBoardLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardLibrary.swift; sourceTree = "<group>"; };
+		843C3CF22E46770F00666E63 /* MultiCamProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamProtocolTests.swift; sourceTree = "<group>"; };
 		845784DD256A167AE2E51EC6 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		84DF7DB7F41BFC874CAD5F74 /* SquadUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadUITests.swift; sourceTree = "<group>"; };
 		8682ECFB23EA654D3E6251DB /* CamelotTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CamelotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		86A4E6243D780DF4CF3FA453 /* PITCH_MODEL_NOTICE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PITCH_MODEL_NOTICE.md; sourceTree = "<group>"; };
+		881FB49445D1556F41698664 /* MultiCamStitchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamStitchView.swift; sourceTree = "<group>"; };
+		89FA64C7418DED848387C571 /* ProjectVideoFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectVideoFilterTests.swift; sourceTree = "<group>"; };
+		8B41042F814F73585C2A8335 /* CamelotCamera.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CamelotCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BF99B603782B94BAB38298A /* PlayerReacquisitionSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerReacquisitionSearch.swift; sourceTree = "<group>"; };
+		8DB87FC1F262A433599688DB /* MultiCamControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamControllers.swift; sourceTree = "<group>"; };
 		8FF02B8417510DF39069DEEB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		9079418E2BABF21C67BA615B /* SelectedPlayerTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPlayerTracking.swift; sourceTree = "<group>"; };
+		925FAA6ADC0B2FB12DFF3B7F /* SquadLineupSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadLineupSheet.swift; sourceTree = "<group>"; };
 		926D0178253C25D41EE2C987 /* AnalysisControlStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisControlStyle.swift; sourceTree = "<group>"; };
 		94495530F1CDF3C5836F8D06 /* AnalysisSharedTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisSharedTrackingTests.swift; sourceTree = "<group>"; };
 		9455A378F3B47079A638D81A /* VideoImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoImporter.swift; sourceTree = "<group>"; };
 		9475C8756BEBA825C7710854 /* AnalysisInspectorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisInspectorSheet.swift; sourceTree = "<group>"; };
+		94792F040978703CFCCB5DBD /* TacticalBoard3DEquipment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoard3DEquipment.swift; sourceTree = "<group>"; };
 		95FC323E205618ED5D213B79 /* AnnotationLineStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationLineStyleTests.swift; sourceTree = "<group>"; };
+		9AFBAFA75CAEF25E1803E02D /* TacticalBoardAnimationRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardAnimationRenderer.swift; sourceTree = "<group>"; };
+		9B0A72154424EED045C2AC09 /* PlayerPose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerPose.swift; sourceTree = "<group>"; };
+		9B1FDF8866BFE2067EB7009E /* PlayerRosterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRosterTests.swift; sourceTree = "<group>"; };
+		9C10CDB79846F968AAF0B2C0 /* BoardTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTestSupport.swift; sourceTree = "<group>"; };
 		9C75FF2285809F801820CC45 /* GameAnnotationEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAnnotationEffects.swift; sourceTree = "<group>"; };
+		9ECAA89C269960C802EB386B /* PlayerMaskStabilizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerMaskStabilizer.swift; sourceTree = "<group>"; };
+		9F539227901281C8F0ADA153 /* TacticalBoardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardUITests.swift; sourceTree = "<group>"; };
 		A1B44199AF7A375932F23887 /* AnalysisLayerTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerTimeline.swift; sourceTree = "<group>"; };
 		A232A13562F8BC6BFF2062CB /* EventTagStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTagStrip.swift; sourceTree = "<group>"; };
 		A2A52EB69186AE586AA4E7B7 /* FieldPlacementInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementInteraction.swift; sourceTree = "<group>"; };
+		A3634B84CE3153A0FADE4495 /* PlayerTrackingEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackingEngineTests.swift; sourceTree = "<group>"; };
 		A62AFE96A7C1037EB5DD5CA7 /* EditorInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorInteractionTests.swift; sourceTree = "<group>"; };
+		A8AED0A549BCDDCE432A04B9 /* MultiCamProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamProtocol.swift; sourceTree = "<group>"; };
+		A95B3BE3759EB6E32E8C2881 /* PlayerMarkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerMarkerTests.swift; sourceTree = "<group>"; };
+		AA137E6547DF086FFBC46CEF /* TacticalBoard3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoard3DView.swift; sourceTree = "<group>"; };
+		AA2FA0BCC9CC09D8F7705A8E /* GroundShapeGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundShapeGeometryTests.swift; sourceTree = "<group>"; };
 		AC6BC96E04126FA3FCBD931C /* AnalysisLoupePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLoupePreview.swift; sourceTree = "<group>"; };
 		ACB7FD778FCF539F64E37322 /* GroundCalibrationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundCalibrationSheet.swift; sourceTree = "<group>"; };
 		AE94039C7B48FF26F5AC153E /* AnalysisLoupeControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLoupeControls.swift; sourceTree = "<group>"; };
 		AFC74A7782C32C3CBCD2A1D8 /* AnalysisOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisOverlayView.swift; sourceTree = "<group>"; };
+		B193464F3FF43C09B19384E9 /* TacticalBoardTouchSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardTouchSurface.swift; sourceTree = "<group>"; };
+		B4453BAE5E5A420764C492EB /* SquadPlayerEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadPlayerEditor.swift; sourceTree = "<group>"; };
+		B4F6BAD624DF20AFD286E435 /* TacticalBoard3DCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoard3DCamera.swift; sourceTree = "<group>"; };
+		B59331C2D31063DD180BD6A4 /* NumberNineReacquisitionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberNineReacquisitionTests.swift; sourceTree = "<group>"; };
+		B5CEB151B30E1B9F645BBA2D /* PitchRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PitchRegistration.swift; sourceTree = "<group>"; };
 		B74B24595D6DDA4243690519 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		B79AC2B39289BBED3C7524F9 /* CompositionPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionPlayerView.swift; sourceTree = "<group>"; };
 		B86326F64CE4A3C34F4A46FD /* BasketballDetector.mlpackage */ = {isa = PBXFileReference; path = BasketballDetector.mlpackage; sourceTree = "<group>"; };
 		BE99C23BE6BC5AC37F4C0305 /* AnalysisSheetHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisSheetHeader.swift; sourceTree = "<group>"; };
+		BF1B8935B54EE352B95FF630 /* PlayerTrackRepairTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackRepairTests.swift; sourceTree = "<group>"; };
 		C4C3095A7023029D5C7DB1A0 /* PlayerTrajectoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrajectoryTests.swift; sourceTree = "<group>"; };
+		C5A6417B637E055CAB88E51A /* PlayerRoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRoster.swift; sourceTree = "<group>"; };
+		C957B895D9B428DA2F5146D7 /* TacticalBoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardTests.swift; sourceTree = "<group>"; };
+		CA67C7D7C09D68CB01A0BD33 /* MultiCamAlignmentCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamAlignmentCheck.swift; sourceTree = "<group>"; };
+		CAAAAECC51CA4AAB4C29CEF5 /* TacticalBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardView.swift; sourceTree = "<group>"; };
+		CBC0385580157EC45C37F31D /* EdgeTAMSegmenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeTAMSegmenter.swift; sourceTree = "<group>"; };
 		CDF615562DC52421903831E2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		CE62822BB419C81F2C78EAD3 /* VisionFeasibilityBenchmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionFeasibilityBenchmark.swift; sourceTree = "<group>"; };
+		D00B7D6F8380AEC4D8597B5F /* CameraPrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPrecisionTests.swift; sourceTree = "<group>"; };
 		D081429DA8A6150728D1106A /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		D0F9897D2C37C8FCD38A7D8D /* CamelotUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CamelotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D1105943AB12413F44ABA718 /* TacticalBoardExportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardExportSheet.swift; sourceTree = "<group>"; };
+		D1686C97AC6D41CBBC45C6D8 /* PlayerPoseOnFootageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerPoseOnFootageTests.swift; sourceTree = "<group>"; };
+		D196710C02137B6DE80DA335 /* edgetam_prompt_encoder.mlpackage */ = {isa = PBXFileReference; path = edgetam_prompt_encoder.mlpackage; sourceTree = "<group>"; };
 		D1B98DA7FAD00660BADF41D9 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		D1FCAABC1DD4A11625A38A52 /* AnalysisLayerTimelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisLayerTimelineTests.swift; sourceTree = "<group>"; };
 		D2AFACE3113B5DC8F7E50E99 /* CameraRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraRotationTests.swift; sourceTree = "<group>"; };
 		D3A3FD251A68C81E47E39072 /* FieldPlacementTouchSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementTouchSurface.swift; sourceTree = "<group>"; };
+		D40968B2A25162EAD0C0D4CD /* GroundLineAlignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundLineAlignment.swift; sourceTree = "<group>"; };
+		D4A629CD3F7F056735593057 /* SquadBoardIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadBoardIntegration.swift; sourceTree = "<group>"; };
 		D4F5307E3C903C41EB81598C /* AnnotationMeasurements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationMeasurements.swift; sourceTree = "<group>"; };
+		D552A59E2FA4BD304C641553 /* edgetam_image_encoder_pos.mlpackage */ = {isa = PBXFileReference; path = edgetam_image_encoder_pos.mlpackage; sourceTree = "<group>"; };
+		D672CA69AEB535EB4BA559C0 /* BoardPerfProbeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardPerfProbeTests.swift; sourceTree = "<group>"; };
+		D6D0B3D3EE4C8C14B8CBE21A /* TacticalBoardTrainingRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardTrainingRenderer.swift; sourceTree = "<group>"; };
+		D70B1CDFF89D2DA5819A2B5F /* PitchRegistrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PitchRegistrationTests.swift; sourceTree = "<group>"; };
+		D7C042A4949E6D98B5686C6C /* PlayerTrackRepair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackRepair.swift; sourceTree = "<group>"; };
+		D800D70EAEE0990765704429 /* AnalysisPlayerReacquisitionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPlayerReacquisitionSheet.swift; sourceTree = "<group>"; };
 		D893E0454DE534FAB6A58FA0 /* sequence-test.mp4 */ = {isa = PBXFileReference; path = "sequence-test.mp4"; sourceTree = "<group>"; };
+		DCF812B8242D997C8C2CF32C /* ProjectLibraryUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectLibraryUITests.swift; sourceTree = "<group>"; };
 		DD476C8A6B2C25605840A344 /* AnalysisEffectControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEffectControls.swift; sourceTree = "<group>"; };
 		DFE66D1C6D1BAC001F25086A /* AnalysisConstructionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisConstructionOverlay.swift; sourceTree = "<group>"; };
 		E00A28C21E728A346FBC523C /* AnalysisEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEngine.swift; sourceTree = "<group>"; };
+		E01530E03AF68B760F10A732 /* PlayerROI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerROI.swift; sourceTree = "<group>"; };
+		E0EB9BE49E1146DFF7E94F1A /* SquadDebugSeeding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadDebugSeeding.swift; sourceTree = "<group>"; };
 		E1E644DAC0739B2A9BECD616 /* FieldPlacementInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldPlacementInteractionTests.swift; sourceTree = "<group>"; };
+		E1E93072612A0E2EE938F24D /* PlayerTrackBridging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackBridging.swift; sourceTree = "<group>"; };
+		E2FCF1087065F5E5EEE4895A /* edgetam_memory_attention.mlpackage */ = {isa = PBXFileReference; path = edgetam_memory_attention.mlpackage; sourceTree = "<group>"; };
+		E34D7FC1E9896E0DF3EAD686 /* GroundFieldOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundFieldOverlay.swift; sourceTree = "<group>"; };
 		E367E0BD2AB15043CB9E905C /* RecordingRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingRecovery.swift; sourceTree = "<group>"; };
+		E3B3A17C4A2B626C38EF9FEA /* edgetam_mask_decoder_mem.mlpackage */ = {isa = PBXFileReference; path = edgetam_mask_decoder_mem.mlpackage; sourceTree = "<group>"; };
 		E424A41B044C38BD3BD53167 /* EditorPlaybackControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPlaybackControls.swift; sourceTree = "<group>"; };
+		E63FCEFFBF77F36C149BA15D /* AnalysisToolPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisToolPickerSheet.swift; sourceTree = "<group>"; };
 		E7038444B7377DEA297F47C9 /* VideoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoThumbnail.swift; sourceTree = "<group>"; };
 		E75A1D34C70FD73F55C4BFE8 /* EditorGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorGeometry.swift; sourceTree = "<group>"; };
 		E78EC01FA5BC5C8DF2F33EC9 /* AnalysisFieldGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisFieldGuide.swift; sourceTree = "<group>"; };
 		E89D007F2BA10DF564FD0C78 /* DebugSeeding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSeeding.swift; sourceTree = "<group>"; };
 		E8D09E0A9E68075A557569BB /* RecordingEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingEditorView.swift; sourceTree = "<group>"; };
+		E94CB1ECBFF5C52D5A7B23DF /* SquadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadTests.swift; sourceTree = "<group>"; };
+		E9F69DA61293B27666724274 /* PitchRegions.mlpackage */ = {isa = PBXFileReference; path = PitchRegions.mlpackage; sourceTree = "<group>"; };
+		EBF13572DE9D040014DBBC13 /* DesignSystem+App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DesignSystem+App.swift"; sourceTree = "<group>"; };
 		EDFE55F9ABB90578EFE3A275 /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
 		EFA9421F6B63D17148E0668D /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		F0074A928041FCA414C77C8C /* TacticalBoardSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardSurface.swift; sourceTree = "<group>"; };
 		F2C1811FE22AEEF5B1A82874 /* AnalysisPartialFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPartialFieldTests.swift; sourceTree = "<group>"; };
 		F2C827F2CB7DB3195DBCF9FE /* EditorSequenceMediaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorSequenceMediaTests.swift; sourceTree = "<group>"; };
+		F2EBEF0D3796AEF641BD9466 /* MultiCamStitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiCamStitcher.swift; sourceTree = "<group>"; };
+		F2ECA032902FB0B28F49BE95 /* PlayerPoseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerPoseTests.swift; sourceTree = "<group>"; };
 		F3558A38E725273B56244268 /* AnalysisEditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEditingTests.swift; sourceTree = "<group>"; };
 		F4A9CEA50CEE4E2BBBD3864C /* AnnotationCameraMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationCameraMotion.swift; sourceTree = "<group>"; };
+		F57B584FECE4D408D45A149D /* ProjectVideoFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectVideoFilter.swift; sourceTree = "<group>"; };
+		F65949AA9FD34C33FB3E492F /* TacticalBoard3DAssets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoard3DAssets.swift; sourceTree = "<group>"; };
+		FBEB40D7957D6A96E3E67FDF /* FieldFrameSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldFrameSelectionTests.swift; sourceTree = "<group>"; };
+		FFC1B08081B293EDFAACBB79 /* TacticalBoard3DScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoard3DScene.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -254,10 +490,20 @@
 			isa = PBXGroup;
 			children = (
 				1F90A5A902A17C35F4BF0421 /* Camelot.app */,
+				8B41042F814F73585C2A8335 /* CamelotCamera.app */,
 				8682ECFB23EA654D3E6251DB /* CamelotTests.xctest */,
 				D0F9897D2C37C8FCD38A7D8D /* CamelotUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0FCBA2A28C83BE9C9B415D4C /* CamelotCamera */ = {
+			isa = PBXGroup;
+			children = (
+				533B9C811DE7C45E2EBD84C3 /* CamelotCameraApp.swift */,
+				5944B862697C1D4AFF34DA15 /* Info.plist */,
+			);
+			path = CamelotCamera;
 			sourceTree = "<group>";
 		};
 		1E7AB0957AC1F28FEF94E027 /* Fixtures */ = {
@@ -272,6 +518,7 @@
 			isa = PBXGroup;
 			children = (
 				E4765EE418EFF8D419A5F0DF /* Camelot */,
+				0FCBA2A28C83BE9C9B415D4C /* CamelotCamera */,
 				B830CA3C6650F9E697247D3E /* CamelotTests */,
 				930D6E4085FE3DAB6DBD560E /* CamelotUITests */,
 				02C95EAAE09B2C7E376A79A6 /* Products */,
@@ -290,12 +537,19 @@
 			isa = PBXGroup;
 			children = (
 				61BCA85088CFA92F2ADD4A1E /* AnalysisCompactUITests.swift */,
+				9C10CDB79846F968AAF0B2C0 /* BoardTestSupport.swift */,
+				12A9291E04938018C3789155 /* CameraGestureTests.swift */,
 				D2AFACE3113B5DC8F7E50E99 /* CameraRotationTests.swift */,
 				5F48C83CCD5565E016E98A99 /* EditorAnalysisUITests.swift */,
 				A62AFE96A7C1037EB5DD5CA7 /* EditorInteractionTests.swift */,
 				186EA8DE501BADD976A3138D /* EditorQuickTagTests.swift */,
+				588A5DE92C079C2A36863B99 /* FieldSetupUITests.swift */,
+				698581390678E0EE6C3E2DF8 /* MultiCamHostUITests.swift */,
 				1EC17B45B045485BA3AD1E97 /* OnboardingUITests.swift */,
+				DCF812B8242D997C8C2CF32C /* ProjectLibraryUITests.swift */,
 				371AF7D38767498CF2899565 /* ScreenshotWalkthroughTests.swift */,
+				84DF7DB7F41BFC874CAD5F74 /* SquadUITests.swift */,
+				9F539227901281C8F0ADA153 /* TacticalBoardUITests.swift */,
 			);
 			path = CamelotUITests;
 			sourceTree = "<group>";
@@ -304,7 +558,16 @@
 			isa = PBXGroup;
 			children = (
 				B86326F64CE4A3C34F4A46FD /* BasketballDetector.mlpackage */,
+				D552A59E2FA4BD304C641553 /* edgetam_image_encoder_pos.mlpackage */,
+				E3B3A17C4A2B626C38EF9FEA /* edgetam_mask_decoder_mem.mlpackage */,
+				E2FCF1087065F5E5EEE4895A /* edgetam_memory_attention.mlpackage */,
+				36BDFDC08957076E09AF4810 /* edgetam_memory_encoder.mlpackage */,
+				0E7EFA01B2F5185368E4CD3E /* edgetam_no_mem_embed_f32.bin */,
+				331E75BB2DDA1D8CE349E868 /* EDGETAM_NOTICE.md */,
+				D196710C02137B6DE80DA335 /* edgetam_prompt_encoder.mlpackage */,
 				489EFE905A322469AC71ECED /* MODEL_NOTICE.md */,
+				86A4E6243D780DF4CF3FA453 /* PITCH_MODEL_NOTICE.md */,
+				E9F69DA61293B27666724274 /* PitchRegions.mlpackage */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -321,20 +584,48 @@
 				95FC323E205618ED5D213B79 /* AnnotationLineStyleTests.swift */,
 				147D9DFDCFF7B9CA8F4CB44E /* AnnotationLoupeTests.swift */,
 				4E524835920BC939191E04B9 /* AnnotationMeasurementTests.swift */,
+				D672CA69AEB535EB4BA559C0 /* BoardPerfProbeTests.swift */,
 				56DBBDB484A59436F7B6860A /* CameraAppearanceTests.swift */,
 				20A7C01A724E04DC409467FD /* CameraCaptureInteractionTests.swift */,
+				D00B7D6F8380AEC4D8597B5F /* CameraPrecisionTests.swift */,
+				56F9167F9842A9B10F2BED8E /* CameraZoomModelTests.swift */,
+				252694083F9776AA5EFEF5D9 /* EdgeTAMModelProbe.swift */,
+				2738351116DE81738361F792 /* EdgeTAMSegmenterTests.swift */,
 				1859D2BF948B22F3077E82C5 /* EditorEventWorkflowTests.swift */,
 				F2C827F2CB7DB3195DBCF9FE /* EditorSequenceMediaTests.swift */,
+				FBEB40D7957D6A96E3E67FDF /* FieldFrameSelectionTests.swift */,
 				5A14167CD5C5BAC20E868D2E /* FieldLineDetectionTests.swift */,
 				E1E644DAC0739B2A9BECD616 /* FieldPlacementInteractionTests.swift */,
+				3A8C39D1FE57A6511220CC15 /* FieldPreviewTests.swift */,
 				724825CEF0604A1B31F698CF /* GameAnalysisTests.swift */,
 				76B2F8F5AB412EFE9D758378 /* GroundCalibrationTests.swift */,
+				035785F34D9663178FA5BFE3 /* GroundedEffectTests.swift */,
 				2B6087FB3222ECC79EB13B4F /* GroundLandmarkTests.swift */,
 				72B064B52D9CC3C74831F105 /* GroundReferenceDetectionTests.swift */,
+				AA2FA0BCC9CC09D8F7705A8E /* GroundShapeGeometryTests.swift */,
+				0178F7706591382B6E3F43FE /* IncrementalTrackingTests.swift */,
+				17F97F647B8174332335C049 /* MultiCamDeviceTests.swift */,
+				843C3CF22E46770F00666E63 /* MultiCamProtocolTests.swift */,
+				B59331C2D31063DD180BD6A4 /* NumberNineReacquisitionTests.swift */,
+				D70B1CDFF89D2DA5819A2B5F /* PitchRegistrationTests.swift */,
 				5571B4F98A0F80C339E76781 /* PlayerAnalysisTests.swift */,
+				A95B3BE3759EB6E32E8C2881 /* PlayerMarkerTests.swift */,
+				D1686C97AC6D41CBBC45C6D8 /* PlayerPoseOnFootageTests.swift */,
+				F2ECA032902FB0B28F49BE95 /* PlayerPoseTests.swift */,
+				0635938AE922C58664199628 /* PlayerRosterFootageTests.swift */,
+				9B1FDF8866BFE2067EB7009E /* PlayerRosterTests.swift */,
+				1FC5045E78E399F74F726F22 /* PlayerTrackingBenchmark.swift */,
+				A3634B84CE3153A0FADE4495 /* PlayerTrackingEngineTests.swift */,
 				1D8BBE2454C19346C77C8396 /* PlayerTrackingIdentityTests.swift */,
+				BF1B8935B54EE352B95FF630 /* PlayerTrackRepairTests.swift */,
+				04B68D92F5ECE799AC4BD5D8 /* PlayerTrackStateTests.swift */,
 				C4C3095A7023029D5C7DB1A0 /* PlayerTrajectoryTests.swift */,
+				89FA64C7418DED848387C571 /* ProjectVideoFilterTests.swift */,
+				E94CB1ECBFF5C52D5A7B23DF /* SquadTests.swift */,
+				5512EF52DDE89DB0E4BF9C65 /* TacticalBoard3DTests.swift */,
+				C957B895D9B428DA2F5146D7 /* TacticalBoardTests.swift */,
 				5C17F1EAFC526ABDB621053A /* TimelineGeometryTests.swift */,
+				4F9F959B0D1C1FE6FA842C83 /* UnifiedCameraTrackingTests.swift */,
 				CE62822BB419C81F2C78EAD3 /* VisionFeasibilityBenchmark.swift */,
 				1E7AB0957AC1F28FEF94E027 /* Fixtures */,
 			);
@@ -350,9 +641,8 @@
 				926D0178253C25D41EE2C987 /* AnalysisControlStyle.swift */,
 				DD476C8A6B2C25605840A344 /* AnalysisEffectControls.swift */,
 				E00A28C21E728A346FBC523C /* AnalysisEngine.swift */,
-				2997B25011753F1FCC98F38E /* AnalysisFieldDetectionSheet.swift */,
 				E78EC01FA5BC5C8DF2F33EC9 /* AnalysisFieldGuide.swift */,
-				5DEFCE44787D9FDFE8BA0C3C /* AnalysisFieldPlacementView.swift */,
+				406FEFC5DF311D697EA3F6D2 /* AnalysisFieldPreview.swift */,
 				9475C8756BEBA825C7710854 /* AnalysisInspectorSheet.swift */,
 				5EB4A42B198EB5023F50ECD5 /* AnalysisLayerEditing.swift */,
 				A1B44199AF7A375932F23887 /* AnalysisLayerTimeline.swift */,
@@ -361,9 +651,13 @@
 				AFC74A7782C32C3CBCD2A1D8 /* AnalysisOverlayView.swift */,
 				425E2157597897F2DBF4F464 /* AnalysisPlayerEffects.swift */,
 				4891CBF113077277F0CBF798 /* AnalysisPlayerEffectsSheet.swift */,
+				D800D70EAEE0990765704429 /* AnalysisPlayerReacquisitionSheet.swift */,
+				52A9E2F1852821CC66B62513 /* AnalysisPlayerTrackingSheet.swift */,
 				22A0FFC8C98DA6A807E61A15 /* AnalysisPlayerTracksSheet.swift */,
 				BE99C23BE6BC5AC37F4C0305 /* AnalysisSheetHeader.swift */,
+				1017140A622C1E30D0C0723F /* AnalysisSourceFilmstrip.swift */,
 				76EC719B4D3C82DFB9A9FC93 /* AnalysisTextControls.swift */,
+				E63FCEFFBF77F36C149BA15D /* AnalysisToolPickerSheet.swift */,
 				057E6F3E6C19A2D9FB83BD0D /* AnalysisTrackingLibrary.swift */,
 				45AA9F0D5D6587180E73F142 /* AnalysisTrajectoryControls.swift */,
 				31E17037A33028880B900C7B /* AnalysisVideoCompositor.swift */,
@@ -382,40 +676,103 @@
 				29034215932A102F5DD7EB49 /* Assets.xcassets */,
 				434D04B7F0926D5FF6B75204 /* CameraControls.swift */,
 				375434FC4971F03979CD3CA8 /* CameraEventCapture.swift */,
+				421C567120E2F590170242B6 /* CameraFeatureRegistration.swift */,
+				566871296D0A6B277091584B /* CameraFocusOverlay.swift */,
 				EFA9421F6B63D17148E0668D /* CameraView.swift */,
 				09D93759E949392ED1312B46 /* CameraZoomDial.swift */,
+				2F47FF5FB28B2126962859F9 /* CameraZoomModel.swift */,
 				B79AC2B39289BBED3C7524F9 /* CompositionPlayerView.swift */,
 				E89D007F2BA10DF564FD0C78 /* DebugSeeding.swift */,
 				D081429DA8A6150728D1106A /* DesignSystem.swift */,
+				EBF13572DE9D040014DBBC13 /* DesignSystem+App.swift */,
+				CBC0385580157EC45C37F31D /* EdgeTAMSegmenter.swift */,
 				66D57A86C890CC10B1382087 /* EditorEventBrowser.swift */,
 				E75A1D34C70FD73F55C4BFE8 /* EditorGeometry.swift */,
 				E424A41B044C38BD3BD53167 /* EditorPlaybackControls.swift */,
 				1F296DE56CCEB0B417AF9CDA /* EditorSequencePreview.swift */,
 				0C8416F2A219F37A3DA98AAD /* EditorTimeline.swift */,
 				6452F6EC8F4DE5FF232A4DAE /* EditorWorkspace.swift */,
+				1A982117EDF42D7032C7BCC1 /* EventKind.swift */,
 				A232A13562F8BC6BFF2062CB /* EventTagStrip.swift */,
+				408588334814DA72BD073DA7 /* FieldFrameSource.swift */,
 				5A87C895F1020F68155A6D64 /* FieldLineDetection.swift */,
 				A2A52EB69186AE586AA4E7B7 /* FieldPlacementInteraction.swift */,
 				D3A3FD251A68C81E47E39072 /* FieldPlacementTouchSurface.swift */,
 				9C75FF2285809F801820CC45 /* GameAnnotationEffects.swift */,
 				6BD969908213596B31BEC5DA /* GroundCalibration.swift */,
 				ACB7FD778FCF539F64E37322 /* GroundCalibrationSheet.swift */,
+				1177A6710A2F6A60FC2EDA13 /* GroundCircleReference.swift */,
+				36C818279C5611A482E7EC2A /* GroundEffectProjection.swift */,
+				E34D7FC1E9896E0DF3EAD686 /* GroundFieldOverlay.swift */,
 				5361CF25C181685D4203D053 /* GroundLandmark.swift */,
+				D40968B2A25162EAD0C0D4CD /* GroundLineAlignment.swift */,
 				1B87B8A3FA44E274CFD8D1F0 /* GroundReferenceDetection.swift */,
+				6D94E401B5A48C61996D8976 /* GroundShapeGeometry.swift */,
 				6C890CFB628814DEF0CBBC18 /* Info.plist */,
 				8FF02B8417510DF39069DEEB /* MainTabView.swift */,
 				68C3FDCEF7D3F856B07CBF44 /* Models.swift */,
+				CA67C7D7C09D68CB01A0BD33 /* MultiCamAlignmentCheck.swift */,
+				053E8AA5B948EC0863DA9107 /* MultiCamCaptureEngine.swift */,
+				8DB87FC1F262A433599688DB /* MultiCamControllers.swift */,
+				42E44BEDD385BAEFAC42E432 /* MultiCamFeedView.swift */,
+				336AE43B870C53FA577DFC44 /* MultiCamHostViews.swift */,
+				1429FB0F2C967BC43F7DE673 /* MultiCamPeerController.swift */,
+				5E40CB0FA4930FF3D064F4C3 /* MultiCamPeerViews.swift */,
+				A8AED0A549BCDDCE432A04B9 /* MultiCamProtocol.swift */,
+				5F6C3711D6639C90BA850D27 /* MultiCamRegistration.swift */,
+				3E3291520D1604E16CF125D0 /* MultiCamSession.swift */,
+				24A218BE82EC72058B2F6594 /* MultiCamSocketServer.swift */,
+				F2EBEF0D3796AEF641BD9466 /* MultiCamStitcher.swift */,
+				881FB49445D1556F41698664 /* MultiCamStitchView.swift */,
+				4441E0940F24FC6D0DC901F5 /* MultiCamVideoCodec.swift */,
 				845784DD256A167AE2E51EC6 /* OnboardingView.swift */,
+				5AE97FDC6AB0C1D69DC08B3B /* PitchRegionDetection.swift */,
+				B5CEB151B30E1B9F645BBA2D /* PitchRegistration.swift */,
+				6AC729B09E397DF7418CC87A /* PlayerAppearanceGallery.swift */,
+				9ECAA89C269960C802EB386B /* PlayerMaskStabilizer.swift */,
+				9B0A72154424EED045C2AC09 /* PlayerPose.swift */,
+				8BF99B603782B94BAB38298A /* PlayerReacquisitionSearch.swift */,
+				E01530E03AF68B760F10A732 /* PlayerROI.swift */,
+				C5A6417B637E055CAB88E51A /* PlayerRoster.swift */,
+				097E50CEFB5E2162519E6945 /* PlayerRosterTracking.swift */,
+				6561FB1E9ABD9B6ADBB4F4A5 /* PlayerTemporalSegmentation.swift */,
+				E1E93072612A0E2EE938F24D /* PlayerTrackBridging.swift */,
 				50D1E169099C0008E1140B75 /* PlayerTrackingIdentity.swift */,
+				D7C042A4949E6D98B5686C6C /* PlayerTrackRepair.swift */,
+				38800E56BDC67F4A1132FF5C /* PlayerTrackState.swift */,
 				202F64CA13EE91452E85BB5B /* PlayerTrajectory.swift */,
 				183F4DB5EE7FC1D6649D50FF /* ProjectDetailView.swift */,
 				5981C3D82C6D5D08601AB772 /* ProjectsView.swift */,
+				F57B584FECE4D408D45A149D /* ProjectVideoFilter.swift */,
 				31CEB511E230D691DF967F6E /* RecordingAnalysis.swift */,
 				E8D09E0A9E68075A557569BB /* RecordingEditorView.swift */,
 				058D4624515CE911185DE73F /* RecordingLibrary.swift */,
 				E367E0BD2AB15043CB9E905C /* RecordingRecovery.swift */,
 				CDF615562DC52421903831E2 /* RootView.swift */,
 				9079418E2BABF21C67BA615B /* SelectedPlayerTracking.swift */,
+				D4A629CD3F7F056735593057 /* SquadBoardIntegration.swift */,
+				E0EB9BE49E1146DFF7E94F1A /* SquadDebugSeeding.swift */,
+				925FAA6ADC0B2FB12DFF3B7F /* SquadLineupSheet.swift */,
+				3296D16636168C3231BFA0D8 /* SquadModels.swift */,
+				23E632D78AE019836E473CA6 /* SquadPhotoStore.swift */,
+				B4453BAE5E5A420764C492EB /* SquadPlayerEditor.swift */,
+				70289BC34137AC445A7CE1BA /* SquadView.swift */,
+				F65949AA9FD34C33FB3E492F /* TacticalBoard3DAssets.swift */,
+				B4F6BAD624DF20AFD286E435 /* TacticalBoard3DCamera.swift */,
+				94792F040978703CFCCB5DBD /* TacticalBoard3DEquipment.swift */,
+				FFC1B08081B293EDFAACBB79 /* TacticalBoard3DScene.swift */,
+				AA137E6547DF086FFBC46CEF /* TacticalBoard3DView.swift */,
+				9AFBAFA75CAEF25E1803E02D /* TacticalBoardAnimationRenderer.swift */,
+				22400537A7CF2420A6F29BCE /* TacticalBoardExporter.swift */,
+				D1105943AB12413F44ABA718 /* TacticalBoardExportSheet.swift */,
+				7EC9D6B601B45D9A5888127B /* TacticalBoardLibrary.swift */,
+				45A280CC8305B94A7041FF6E /* TacticalBoardModels.swift */,
+				013309AD7773A54105C1B7AD /* TacticalBoardRenderer.swift */,
+				F0074A928041FCA414C77C8C /* TacticalBoardSurface.swift */,
+				4B6DB90E50D852BE7041EE90 /* TacticalBoardsView.swift */,
+				B193464F3FF43C09B19384E9 /* TacticalBoardTouchSurface.swift */,
+				D6D0B3D3EE4C8C14B8CBE21A /* TacticalBoardTrainingRenderer.swift */,
+				CAAAAECC51CA4AAB4C29CEF5 /* TacticalBoardView.swift */,
 				9455A378F3B47079A638D81A /* VideoImporter.swift */,
 				E7038444B7377DEA297F47C9 /* VideoThumbnail.swift */,
 				3CB9D0018BE5365C97F82772 /* VisionPlayerTracker.swift */,
@@ -443,6 +800,23 @@
 			);
 			productName = Camelot;
 			productReference = 1F90A5A902A17C35F4BF0421 /* Camelot.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1C8612BF78EC177919E7A5C3 /* CamelotCamera */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2F7E1A5581578F81C6DEE721 /* Build configuration list for PBXNativeTarget "CamelotCamera" */;
+			buildPhases = (
+				77606E2A52780AC01CE9DA14 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CamelotCamera;
+			packageProductDependencies = (
+			);
+			productName = CamelotCamera;
+			productReference = 8B41042F814F73585C2A8335 /* CamelotCamera.app */;
 			productType = "com.apple.product-type.application";
 		};
 		C62FDB7FE09E91AB94F6F2B4 /* CamelotTests */ = {
@@ -495,6 +869,10 @@
 						DevelopmentTeam = 83ZRPDHF3Y;
 						ProvisioningStyle = Automatic;
 					};
+					1C8612BF78EC177919E7A5C3 = {
+						DevelopmentTeam = 9V4MJ8TDVJ;
+						ProvisioningStyle = Automatic;
+					};
 					C62FDB7FE09E91AB94F6F2B4 = {
 						DevelopmentTeam = 83ZRPDHF3Y;
 						ProvisioningStyle = Automatic;
@@ -521,6 +899,7 @@
 			projectRoot = "";
 			targets = (
 				0E3B3ED69986B2B59042EA78 /* Camelot */,
+				1C8612BF78EC177919E7A5C3 /* CamelotCamera */,
 				C62FDB7FE09E91AB94F6F2B4 /* CamelotTests */,
 				E2F4FA8FEEED35A597041B91 /* CamelotUITests */,
 			);
@@ -541,7 +920,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F790B6A43CF6AE5DA3F665A /* Assets.xcassets in Resources */,
+				3D32F19EB66E991BD2E8D236 /* EDGETAM_NOTICE.md in Resources */,
 				F4D73E687026AB3D64698A4C /* MODEL_NOTICE.md in Resources */,
+				031942C1EC094FFE3FB976E4 /* PITCH_MODEL_NOTICE.md in Resources */,
+				70D4FD0C0F33A2FB2DC5DFEB /* edgetam_no_mem_embed_f32.bin in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -559,9 +941,8 @@
 				5B9EC44E978211C7F2740484 /* AnalysisControlStyle.swift in Sources */,
 				5FE8BEA75A123182C7634AC7 /* AnalysisEffectControls.swift in Sources */,
 				131126C9893A37C9AD1E3392 /* AnalysisEngine.swift in Sources */,
-				C4F0D81B5A4358B65B2C63DE /* AnalysisFieldDetectionSheet.swift in Sources */,
 				2BDE977B8CD448FBA5B9A8E0 /* AnalysisFieldGuide.swift in Sources */,
-				C1F4525A3EEDE54A5382DFC5 /* AnalysisFieldPlacementView.swift in Sources */,
+				D009603DCF0550FEFF961A0C /* AnalysisFieldPreview.swift in Sources */,
 				E6A300BA3B5DD1FE8222932F /* AnalysisInspectorSheet.swift in Sources */,
 				3CF0B726B4C1F907D01EB6D8 /* AnalysisLayerEditing.swift in Sources */,
 				FBB8BFA27B8AD80CC712799C /* AnalysisLayerTimeline.swift in Sources */,
@@ -570,9 +951,13 @@
 				F028A60F4A3B96B7FD8A181C /* AnalysisOverlayView.swift in Sources */,
 				4337EF4AF307D90955F855D1 /* AnalysisPlayerEffects.swift in Sources */,
 				FE38A28DA2EA9BA94DFD51F2 /* AnalysisPlayerEffectsSheet.swift in Sources */,
+				15F49C34996FC40D2006DAA4 /* AnalysisPlayerReacquisitionSheet.swift in Sources */,
+				9A05EEBA9CAF990385EE5BD8 /* AnalysisPlayerTrackingSheet.swift in Sources */,
 				64FAB2649CDAF9153A4D6756 /* AnalysisPlayerTracksSheet.swift in Sources */,
 				B942F6FCC7ED8944D22EFACD /* AnalysisSheetHeader.swift in Sources */,
+				A13DC43215535D898A93CAED /* AnalysisSourceFilmstrip.swift in Sources */,
 				91D13646714543548F2D98BC /* AnalysisTextControls.swift in Sources */,
+				BA61105829B0AD5A4B91BAC6 /* AnalysisToolPickerSheet.swift in Sources */,
 				4A0119101F6F120D4FF85B83 /* AnalysisTrackingLibrary.swift in Sources */,
 				E44766E3E57ED4BD84FD1864 /* AnalysisTrajectoryControls.swift in Sources */,
 				B884186B552F6F7EE0D5E28D /* AnalysisVideoCompositor.swift in Sources */,
@@ -590,32 +975,73 @@
 				3293ADDB72A10FD09DD8BDDF /* BasketballDetector.mlpackage in Sources */,
 				AD31B742059AEDF5B18D3F36 /* CameraControls.swift in Sources */,
 				05E1C16C89AF3D3B22038BBC /* CameraEventCapture.swift in Sources */,
+				B5E460AE3BDB9A37361103DD /* CameraFeatureRegistration.swift in Sources */,
+				B8A7E2A80BA92CB0FF7CB15F /* CameraFocusOverlay.swift in Sources */,
 				737F3FBB2BABECC2518A6A24 /* CameraView.swift in Sources */,
 				F913F5F360D54C810C21CE07 /* CameraZoomDial.swift in Sources */,
+				EFC51079F78DC3655B3CCC95 /* CameraZoomModel.swift in Sources */,
 				7942CFA8349C816EDD0D0037 /* CompositionPlayerView.swift in Sources */,
 				E2826286BF02A7F72CAA33E5 /* DebugSeeding.swift in Sources */,
+				FA8119A947777DD7094222AA /* DesignSystem+App.swift in Sources */,
 				C52332F0BE0B799A453AA218 /* DesignSystem.swift in Sources */,
+				7314C648ED47C3230FBDA129 /* EdgeTAMSegmenter.swift in Sources */,
 				C0FE93B3F3BEA7A36272591B /* EditorEventBrowser.swift in Sources */,
 				1C12B04E3A529F6082D1DE03 /* EditorGeometry.swift in Sources */,
 				A0D6300978ABB5C7CE9CD057 /* EditorPlaybackControls.swift in Sources */,
 				2CCAD1BAC4E4D85ED452E0A5 /* EditorSequencePreview.swift in Sources */,
 				B02506FE03EB61DFBA784C82 /* EditorTimeline.swift in Sources */,
 				73108A73E9FA075214785428 /* EditorWorkspace.swift in Sources */,
+				2BC6A0A09D2275C3BC32A86D /* EventKind.swift in Sources */,
 				FDD7E74CD9A0CC5927C29860 /* EventTagStrip.swift in Sources */,
+				0A5A1A412A7B91F07AF71795 /* FieldFrameSource.swift in Sources */,
 				6D2402D708763C15DA8A8BAC /* FieldLineDetection.swift in Sources */,
 				DA4EFF3DEFDECFA908761290 /* FieldPlacementInteraction.swift in Sources */,
 				53697B2AF1DF939DA39CAF27 /* FieldPlacementTouchSurface.swift in Sources */,
 				C8B6F1F3177CAE8E5A87D861 /* GameAnnotationEffects.swift in Sources */,
 				BD09E51A6232FB4BA839F8D4 /* GroundCalibration.swift in Sources */,
 				5D34D46FF6E0249AAEF9D9FD /* GroundCalibrationSheet.swift in Sources */,
+				5C27504E5D6DD563F5C7FC46 /* GroundCircleReference.swift in Sources */,
+				C84DD99ACD3B1A7AD232C5D6 /* GroundEffectProjection.swift in Sources */,
+				0E0B0B1E8564568D4FD57F83 /* GroundFieldOverlay.swift in Sources */,
 				F6518CCB0D958C3F2FBB7D54 /* GroundLandmark.swift in Sources */,
+				98F36C80CDB5544FFC62E5FA /* GroundLineAlignment.swift in Sources */,
 				A93F852FB630531B4AFE004C /* GroundReferenceDetection.swift in Sources */,
+				98762798431755FE7D6F9B26 /* GroundShapeGeometry.swift in Sources */,
 				EC99B4D974C7DA8854D4E74F /* MainTabView.swift in Sources */,
 				DE177EF88D5DD87ECADABADB /* Models.swift in Sources */,
+				AC65AACB345CD96C1708C44B /* MultiCamAlignmentCheck.swift in Sources */,
+				60D31361015ED4E50752B8DE /* MultiCamCaptureEngine.swift in Sources */,
+				F897835209F93FA537941370 /* MultiCamControllers.swift in Sources */,
+				6FEB6AE3C062F52B2937A8F0 /* MultiCamFeedView.swift in Sources */,
+				0151EF362DD3D4978A957BC8 /* MultiCamHostViews.swift in Sources */,
+				2620B5B3D3126DAFF5239286 /* MultiCamPeerController.swift in Sources */,
+				FB6FA4671061472D137BAA42 /* MultiCamPeerViews.swift in Sources */,
+				8BDA472431ADB86474D44CAD /* MultiCamProtocol.swift in Sources */,
+				9698818FB3704EF0A3DCA664 /* MultiCamRegistration.swift in Sources */,
+				43DCFC5386402149AA14BD02 /* MultiCamSession.swift in Sources */,
+				4B7F2C416A1491045B861BE9 /* MultiCamSocketServer.swift in Sources */,
+				4A3C6DE730E1D3DB149B8DEE /* MultiCamStitchView.swift in Sources */,
+				2CF34671E106B001AE3D31D7 /* MultiCamStitcher.swift in Sources */,
+				67334B12B32EC4686CA7D463 /* MultiCamVideoCodec.swift in Sources */,
 				E8AE784949AE38D59864EDB6 /* OnboardingView.swift in Sources */,
+				596C68D72B7AFC3F414CC6A3 /* PitchRegionDetection.swift in Sources */,
+				7F4BD87657608FAD8CCBCF8B /* PitchRegions.mlpackage in Sources */,
+				5C2E20FF9A8EB33DB57E8840 /* PitchRegistration.swift in Sources */,
+				978168745DAA601105870798 /* PlayerAppearanceGallery.swift in Sources */,
+				B3E89AABC50E5D9AA3CE4A8A /* PlayerMaskStabilizer.swift in Sources */,
+				D6540C435801C2F4D1A16EC8 /* PlayerPose.swift in Sources */,
+				882B8C6998DDED2A98DE0BBF /* PlayerROI.swift in Sources */,
+				5F95BDB8CE270B09D72FD903 /* PlayerReacquisitionSearch.swift in Sources */,
+				DA5C78E5B9C8F7A65ECCD60F /* PlayerRoster.swift in Sources */,
+				D2FA2A94A81D23A85E1FCA59 /* PlayerRosterTracking.swift in Sources */,
+				CE65DEBAFE8AC294177E905A /* PlayerTemporalSegmentation.swift in Sources */,
+				FFDBDE16EA46577CBA8C865D /* PlayerTrackBridging.swift in Sources */,
+				4E03A8328C5C919A4E5DCE66 /* PlayerTrackRepair.swift in Sources */,
+				9A03A34C5B470519F27E7319 /* PlayerTrackState.swift in Sources */,
 				E37200225F70C833A03A339C /* PlayerTrackingIdentity.swift in Sources */,
 				7C12EE5671A86E187AA3CCF0 /* PlayerTrajectory.swift in Sources */,
 				36492A8F10A689E8743490E7 /* ProjectDetailView.swift in Sources */,
+				3CBA039F61C3883F00322471 /* ProjectVideoFilter.swift in Sources */,
 				B7FB67E04781C5AECB476D13 /* ProjectsView.swift in Sources */,
 				A92E1ABBF76282946954DEE8 /* RecordingAnalysis.swift in Sources */,
 				9BD12DF5C11AE6909D4C54BD /* RecordingEditorView.swift in Sources */,
@@ -623,9 +1049,57 @@
 				4CE4E6A5D9B18CA13FDEAFCE /* RecordingRecovery.swift in Sources */,
 				17A3643907F10933368C67CB /* RootView.swift in Sources */,
 				4442E889312844BD704EA7A9 /* SelectedPlayerTracking.swift in Sources */,
+				E0D262960E057C6B4D37795A /* SquadBoardIntegration.swift in Sources */,
+				4598E29B632AA344AD8B4AD9 /* SquadDebugSeeding.swift in Sources */,
+				A7BCFC44B321F3F8A65B4E32 /* SquadLineupSheet.swift in Sources */,
+				1417EB0DC3D9D445A8800C04 /* SquadModels.swift in Sources */,
+				F0DFC7E6A6440DBEA51720CB /* SquadPhotoStore.swift in Sources */,
+				1494E6AC086C31F4BF3D2271 /* SquadPlayerEditor.swift in Sources */,
+				43CC2D0DC48B9634B062AB0C /* SquadView.swift in Sources */,
+				E84E59AE3E7F3EC64B7B4044 /* TacticalBoard3DAssets.swift in Sources */,
+				0E01C3C47368B238E55B9EF4 /* TacticalBoard3DCamera.swift in Sources */,
+				B8E5C87D12B2908526CD7CAC /* TacticalBoard3DEquipment.swift in Sources */,
+				CE8CF592AAB926424D181527 /* TacticalBoard3DScene.swift in Sources */,
+				6E72D36BE51DC7C02DF89153 /* TacticalBoard3DView.swift in Sources */,
+				8D9184532B26D850F10D19B7 /* TacticalBoardAnimationRenderer.swift in Sources */,
+				7F69FADE35C20175F6BAE64B /* TacticalBoardExportSheet.swift in Sources */,
+				D3B447A33A0DFA3F3792ED37 /* TacticalBoardExporter.swift in Sources */,
+				8413EB68B8DEAC405E3DB0C5 /* TacticalBoardLibrary.swift in Sources */,
+				4CEEFD39B22EA869ED7B4D0E /* TacticalBoardModels.swift in Sources */,
+				A8D16E0CD333E68D35433B15 /* TacticalBoardRenderer.swift in Sources */,
+				39D03FC44E40656C685AEC31 /* TacticalBoardSurface.swift in Sources */,
+				EB391618AC354B1AA39B3541 /* TacticalBoardTouchSurface.swift in Sources */,
+				1EB8AC2C25922D4D0C8D365B /* TacticalBoardTrainingRenderer.swift in Sources */,
+				215EBF903FD6018470A39C8A /* TacticalBoardView.swift in Sources */,
+				EFAE7EE06CB21339060226B0 /* TacticalBoardsView.swift in Sources */,
 				B65E33A8303EA35A86E1A2A6 /* VideoImporter.swift in Sources */,
 				89448EBE3083F4604E114502 /* VideoThumbnail.swift in Sources */,
 				B360FD3E9CFBD8563B764CEE /* VisionPlayerTracker.swift in Sources */,
+				B979349083C42A8F17C85EBE /* edgetam_image_encoder_pos.mlpackage in Sources */,
+				74EE682AAAA2E5723DFC1499 /* edgetam_mask_decoder_mem.mlpackage in Sources */,
+				F123E12F65283515DD113E55 /* edgetam_memory_attention.mlpackage in Sources */,
+				80C058EF947B8B7A133D0379 /* edgetam_memory_encoder.mlpackage in Sources */,
+				91E40296E53179AACB776AC2 /* edgetam_prompt_encoder.mlpackage in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		77606E2A52780AC01CE9DA14 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEBB68AF7337CE9C708D7D7E /* CamelotCameraApp.swift in Sources */,
+				E699BC8716492A7EFB6B00D3 /* CameraControls.swift in Sources */,
+				152E70C179585D326F31E884 /* DesignSystem.swift in Sources */,
+				0C30A149AF1A3868A52DF754 /* EventKind.swift in Sources */,
+				7845ED5D6C8791B9A9C06C52 /* EventTagStrip.swift in Sources */,
+				26496CD26238A2D4DE7F2DA2 /* MultiCamCaptureEngine.swift in Sources */,
+				0C5F1B7E64431B66FF8CC79A /* MultiCamFeedView.swift in Sources */,
+				BEC066F9BCE7105F6364C17D /* MultiCamPeerController.swift in Sources */,
+				54513EBED87DD6F5A82255DD /* MultiCamPeerViews.swift in Sources */,
+				149C93DB200F21060CEE24A0 /* MultiCamProtocol.swift in Sources */,
+				4EB60D6D7DA1308128612990 /* MultiCamSession.swift in Sources */,
+				C9C6FB82118999E28B54E3FD /* MultiCamSocketServer.swift in Sources */,
+				AB5108002B7D3E41B867A364 /* MultiCamVideoCodec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -634,12 +1108,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				4891B1F25294E391C2818CE6 /* AnalysisCompactUITests.swift in Sources */,
+				E324CAD555E074DDF1E95FD1 /* BoardTestSupport.swift in Sources */,
+				A008A45C8E9FD7BB17258F2F /* CameraGestureTests.swift in Sources */,
 				D41B93A53F68B0C5FA39501E /* CameraRotationTests.swift in Sources */,
 				08FF68EA02F5EC9FEA959698 /* EditorAnalysisUITests.swift in Sources */,
 				CDC697B98492BF4C38096373 /* EditorInteractionTests.swift in Sources */,
 				93DAF90A1E58EEDE5F0B6043 /* EditorQuickTagTests.swift in Sources */,
+				8C81992FEEAD90541341D097 /* FieldSetupUITests.swift in Sources */,
+				B18878D71BA5D4CD9155CC7C /* MultiCamHostUITests.swift in Sources */,
 				3E4CA30D6896C5F30B267361 /* OnboardingUITests.swift in Sources */,
+				0577D4186A8E08A9D6F6039A /* ProjectLibraryUITests.swift in Sources */,
 				63A5FD4DC75200C3A64F5C6D /* ScreenshotWalkthroughTests.swift in Sources */,
+				CA355D521297CA2E0CA929AE /* SquadUITests.swift in Sources */,
+				2F4D3569E276C98B4874B131 /* TacticalBoardUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -656,20 +1137,48 @@
 				FBB476690E87B5A9F9E14996 /* AnnotationLineStyleTests.swift in Sources */,
 				6297B1E11DD74F5D72CC7067 /* AnnotationLoupeTests.swift in Sources */,
 				D4117B9B28B6FBF6F16A9BC0 /* AnnotationMeasurementTests.swift in Sources */,
+				F29A58F70099D978B9691072 /* BoardPerfProbeTests.swift in Sources */,
 				A6B92C42A85378648F658440 /* CameraAppearanceTests.swift in Sources */,
 				0BB2D696F11C12A57E04BB96 /* CameraCaptureInteractionTests.swift in Sources */,
+				AEB6346AADCCA3DAD098D852 /* CameraPrecisionTests.swift in Sources */,
+				713FEB2301BA14090BEBF429 /* CameraZoomModelTests.swift in Sources */,
+				1B5A6975DE794D479FA6BBA1 /* EdgeTAMModelProbe.swift in Sources */,
+				3AD44AE2E4FF2256EE0EF839 /* EdgeTAMSegmenterTests.swift in Sources */,
 				87F6802C0A8D446D01CFEAE0 /* EditorEventWorkflowTests.swift in Sources */,
 				5286A0CE15DCB47A91466ED7 /* EditorSequenceMediaTests.swift in Sources */,
+				D8A7D7D75B97ACD72514CA4B /* FieldFrameSelectionTests.swift in Sources */,
 				FCFD17870A8BE65172139998 /* FieldLineDetectionTests.swift in Sources */,
 				39AEA768992E2BB479B45F74 /* FieldPlacementInteractionTests.swift in Sources */,
+				B3A29514BDE4468FC984FEFE /* FieldPreviewTests.swift in Sources */,
 				15774224965DE7374B592957 /* GameAnalysisTests.swift in Sources */,
 				830867C36A8232BA866EA340 /* GroundCalibrationTests.swift in Sources */,
 				15BFF62CA584F0406ACA283A /* GroundLandmarkTests.swift in Sources */,
 				AC5E10E0E2AD6607514401DA /* GroundReferenceDetectionTests.swift in Sources */,
+				391456F5C9CBC946A955CF56 /* GroundShapeGeometryTests.swift in Sources */,
+				F8C1DFC65793B498D5809FBA /* GroundedEffectTests.swift in Sources */,
+				4E288959FC18721E5927B295 /* IncrementalTrackingTests.swift in Sources */,
+				D677D6B6787D850096386295 /* MultiCamDeviceTests.swift in Sources */,
+				97D3B327516971BA076DE870 /* MultiCamProtocolTests.swift in Sources */,
+				0431DA6E72438C02116585EC /* NumberNineReacquisitionTests.swift in Sources */,
+				FDD7AB39A5B6FE4EB796D186 /* PitchRegistrationTests.swift in Sources */,
 				CAF070C186AB051AB75B83E1 /* PlayerAnalysisTests.swift in Sources */,
+				EEF816782C52138AC9330916 /* PlayerMarkerTests.swift in Sources */,
+				457F0C6B126205F84CEC1A61 /* PlayerPoseOnFootageTests.swift in Sources */,
+				6FD520C6E4F9FA747483C8F0 /* PlayerPoseTests.swift in Sources */,
+				0C5AF2D2D7FB0A8CF58B5F7F /* PlayerRosterFootageTests.swift in Sources */,
+				FD6A3C90C453CBB41D495F64 /* PlayerRosterTests.swift in Sources */,
+				0F0A83A27B2B11E0429DCF31 /* PlayerTrackRepairTests.swift in Sources */,
+				6E942A8694919CB2CDEBBDE1 /* PlayerTrackStateTests.swift in Sources */,
+				2FACC78B872E5DC033136439 /* PlayerTrackingBenchmark.swift in Sources */,
+				8DDCAF18443A3B7944A2F221 /* PlayerTrackingEngineTests.swift in Sources */,
 				55DE271065D6D6E95F2F702A /* PlayerTrackingIdentityTests.swift in Sources */,
 				7E1C3B27CEBEBCA144B12F1D /* PlayerTrajectoryTests.swift in Sources */,
+				6C1DCA5AE299313FEFE088E3 /* ProjectVideoFilterTests.swift in Sources */,
+				91043584C05E84D03D061595 /* SquadTests.swift in Sources */,
+				FE534F8C598DDD4D34CAD4AF /* TacticalBoard3DTests.swift in Sources */,
+				5FBEA5FD999CB95323E2D1BD /* TacticalBoardTests.swift in Sources */,
 				EA1F3981950F045CDC19613E /* TimelineGeometryTests.swift in Sources */,
+				78A5EC743F7AFDDD8C85A40E /* UnifiedCameraTrackingTests.swift in Sources */,
 				E924F805A29FA6EE14893C99 /* VisionFeasibilityBenchmark.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -690,6 +1199,26 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0901F45CAEA6B9D7A38BB58F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 9V4MJ8TDVJ;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CamelotCamera/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.blacknosaur.camelot.camera;
+				PRODUCT_NAME = CamelotCamera;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		09727D8CA13626E8B7E9B33C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -847,6 +1376,26 @@
 			};
 			name = Release;
 		};
+		48BC9371AB5DEE5C6F51BB82 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 9V4MJ8TDVJ;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CamelotCamera/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.blacknosaur.camelot.camera;
+				PRODUCT_NAME = CamelotCamera;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		65C0345ACF2EA5E483FCD4A1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -940,6 +1489,15 @@
 			buildConfigurations = (
 				09727D8CA13626E8B7E9B33C /* Debug */,
 				2CA693D1AD74EE85FE2E9683 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2F7E1A5581578F81C6DEE721 /* Build configuration list for PBXNativeTarget "CamelotCamera" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0901F45CAEA6B9D7A38BB58F /* Debug */,
+				48BC9371AB5DEE5C6F51BB82 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

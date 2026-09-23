@@ -26,6 +26,15 @@ struct CameraTransform: Codable, Equatable, Sendable {
         let x = CGFloat(value.x / value.z), y = CGFloat(value.y / value.z)
         return x.isFinite && y.isFinite ? CGPoint(x: x, y: y) : nil
     }
+
+    /// Homographies are defined only up to scale. Canonicalize before blending
+    /// so two equivalent matrices cannot cancel or bend the pitch in between.
+    var normalized: Self? {
+        guard values.count == 9, values.allSatisfy(\.isFinite), abs(values[8]) > 1e-9 else { return nil }
+        let result = Self(values: values.map { $0 / values[8] })
+        guard abs(result.matrix.determinant) > 1e-7 else { return nil }
+        return result
+    }
 }
 
 struct AnnotationCameraMotion: Codable, Equatable, Sendable {
@@ -38,6 +47,14 @@ struct AnnotationCameraMotion: Codable, Equatable, Sendable {
     var trackID: UUID? = nil
     var referenceTime: Double? = nil
 
+    var coveredDuration: Double {
+        max(0, min(samples.last?.time ?? 0, lostAt ?? .infinity) - (samples.first?.time ?? 0))
+    }
+
+    func covers(_ range: ClosedRange<Double>) -> Bool {
+        transform(at: range.lowerBound) != nil && transform(at: range.upperBound) != nil
+    }
+
     func transform(at time: Double) -> CameraTransform? {
         guard let current = rawTransform(at: time) else { return nil }
         guard let referenceTime else { return current }
@@ -46,17 +63,18 @@ struct AnnotationCameraMotion: Codable, Equatable, Sendable {
     }
 
     private func rawTransform(at time: Double) -> CameraTransform? {
-        guard let first = samples.first, let last = samples.last, time >= first.time - 0.05,
+        guard time.isFinite, let first = samples.first, let last = samples.last, time >= first.time - 0.05,
               time <= last.time + 0.15, lostAt.map({ time < $0 }) ?? true else { return nil }
         var low = 0, high = samples.count - 1
         while low < high {
             let mid = (low + high) / 2
             if samples[mid].time < time { low = mid + 1 } else { high = mid }
         }
-        guard low > 0 else { return first.transform }
+        guard low > 0 else { return first.transform.normalized }
         let a = samples[low - 1], b = samples[low]
+        guard let lhs = a.transform.normalized, let rhs = b.transform.normalized else { return nil }
         let fraction = min(1, max(0, (time - a.time) / max(0.001, b.time - a.time)))
-        return CameraTransform(values: zip(a.transform.values, b.transform.values).map { $0 + ($1 - $0) * fraction })
+        return CameraTransform(values: zip(lhs.values, rhs.values).map { $0 + ($1 - $0) * fraction }).normalized
     }
     func points(_ points: [CGPoint], at time: Double) -> [CGPoint]? {
         guard let transform = transform(at: time) else { return nil }
@@ -66,6 +84,39 @@ struct AnnotationCameraMotion: Codable, Equatable, Sendable {
 }
 
 enum CameraMotionTracking {
+    /// The editing camera pass uses independently verified sparse scene matches.
+    /// Keep the lightweight recovery warp below separate from player tracking.
+    static func registerScene(previous: CGImage, current: CGImage) throws -> CameraTransform? {
+        guard let previous = CameraFeatureRegistration.Frame(previous), let current = CameraFeatureRegistration.Frame(current) else { return nil }
+        return try registerScene(previous: previous, current: current)
+    }
+
+    static func registerScene(previous: CameraFeatureRegistration.Frame, current: CameraFeatureRegistration.Frame) throws -> CameraTransform? {
+        guard previous.image.width == current.image.width, previous.image.height == current.image.height else { return nil }
+        let request = VNTranslationalImageRegistrationRequest(targetedCGImage: previous.image)
+        try VNImageRequestHandler(cgImage: current.image).perform([request])
+        let initial: CameraTransform
+        if let translation = request.results?.first?.alignmentTransform,
+           translation.tx.isFinite, translation.ty.isFinite {
+            initial = .init(values: [1, 0, Double(translation.tx) / Double(current.image.width),
+                                    0, 1, -Double(translation.ty) / Double(current.image.height), 0, 0, 1])
+        } else { return nil }
+        if let refined = CameraFeatureRegistration.register(previous: previous, current: current, initial: initial) { return refined }
+        // Translation is only a search initializer. If roll/zoom exceeds that
+        // search window, try Vision's projective proposal, verified by the same
+        // independent correspondences rather than accepting its matrix alone.
+        let projective = VNHomographicImageRegistrationRequest(targetedCGImage: previous.image)
+        try VNImageRequestHandler(cgImage: current.image).perform([projective])
+        guard let observation = projective.results?.first else { return nil }
+        let w = Float(current.image.width), h = Float(current.image.height)
+        let pixels = simd_float3x3(columns: (SIMD3(w, 0, 0), SIMD3(0, -h, 0), SIMD3(0, h, 1)))
+        var matrix = pixels.inverse * observation.warpTransform * pixels
+        guard abs(matrix[2][2]) > 0.00001 else { return nil }
+        matrix *= 1 / matrix[2][2]
+        let proposal = CameraTransform(matrix)
+        guard CameraFeatureRegistration.plausible(proposal) else { return nil }
+        return CameraFeatureRegistration.register(previous: previous, current: current, initial: proposal)
+    }
     /// Prefer the upper scene (stands, fences, field edge) over moving foreground
     /// players. Conjugate the crop warp back into full-frame coordinates.
     static func registerBackground(previous: CGImage, current: CGImage) throws -> CameraTransform? {
@@ -91,14 +142,23 @@ enum CameraMotionTracking {
     }
 
     static func register(previous: CVPixelBuffer, current: CVPixelBuffer, orientation: CGImagePropertyOrientation, context: CIContext) throws -> CameraTransform? {
-        func image(_ buffer: CVPixelBuffer) -> CGImage? {
-            let source = CIImage(cvPixelBuffer: buffer).oriented(orientation)
-            let scale = min(1, 640 / max(source.extent.width, source.extent.height))
-            let reduced = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-            return context.createCGImage(reduced, from: reduced.extent)
-        }
-        guard let previous = image(previous), let current = image(current) else { return nil }
-        return try register(previous: previous, current: current)
+        guard let previous = sceneImage(previous, orientation: orientation, context: context),
+              let current = sceneImage(current, orientation: orientation, context: context) else { return nil }
+        return try registerBackground(previous: previous, current: current)
+    }
+
+    /// One owned 640-long-side frame. The caller keeps it; the decoder buffer
+    /// is not copied and must not be used after the next sample.
+    static func sceneFrame(_ buffer: CVPixelBuffer, orientation: CGImagePropertyOrientation, context: CIContext) -> CameraFeatureRegistration.Frame? {
+        guard let image = sceneImage(buffer, orientation: orientation, context: context) else { return nil }
+        return CameraFeatureRegistration.Frame(image)
+    }
+
+    private static func sceneImage(_ buffer: CVPixelBuffer, orientation: CGImagePropertyOrientation, context: CIContext) -> CGImage? {
+        let source = CIImage(cvPixelBuffer: buffer).oriented(orientation)
+        let scale = min(1, 640 / max(source.extent.width, source.extent.height))
+        let reduced = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        return context.createCGImage(reduced, from: reduced.extent)
     }
     /// Registration maps the targeted (previous) image onto the handler's
     /// reference (current) image. Vision matrices use bottom-left pixel units.
@@ -167,6 +227,8 @@ enum CameraMotionTracking {
         let asset = AVURLAsset(url: url)
         guard let video = try await asset.loadTracks(withMediaType: .video).first else { throw AnalysisError.noVideoTrack }
         let size = try await video.load(.naturalSize)
+        let frameRate = try await video.load(.nominalFrameRate)
+        let fallbackFrameDuration = frameRate > 0 ? 1 / Double(frameRate) : 1 / 30
         let orientation = AnalysisEngine.orientation(for: try await video.load(.preferredTransform))
         let reader = try AVAssetReader(asset: asset)
         reader.timeRange = CMTimeRange(start: CMTime(seconds: start, preferredTimescale: 600), end: CMTime(seconds: end, preferredTimescale: 600))
@@ -180,26 +242,43 @@ enum CameraMotionTracking {
         guard reader.startReading() else { throw AnalysisError.reader("Cannot open video for camera tracking") }
         defer { reader.cancelReading() }
         let context = CIContext(options: [.cacheIntermediates: false])
-        var previous: CGImage?
-        var anchor: CGImage?
+        var previous: CameraFeatureRegistration.Frame?
+        var reference: CameraFeatureRegistration.Frame?
+        var anchor: CameraFeatureRegistration.Frame?
         var anchorTime = start
         var anchorTransform = matrix_identity_float3x3
         var lastTime = start - 1
+        var lastFrameEnd = start
         var accumulated = matrix_identity_float3x3
         var motion = AnnotationCameraMotion(samples: [.init(time: start, transform: .identity)])
-        while let sample = output.copyNextSampleBuffer() {
+        var nextSample = output.copyNextSampleBuffer()
+        while let sample = nextSample {
+            nextSample = output.copyNextSampleBuffer()
             try Task.checkCancellation()
             let time = CMSampleBufferGetPresentationTimeStamp(sample).seconds
-            guard time - lastTime >= 0.045, let buffer = CMSampleBufferGetImageBuffer(sample) else { continue }
+            let duration = CMSampleBufferGetDuration(sample).seconds
+            let frameEnd = time + (duration.isFinite && duration > 0 ? duration : fallbackFrameDuration)
+            // Include the terminal decoded frame even when it falls between the
+            // normal analysis samples. The displayed last frame lasts to its end.
+            guard time - lastTime >= 0.045 || nextSample == nil || frameEnd >= end - 1 / 600,
+                  let buffer = CMSampleBufferGetImageBuffer(sample) else { continue }
             if ProcessInfo.processInfo.thermalState == .critical { throw AnalysisError.thermal }
             let image = CIImage(cvPixelBuffer: buffer).oriented(orientation)
-            guard let current = context.createCGImage(image, from: image.extent) else { continue }
+            guard let decoded = context.createCGImage(image, from: image.extent),
+                  let current = CameraFeatureRegistration.Frame(decoded) else { continue }
             if let previous {
-                // Register back to a short-lived key image instead of integrating
-                // every small frame error. Fall back to adjacent frames for fast pans.
-                if let anchor, let direct = try? registerBackground(previous: anchor, current: current) {
+                // Keep the original scene as well as a rolling anchor. When a
+                // pan returns, register to the original pixels to remove the
+                // accumulated error, using the last pose only to locate patches.
+                let prediction = CameraTransform(accumulated)
+                let referenceVisible = Self.referenceStillVisible(prediction)
+                if referenceVisible, let reference,
+                   let direct = CameraFeatureRegistration.register(previous: reference, current: current, initial: prediction) {
+                    accumulated = direct.matrix
+                    anchor = current; anchorTransform = accumulated; anchorTime = time
+                } else if let anchor, let direct = try? registerScene(previous: anchor, current: current) {
                     accumulated = direct.matrix * anchorTransform
-                } else if let step = try registerBackground(previous: previous, current: current) {
+                } else if let step = try registerScene(previous: previous, current: current) {
                     accumulated = step.matrix * accumulated
                     anchor = current; anchorTransform = accumulated; anchorTime = time
                 } else { motion.lostAt = time; break }
@@ -207,14 +286,82 @@ enum CameraMotionTracking {
                 accumulated *= 1 / accumulated[2][2]
                 motion.samples.append(.init(time: time, transform: CameraTransform(accumulated)))
             }
+            if reference == nil { reference = current }
             if anchor == nil || time - anchorTime >= 1 {
                 anchor = current; anchorTransform = accumulated; anchorTime = time
             }
-            previous = current; lastTime = time
+            previous = current; lastTime = time; lastFrameEnd = frameEnd
             progress(min(1, (time - start) / max(0.01, end - start)))
         }
         if reader.status == .failed { throw AnalysisError.reader(reader.error?.localizedDescription ?? "Camera tracking decode failed") }
+        if motion.lostAt == nil, let last = motion.samples.last,
+           previous != nil, end - lastFrameEnd <= max(0.05, fallbackFrameDuration * 1.5), last.time < end {
+            motion.samples.append(.init(time: end, transform: last.transform))
+        }
         progress(1)
         return motion
+    }
+
+    /// Pitch points as well as the far touchline. A pan that keeps the grass
+    /// and loses the stands can still re-lock to the original frame.
+    static func referenceStillVisible(_ prediction: CameraTransform) -> Bool {
+        let probes = [CGPoint(x: 0.2, y: 0.28), .init(x: 0.5, y: 0.28), .init(x: 0.8, y: 0.28),
+                      .init(x: 0.2, y: 0.55), .init(x: 0.5, y: 0.55), .init(x: 0.8, y: 0.55),
+                      .init(x: 0.25, y: 0.78), .init(x: 0.5, y: 0.78), .init(x: 0.75, y: 0.78)]
+        let visible = CGRect(x: 0.02, y: 0.02, width: 0.96, height: 0.96)
+        return probes.compactMap { prediction.point($0) }.filter { visible.contains($0) }.count >= 4
+    }
+}
+
+/// Camera motion accumulated from a trusted frame, including after the direct
+/// pair no longer overlaps. The transform maps that trusted frame into the
+/// latest one. A failed step holds the last good pose briefly, then reports nil.
+struct IncrementalSceneCamera {
+    private var reference: CameraFeatureRegistration.Frame?
+    private var previous: CameraFeatureRegistration.Frame?
+    private var anchor: CameraFeatureRegistration.Frame?
+    private var anchorTransform = matrix_identity_float3x3
+    private var accumulated = matrix_identity_float3x3
+    private var lastGood = matrix_identity_float3x3
+    private var lastGoodTime = -Double.infinity
+    private var primed = false
+
+    mutating func reset() { self = IncrementalSceneCamera() }
+
+    /// The first call stores the origin and returns identity.
+    mutating func observe(_ frame: CameraFeatureRegistration.Frame, at time: Double) -> CameraTransform? {
+        if !primed {
+            primed = true
+            reference = frame
+            previous = frame
+            anchor = frame
+            lastGoodTime = time
+            return .identity
+        }
+        let prediction = CameraTransform(accumulated)
+        var updated = false
+        if CameraMotionTracking.referenceStillVisible(prediction), let reference,
+           let direct = CameraFeatureRegistration.register(previous: reference, current: frame, initial: prediction) {
+            accumulated = direct.matrix
+            anchor = frame
+            anchorTransform = accumulated
+            updated = true
+        } else if let anchor, let direct = try? CameraMotionTracking.registerScene(previous: anchor, current: frame) {
+            accumulated = direct.matrix * anchorTransform
+            updated = true
+        } else if let previous, let step = try? CameraMotionTracking.registerScene(previous: previous, current: frame) {
+            accumulated = step.matrix * accumulated
+            anchor = frame
+            anchorTransform = accumulated
+            updated = true
+        }
+        previous = frame
+        guard updated, abs(accumulated[2][2]) > 0.00001 else {
+            return time - lastGoodTime <= 0.45 ? CameraTransform(lastGood) : nil
+        }
+        accumulated *= 1 / accumulated[2][2]
+        lastGood = accumulated
+        lastGoodTime = time
+        return CameraTransform(accumulated)
     }
 }

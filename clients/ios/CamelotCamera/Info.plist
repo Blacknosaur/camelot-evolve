@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key><string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>CFBundleDisplayName</key><string>Camelot Camera</string>
+    <key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+    <key>CFBundleName</key><string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key><string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+    <key>CFBundleShortVersionString</key><string>1.0</string>
+    <key>CFBundleVersion</key><string>1</string>
+    <key>LSRequiresIPhoneOS</key><true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key><true/>
+    <key>UIFileSharingEnabled</key><true/>
+    <key>NSCameraUsageDescription</key><string>Camelot Camera records the match as a second camera for the main phone.</string>
+    <key>NSMicrophoneUsageDescription</key><string>Camelot Camera records audio with the video.</string>
+    <key>NSLocalNetworkUsageDescription</key><string>Camelot Camera connects to the main phone nearby to stream video and events.</string>
+    <key>NSBonjourServices</key>
+    <array><string>_camelot-cam._tcp</string><string>_camelot-cam._udp</string></array>
+    <key>UILaunchScreen</key><dict/>
+    <key>UISupportedInterfaceOrientations</key>
+    <array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>
+</dict>
+</plist>

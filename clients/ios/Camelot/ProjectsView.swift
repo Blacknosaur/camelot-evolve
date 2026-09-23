@@ -6,6 +6,7 @@ struct ProjectsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Project.scheduledAt, order: .reverse) private var projects: [Project]
     @State private var showingNewProject = false
+    @State private var joiningSession = false
     @State private var editingProject: Project?
     @State private var searchText = ""
 
@@ -31,6 +32,13 @@ struct ProjectsView: View {
                 ToolbarItem(placement: .primaryAction) {
                     Button("New project", systemImage: "plus") { showingNewProject = true }
                 }
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Join a session", systemImage: "dot.radiowaves.left.and.right") { joiningSession = true }
+                        .accessibilityIdentifier("projects-join-session")
+                }
+            }
+            .fullScreenCover(isPresented: $joiningSession) {
+                MultiCamJoinView(controller: MultiCamPeerController(appState: appState, modelContext: modelContext)) { joiningSession = false }
             }
             .navigationDestination(for: UUID.self) { id in
                 if let project = projects.first(where: { $0.id == id }) {
@@ -115,8 +123,7 @@ struct ProjectSummary {
            generated.createdAt > (availableVideos.first?.createdAt ?? .distantPast) {
             if let exported = CompositionRenderer.existingExportURL(id: generated.id) { return (exported, 0.5) }
             if let remote = generated.remoteMediaURL { return (remote, 0.5) }
-            if let data = generated.clipManifest.data(using: .utf8),
-               let clips = try? JSONDecoder().decode([CompositionClip].self, from: data),
+            if let clips = generated.libraryClips,
                let clip = clips.first(where: { clip in availableVideos.contains { $0.id == clip.recordingID } }),
                let source = availableVideos.first(where: { $0.id == clip.recordingID }) {
                 return (source.fileURL, min(max(0, clip.startSeconds + 0.25), max(0, source.duration - 0.1)))

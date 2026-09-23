@@ -10,6 +10,6 @@ struct CamelotApp: App {
             RootView(appState: appState)
                 .environment(appState)
         }
-        .modelContainer(for: [Project.self, MatchEvent.self, Recording.self, VideoComposition.self])
+        .modelContainer(for: [Project.self, MatchEvent.self, Recording.self, VideoComposition.self, TacticalBoard.self, SquadPlayer.self])
     }
 }

@@ -11,6 +11,11 @@ struct ProjectDetailView: View {
     @Query private var recordings: [Recording]
     @Query private var generatedVideos: [VideoComposition]
     @State private var showingCamera = false
+    @State private var showingVideoImport = false
+    @State private var isImportingVideo = false
+    @State private var choosingMultiCam = false
+    @State private var multiCamMode: MultiCamMode?
+    @State private var stitching: Recording?
     @State private var editingProject = false
     @State private var editingVideo: Recording?
     @State private var combiningVideo: Recording?
@@ -19,6 +24,8 @@ struct ProjectDetailView: View {
     @State private var viewingRemoteVideo: Recording?
     @State private var deletionTarget: ProjectVideoItem?
     @State private var deletionError: String?
+    @State private var searchText = ""
+    @State private var selectedKinds: Set<String> = []
 
     init(project: Project, appState: AppState) {
         self.project = project
@@ -31,28 +38,40 @@ struct ProjectDetailView: View {
 
     var body: some View {
         AdaptiveLayout { layout in
+            let items = allItems
+            let visible = filtered(items)
             ScrollView {
-                VStack(alignment: .leading, spacing: Theme.Space.xl) {
-                    header(layout: layout)
-                    if recordings.isEmpty && generatedVideos.isEmpty {
-                        emptyState
+                VStack(alignment: .leading, spacing: Theme.Space.md) {
+                    summaryLine(total: items.count, shown: visible.count)
+                    if let pending = pendingWideView { wideViewBanner(camera: pending) }
+                    if !availableKinds.isEmpty { kindFilters }
+                    if items.isEmpty {
+                        emptyState.padding(.top, Theme.Space.sm)
+                    } else if visible.isEmpty {
+                        noResultsState.padding(.top, Theme.Space.sm)
                     } else {
-                        videoSection(title: "Videos", items: (recordings.map(ProjectVideoItem.source) + generatedVideos.map(ProjectVideoItem.generated)).sorted { $0.createdAt > $1.createdAt }, layout: layout)
+                        videoSection(items: visible, layout: layout)
                     }
                 }
-                .padding(Theme.Space.lg)
+                .padding(.horizontal, Theme.Space.lg)
+                .padding(.vertical, Theme.Space.sm)
                 .frame(maxWidth: layout.gridColumns > 1 ? .infinity : Theme.readableWidth + 200)
                 .frame(maxWidth: .infinity)
             }
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle(project.name)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search videos, notes and events")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                Button("Record", systemImage: "video.fill") { showingCamera = true }
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button("Record video", systemImage: "video.fill") { showingCamera = true }
-                    VideoImportButton(project: project)
+                    Button("Multi-cam session", systemImage: "rectangle.3.group") { choosingMultiCam = true }
+                        .accessibilityIdentifier("project-multicam")
+                    importVideoButton
                     Button("Combine videos", systemImage: "rectangle.stack.badge.plus") { combiningVideo = recordings.first }
                         .disabled(recordings.isEmpty)
                     Divider()
@@ -60,13 +79,23 @@ struct ProjectDetailView: View {
                 } label: {
                     Label("More", systemImage: "ellipsis.circle")
                 }
+                .accessibilityIdentifier("project-more")
             }
         }
+        .videoImporter(project: project, isPresented: $showingVideoImport, isImporting: $isImportingVideo) {
+            searchText = ""; selectedKinds.removeAll()
+        }
         .fullScreenCover(isPresented: $showingCamera) { CameraCaptureView(project: project, appState: appState) }
+        .sheet(isPresented: $choosingMultiCam) { MultiCamSetupView(project: project) { multiCamMode = $0 } }
+        .fullScreenCover(item: $multiCamMode) { mode in
+            if mode == .eventRemote { CameraCaptureView(project: project, appState: appState, multiCamMode: mode) }
+            else { MultiCamCaptureView(project: project, mode: mode, appState: appState) }
+        }
+        .sheet(item: $stitching) { MultiCamStitchView(camera: $0, recordings: recordings, project: project) }
         .fullScreenCover(item: $editingVideo) { RecordingEditorView(recording: $0) }
         .fullScreenCover(item: $combiningVideo) { RecordingEditorView(recording: $0, startsInClips: true) }
         .fullScreenCover(item: $editingComposition) { video in
-            if let first = video.decodedClips?.first, let source = recordings.first(where: { $0.id == first.recordingID }) {
+            if let first = video.libraryClips?.first, let source = recordings.first(where: { $0.id == first.recordingID }) {
                 RecordingEditorView(recording: source, composition: video)
             }
         }
@@ -93,46 +122,96 @@ struct ProjectDetailView: View {
 
     // MARK: Header
 
-    private func header(layout: LayoutMetrics) -> some View {
-        let summary = ProjectSummary(videos: recordings, generatedVideos: generatedVideos, events: events)
-        return VStack(alignment: .leading, spacing: Theme.Space.md) {
-            HStack(alignment: .firstTextBaseline) {
-                Label(project.subtitle, systemImage: project.opponent.isEmpty ? "calendar" : "sportscourt")
-                    .font(.subheadline).foregroundStyle(.secondary)
-                Spacer()
-                if project.needsSync {
-                    StatusPill(text: "Waiting to sync", tint: .orange, symbol: "arrow.up.circle")
-                }
+    /// One secondary line replaces the old stat tiles: "3 videos · 8 events · vs Rovers · Today".
+    /// While a search or filter is active it becomes the result count instead.
+    private func summaryLine(total: Int, shown: Int) -> some View {
+        let text = isFiltering
+            ? "\(shown) of \(total) \(total == 1 ? "video" : "videos")"
+            : "\(total) \(total == 1 ? "video" : "videos") · \(events.count) \(events.count == 1 ? "event" : "events") · \(project.subtitle)"
+        return HStack(spacing: 6) {
+            if project.needsSync {
+                Circle().fill(.orange).frame(width: 7, height: 7).accessibilityHidden(true)
             }
-            OrientationStack(isLandscape: layout.isLandscape && layout.size.width >= 640, spacing: Theme.Space.md, alignment: .top) {
-                HStack(spacing: Theme.Space.sm) {
-                    StatTile(value: "\(summary.videoCount + summary.highlightCount)", title: "Videos", symbol: "play.rectangle.fill", tint: Theme.brand)
-                    StatTile(value: "\(summary.eventCount)", title: "Events", symbol: "flag.fill", tint: .green)
-                }
-                .frame(maxWidth: .infinity)
-                actionRow.frame(maxWidth: .infinity)
-            }
+            Text(text)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .accessibilityIdentifier("video-result-count")
+                .accessibilityLabel(project.needsSync ? "\(text), waiting to sync" : text)
+            Spacer(minLength: 0)
         }
     }
 
-    private var actionRow: some View {
-        HStack(spacing: Theme.Space.sm) {
-            Button { showingCamera = true } label: {
-                Label("Record", systemImage: "video.fill")
-            }
-            .buttonStyle(.primary)
-            VideoImportButton(project: project, compact: true)
-                .buttonStyle(.secondary)
-            Button {
-                combiningVideo = recordings.first
-            } label: {
-                Label("Combine", systemImage: "rectangle.stack.badge.plus")
-            }
-            .buttonStyle(SecondaryButtonStyle(tint: Theme.highlight))
-            .disabled(recordings.isEmpty)
-            .opacity(recordings.isEmpty ? 0.5 : 1)
+    /// A multi-cam session whose two videos are both here but have not been joined yet. The wide
+    /// view is a render, so it is offered rather than made automatically.
+    private var pendingWideView: Recording? {
+        let sessions = Dictionary(grouping: recordings.filter { $0.multiCamSessionID != nil }, by: { $0.multiCamSessionID! })
+        for (_, group) in sessions {
+            guard group.contains(where: { $0.multiCamRecordingRole == .primary }),
+                  !group.contains(where: { $0.multiCamRecordingRole == .stitched }),
+                  let camera = group.first(where: { $0.multiCamRecordingRole == .camera && hasLocalVideo($0) }) else { continue }
+            return camera
         }
-        .labelStyle(.titleAndIcon)
+        return nil
+    }
+
+    /// Two cameras recorded the same session: offer the joined wide view up front, because the
+    /// videos on their own look like two unrelated recordings.
+    private func wideViewBanner(camera: Recording) -> some View {
+        Button { stitching = camera } label: {
+            HStack(spacing: Theme.Space.md) {
+                Image(systemName: "rectangle.split.2x1").font(.title2).foregroundStyle(Theme.brand).frame(width: 34)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Join these two cameras").font(.subheadline.weight(.semibold))
+                    Text("This session recorded two angles. Make one wide video you can zoom around.")
+                        .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.footnote.bold()).foregroundStyle(.tertiary)
+            }
+            .padding(Theme.Space.md)
+            .background(Theme.brand.opacity(0.10), in: RoundedRectangle(cornerRadius: Theme.Radius.medium))
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("project-wide-view-banner")
+    }
+
+    /// Quick filters for the event kinds this project actually contains; several kinds mean "any of these".
+    private var kindFilters: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: Theme.Space.sm) {
+                if !selectedKinds.isEmpty {
+                    Button("Clear", systemImage: "xmark.circle.fill") { selectedKinds.removeAll() }
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .frame(minHeight: 32)
+                        .contentShape(.rect)
+                        .buttonStyle(.plain)
+                        .foregroundStyle(Theme.brand)
+                        .accessibilityIdentifier("filter-clear")
+                }
+                ForEach(availableKinds) { kind in
+                    let selected = selectedKinds.contains(kind.rawValue)
+                    Button {
+                        if selected { selectedKinds.remove(kind.rawValue) } else { selectedKinds.insert(kind.rawValue) }
+                    } label: {
+                        Label(kind.rawValue, systemImage: kind.symbol)
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .frame(minHeight: 32)
+                            .background(selected ? AnyShapeStyle(kind.tint.opacity(0.18)) : AnyShapeStyle(.fill.tertiary), in: .capsule)
+                            .foregroundStyle(selected ? kind.tint : Color.secondary)
+                            .padding(.vertical, 6)
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("filter-kind-\(kind.rawValue)")
+                    .accessibilityAddTraits(selected ? .isSelected : [])
+                }
+            }
+            .padding(.horizontal, 2)
+        }
+        .scrollIndicators(.hidden)
     }
 
     private var emptyState: some View {
@@ -140,25 +219,126 @@ struct ProjectDetailView: View {
             Label("No videos yet", systemImage: "play.rectangle")
         } description: {
             Text("Record a match or import a video from your library. Tag moments, arrange clips and render your video whenever you’re ready.")
+        } actions: {
+            Button("Record video", systemImage: "video.fill") { showingCamera = true }
+                .buttonStyle(.borderedProminent)
+            importVideoButton
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, Theme.Space.xl)
+        .padding(.vertical, Theme.Space.lg)
         .card()
+    }
+
+    private var importVideoButton: some View {
+        Button("Import video", systemImage: "square.and.arrow.down") { showingVideoImport = true }
+            .disabled(isImportingVideo)
+            .accessibilityIdentifier("project-import-video")
+    }
+
+    private var noResultsState: some View {
+        ContentUnavailableView {
+            Label("No matching videos", systemImage: "magnifyingglass")
+        } description: {
+            Text(selectedKinds.isEmpty
+                ? "No video title, note or event matches this search."
+                : "No video matches this search and the selected event types.")
+        } actions: {
+            if !selectedKinds.isEmpty {
+                Button("Clear filters") { selectedKinds.removeAll() }.buttonStyle(.bordered)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Theme.Space.lg)
+        .card()
+    }
+
+    // MARK: Search and filtering
+
+    private var allItems: [ProjectVideoItem] {
+        (recordings.map(ProjectVideoItem.source) + generatedVideos.map(ProjectVideoItem.generated))
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
+    private var isFiltering: Bool {
+        !searchText.trimmingCharacters(in: .whitespaces).isEmpty || !selectedKinds.isEmpty
+    }
+
+    /// Event kinds present in this project, in the order `EventKind` declares them.
+    private var availableKinds: [EventKind] {
+        let present = Set(events.map(\.kind))
+        return EventKind.allCases.filter { present.contains($0.rawValue) }
+    }
+
+    private func filtered(_ items: [ProjectVideoItem]) -> [ProjectVideoItem] {
+        guard isFiltering else { return items }
+        let matching = ProjectVideoFilter.matchingIDs(searchIndexes(items), query: searchText, kinds: selectedKinds)
+        return items.filter { matching.contains($0.id) }
+    }
+
+    /// Builds the per-video search index once per filtered render, never per keystroke character.
+    private func searchIndexes(_ items: [ProjectVideoItem]) -> [VideoSearchIndex] {
+        var eventsByRecording: [UUID: [MatchEvent]] = [:]
+        for event in events {
+            guard let recordingID = event.recordingID else { continue }
+            eventsByRecording[recordingID, default: []].append(event)
+        }
+        return items.map { item in
+            let related: [MatchEvent]
+            switch item {
+            case .source(let video):
+                related = eventsByRecording[video.id] ?? []
+            case .generated(let video):
+                related = (video.libraryClips ?? []).flatMap { clip in
+                    (eventsByRecording[clip.recordingID] ?? []).filter {
+                        $0.offsetSeconds >= clip.startSeconds && $0.offsetSeconds <= clip.endSeconds
+                    }
+                }
+            }
+            return VideoSearchIndex(
+                id: item.id,
+                title: title(for: item),
+                subtitle: subtitle(for: item),
+                eventKinds: related.map(\.kind),
+                eventNotes: related.map(\.note)
+            )
+        }
+    }
+
+    private func title(for item: ProjectVideoItem) -> String {
+        switch item {
+        case .generated(let video): video.name
+        case .source(let video): video.name.isEmpty ? friendlyDate(video.recordedAt) : video.name
+        }
+    }
+
+    private func subtitle(for item: ProjectVideoItem) -> String {
+        switch item {
+        case .generated(let video): friendlyDate(video.createdAt)
+        case .source(let video):
+            switch video.multiCamRecordingRole {
+            case .camera: "Second camera · \(video.multiCamDeviceName)"
+            case .program: "Live cut · 720p"
+            case .stitched: "Wide view from two cameras"
+            case .primary: "Main camera"
+            case nil:
+                video.name.isEmpty
+                    ? (video.endedReason == "imported" ? "Imported video" : "Recorded with Camelot")
+                    : friendlyDate(video.recordedAt)
+            }
+        }
     }
 
     // MARK: Video sections
 
-    private func videoSection(title: String, items: [ProjectVideoItem], layout: LayoutMetrics) -> some View {
+    private func videoSection(items: [ProjectVideoItem], layout: LayoutMetrics) -> some View {
         VStack(alignment: .leading, spacing: Theme.Space.md) {
-            SectionTitle(title) {
-                Text("\(items.count)").font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
-            }
-            if layout.gridColumns > 1 {
+            // Big cards need height: on a short window (phone landscape) the compact rows show more videos.
+            if layout.gridColumns > 1 && !layout.isShort {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Theme.Space.md), count: layout.gridColumns), spacing: Theme.Space.md) {
                     ForEach(items) { item in videoCell(item, style: .card) }
                 }
             } else {
-                VStack(spacing: 0) {
+                LazyVStack(spacing: 0) {
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                         videoCell(item, style: .row)
                         if index < items.count - 1 { Divider().padding(.leading, 112) }
@@ -177,8 +357,8 @@ struct ProjectDetailView: View {
                 let stats = compositionStats(video)
                 VideoLibraryCell(
                     style: style,
-                    title: video.name,
-                    subtitle: friendlyDate(video.createdAt),
+                    title: title(for: item),
+                    subtitle: subtitle(for: item),
                     duration: stats.duration,
                     eventCount: stats.eventCount,
                     thumbnailURL: stats.thumbnailURL,
@@ -190,8 +370,8 @@ struct ProjectDetailView: View {
             case .source(let video):
                 VideoLibraryCell(
                     style: style,
-                    title: video.name.isEmpty ? friendlyDate(video.recordedAt) : video.name,
-                    subtitle: video.name.isEmpty ? (video.endedReason == "imported" ? "Imported video" : "Recorded with Camelot") : friendlyDate(video.recordedAt),
+                    title: title(for: item),
+                    subtitle: subtitle(for: item),
                     duration: video.duration,
                     eventCount: eventCount(for: video),
                     thumbnailURL: hasLocalVideo(video) ? video.fileURL : video.remoteMediaURL,
@@ -206,6 +386,9 @@ struct ProjectDetailView: View {
         .accessibilityIdentifier(item.id)
         .contextMenu {
             Button("Open", systemImage: "play.fill") { open(item) }
+            if case .source(let video) = item, video.multiCamRecordingRole == .camera, hasLocalVideo(video) {
+                Button("Create wide view", systemImage: "rectangle.split.2x1") { stitching = video }
+            }
             Button("Delete", systemImage: "trash", role: .destructive) { deletionTarget = item }
         }
         if isUnavailable(item) {
@@ -223,7 +406,7 @@ struct ProjectDetailView: View {
         case .source(let video): return !hasLocalVideo(video) && video.remoteMediaURL == nil
         case .generated(let video):
             guard CompositionRenderer.existingExportURL(id: video.id) == nil, video.remoteMediaURL == nil else { return false }
-            guard let clips = video.decodedClips, !clips.isEmpty else { return true }
+            guard let clips = video.libraryClips, !clips.isEmpty else { return true }
             return !clips.allSatisfy { clip in recordings.contains { $0.id == clip.recordingID && hasLocalVideo($0) } }
         }
     }
@@ -231,7 +414,7 @@ struct ProjectDetailView: View {
     private func open(_ item: ProjectVideoItem) {
         switch item {
         case .generated(let video):
-            if let clips = video.decodedClips, !clips.isEmpty,
+            if let clips = video.libraryClips, !clips.isEmpty,
                clips.allSatisfy({ clip in recordings.contains { $0.id == clip.recordingID && hasLocalVideo($0) } }) {
                 editingComposition = video
             } else { viewingGeneratedVideo = video }
@@ -265,8 +448,7 @@ struct ProjectDetailView: View {
     }
 
     private func compositionUses(_ composition: VideoComposition, recordingID: UUID) -> Bool {
-        guard let data = composition.clipManifest.data(using: .utf8),
-              let clips = try? JSONDecoder().decode([CompositionClip].self, from: data) else { return false }
+        guard let clips = composition.libraryClips else { return false }
         return clips.contains { $0.recordingID == recordingID }
     }
 
@@ -320,8 +502,7 @@ struct ProjectDetailView: View {
     }
 
     private func compositionStats(_ video: VideoComposition) -> (duration: Double, eventCount: Int, clipCount: Int, thumbnailURL: URL?, thumbnailSeconds: Double) {
-        guard let data = video.clipManifest.data(using: .utf8),
-              let clips = try? JSONDecoder().decode([CompositionClip].self, from: data) else { return (0, 0, 0, nil, 0) }
+        guard let clips = video.libraryClips else { return (0, 0, 0, nil, 0) }
         let duration = clips.reduce(0) {
             $0 + $1.playbackDuration
         }

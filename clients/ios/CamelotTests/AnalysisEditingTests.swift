@@ -31,7 +31,10 @@ final class AnalysisEditingTests: XCTestCase {
         try XCTSkipIf(!FileManager.default.fileExists(atPath: url.path()), "Stress-test recording unavailable")
         let detections = try await AnalysisEngine.analyze(url: url, range: 6.6...6.7) { _ in }
         let seed = try XCTUnwrap(detections.frames.first?.detections.filter { $0.rect.contains(CGPoint(x: 0.444, y: 0.53)) }.min { $0.rect.width * $0.rect.height < $1.rect.width * $1.rect.height }?.rect)
+        PlayerTrackingLimits.trace = { line in print("  CROSSING_TRACE \(line)") }
+        defer { PlayerTrackingLimits.trace = nil }
         let motion = try await SelectedPlayerTracking.track(url: url, seed: seed, from: 6.6, to: 12.7) { _ in }
+        for sample in motion.samples where Int(sample.time * 10) % 5 == 0 { print(String(format: "  CROSSING_BOX t=%.2f x=%.3f y=%.3f w=%.3f h=%.3f", sample.time, sample.box.minX, sample.box.minY, sample.box.width, sample.box.height)) }
         print("CROSSING_FOLLOW seed=\(seed) lost=\(String(describing: motion.lostAt)) final=\(String(describing: motion.samples.last))")
         // At the end the blue shirt is left of the white one. Either follow the
         // blue player or report loss; never confidently attach to the white one.
@@ -40,6 +43,28 @@ final class AnalysisEditingTests: XCTestCase {
             XCTAssertEqual(box.maxY, 708.0 / 1080, accuracy: 0.035)
         } else { XCTAssertNotNil(motion.lostAt) }
         #endif
+    }
+
+    @MainActor
+    func testWhiteDefenderKeepsIdentityThroughBlueAndWhiteCrossing() async throws {
+        let url = URL.documentsDirectory.appending(path: "Recordings/EBB12192-62DB-495B-A6CE-218F0C420A74.mov")
+        try XCTSkipIf(!FileManager.default.fileExists(atPath: url.path()), "Run on the fixture phone")
+        let detections = try await AnalysisEngine.analyze(url: url, range: 9...9.1) { _ in }
+        let point = CGPoint(x: 0.569, y: 0.762)
+        let seed = try XCTUnwrap(detections.frames.first?.detections.filter { $0.rect.contains(point) }
+            .min { $0.rect.width * $0.rect.height < $1.rect.width * $1.rect.height }?.rect)
+        var motion = try await SelectedPlayerTracking.track(url: url, seed: seed, from: 9, to: 10.3) { _ in }
+        XCTAssertGreaterThan(motion.samples.count, 3, "The test must establish actual motion")
+        motion.trackID = UUID()
+        var clip = CompositionClip(recordingID: UUID(), startSeconds: 9, endSeconds: 10.3)
+        clip.storePlayerTrack(motion)
+        let stored = try XCTUnwrap(clip.trackingLibrary?.players.first?.motion)
+        for (time, x, feet) in [(9.8, 0.564, 0.854), (10.0, 0.572, 0.846)] {
+            if let box = stored.box(at: time) {
+                XCTAssertEqual(box.midX, x, accuracy: 0.025, "This is the white defender, not the blue carrier or the other white defender")
+                XCTAssertEqual(box.maxY, feet, accuracy: 0.04)
+            } else { XCTAssertTrue(stored.isMissing(at: time)) }
+        }
     }
 
     @MainActor
@@ -52,7 +77,9 @@ final class AnalysisEditingTests: XCTestCase {
         print("LEARNED_CROSSING seed=\(seed) lost=\(String(describing: motion.lostAt)) recoveries=\(motion.recoveryCount ?? 0) last=\(String(describing: motion.samples.last))")
         XCTAssertTrue(motion.jerseyProfile?.isConfirmed == true)
         XCTAssertGreaterThan(motion.recoveryCount ?? 0, 0)
-        for gap in motion.gaps ?? [] { XCTAssertNil(motion.box(at: (gap.lowerBound + gap.upperBound) / 2)) }
+        print("LEARNED_CROSSING gaps=\(motion.gaps ?? []) bridging=\(String(describing: motion.gapBridging))")
+        // Gaps within the short display bridge are interpolated by design; longer ones stay hidden.
+        for gap in motion.gaps ?? [] where gap.upperBound - gap.lowerBound > 0.4 { XCTAssertNil(motion.box(at: (gap.lowerBound + gap.upperBound) / 2)) }
         var ring = AnalysisAnnotation(tool: .player, points: [seed.origin, .init(x: seed.maxX, y: seed.maxY)], start: 3, end: 12.7)
         ring.playerMotion = motion; ring.effect = .radar
         var label = AnalysisAnnotation(tool: .text, points: [.init(x: seed.midX, y: seed.minY - 0.025)], text: "BLUE PLAYER", start: 3, end: 12.7)
@@ -122,9 +149,11 @@ final class AnalysisEditingTests: XCTestCase {
             generator.requestedTimeToleranceBefore = .zero; generator.requestedTimeToleranceAfter = .zero
             for sourceTime in [5.0, 7.0, 9.0] {
                 let image = try await generator.image(at: CMTime(seconds: sourceTime - 3, preferredTimescale: 600)).image
-                let box = try XCTUnwrap(motion.box(at: sourceTime))
-                // Search a small neighbourhood of the left edge of the ring.
-                let x = box.midX - box.width * 0.7, y = box.maxY
+                let box = try XCTUnwrap(motion.effectBodyBox(at: sourceTime))
+                let feet = try XCTUnwrap(motion.groundPoint(at: sourceTime))
+                // The ring uses stable body proportions, not stride-dependent
+                // detector width. Ground-truth identity checks above stay intact.
+                let x = feet.x - box.width * 0.7, y = feet.y
                 let hasRing = (-4...4).contains { dx in
                     (-4...4).contains { dy in
                         let rgb = pixel(image, x: x + Double(dx) / Double(image.width), y: y + Double(dy) / Double(image.height))

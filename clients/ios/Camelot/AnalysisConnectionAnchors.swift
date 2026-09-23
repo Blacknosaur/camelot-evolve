@@ -10,6 +10,37 @@ struct AnalysisConnectionAnchor: Identifiable {
     var title: String { "\(id + 1) · \(name)" }
 }
 
+/// Every endpoint is visible and addressable without opening a nested menu.
+struct AnalysisConnectionSelectionStrip: View {
+    let anchors: [AnalysisConnectionAnchor]
+    let selected: Int?
+    let select: (Int) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 6) {
+                ForEach(anchors) { anchor in
+                    Button { select(anchor.id) } label: {
+                        HStack(spacing: 6) {
+                            Text("\(anchor.id + 1)").font(.caption.bold())
+                                .frame(width: 24, height: 24).background(.white.opacity(0.08), in: .circle)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(anchor.name).font(.caption.bold()).lineLimit(1)
+                                Label(anchor.isMissing ? "Needs correction" : "Tracked", systemImage: anchor.isMissing ? "exclamationmark.circle" : "checkmark.circle")
+                                    .font(.system(size: 9))
+                            }
+                        }.padding(.horizontal, 8).frame(height: 44)
+                            .foregroundStyle(anchor.isMissing ? .orange : Theme.signal)
+                            .background(.white.opacity(selected == anchor.id ? 0.12 : 0.04), in: .rect(cornerRadius: 8))
+                    }.buttonStyle(.plain).accessibilityLabel("Correct \(anchor.title), \(anchor.isMissing ? "needs correction" : "tracked")")
+                        .accessibilityIdentifier("analysis-correct-anchor-\(anchor.id)")
+                }
+            }.padding(.horizontal, 8)
+        }.scrollIndicators(.hidden).background(Theme.inkPanel)
+            .accessibilityIdentifier("analysis-connection-players")
+    }
+}
+
 extension AnalysisAnnotation {
     func connectionAnchors(at time: Double, library: AnalysisTrackingLibrary?) -> [AnalysisConnectionAnchor] {
         (linkedPlayers ?? []).enumerated().map { index, motion in

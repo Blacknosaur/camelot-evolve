@@ -241,15 +241,18 @@ final class SportsPlayerDetector {
         self.request = request
     }
 
-    func playerBoxes(in buffer: CVPixelBuffer, orientation: CGImagePropertyOrientation) throws -> [CGRect] {
+    func playerBoxes(in buffer: CVPixelBuffer, orientation: CGImagePropertyOrientation, region: CGRect? = nil,
+                     minimumConfidence: Float = 0.22) throws -> [CGRect] {
         let handler = VNImageRequestHandler(cvPixelBuffer: buffer, orientation: orientation)
-        let regions = [CGRect(x: 0, y: 0, width: 0.6, height: 1), CGRect(x: 0.4, y: 0, width: 0.6, height: 1)]
+        // Callers use top-left image coordinates; Vision ROI is bottom-left.
+        let regions = region.map { [CGRect(x: $0.minX, y: 1 - $0.maxY, width: $0.width, height: $0.height)] }
+            ?? [CGRect(x: 0, y: 0, width: 0.6, height: 1), CGRect(x: 0.4, y: 0, width: 0.6, height: 1)]
         var boxes: [(CGRect, Float)] = []
         for region in regions {
             request.regionOfInterest = region
             try handler.perform([request])
             boxes += decode(request).compactMap { detection in
-                guard detection.label == 2, detection.confidence >= 0.22 else { return nil }
+                guard detection.label == 2, detection.confidence >= minimumConfidence else { return nil }
                 let visionBox = CGRect(
                     x: region.minX + detection.box.minX * region.width,
                     y: region.minY + detection.box.minY * region.height,

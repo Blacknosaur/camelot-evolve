@@ -1,0 +1,31 @@
+.pj { min-height: 100%; padding-bottom: var(--space-xl); }
+.pj-search { display: flex; align-items: center; gap: 8px; min-height: 40px; margin-top: var(--space-sm); padding: 0 12px; border-radius: var(--radius-sm); background: var(--fill-tertiary); color: var(--fg-secondary); }
+.pj-search svg { width: 16px; height: 16px; flex: none; }
+.pj-search-input { flex: 1; min-width: 0; border: 0; background: none; color: var(--fg); font-size: 17px; outline: none; -webkit-appearance: none; appearance: none; }
+.pj-search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.pj-loading { display: flex; justify-content: center; padding: 48px; color: var(--fg-secondary); }
+.pj-empty-action { width: auto; min-height: 44px; margin-top: 8px; padding: 0 20px; font-size: 15px; }
+
+.pj-list { display: flex; flex-direction: column; gap: 10px; padding: var(--space-sm) var(--space-lg); }
+.pj-row-card { display: flex; align-items: center; padding-right: 4px; }
+.pj-row { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-md); padding: 10px var(--space-md); color: inherit; text-decoration: none; }
+.pj-row:active { background: var(--fill-tertiary); }
+.pj-row-thumb { width: 96px; height: 60px; }
+.pj-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.pj-name { font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pj-subtitle { font-size: 15px; color: var(--fg-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pj-card .pj-subtitle { font-size: 14px; }
+.pj-meta { display: flex; gap: var(--space-md); flex-wrap: wrap; }
+.pj-sync { color: var(--warning); display: inline-flex; }
+.pj-sync svg { width: 20px; height: 20px; }
+.pj-chevron { width: 14px; height: 14px; color: var(--fg-tertiary); flex: none; }
+.pj-menu { color: var(--fg-secondary); }
+
+.pj-grid { display: grid; gap: var(--space-lg); padding: var(--space-sm) var(--space-lg); }
+.pj-card { position: relative; display: flex; flex-direction: column; }
+.pj-card-link { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
+.pj-card-link:hover .pj-name { color: var(--brand); }
+.pj-card-thumb { aspect-ratio: 16 / 9; width: 100%; border-radius: 0; }
+.pj-card-body { display: flex; flex-direction: column; gap: 6px; padding: var(--space-md); }
+.pj-card-menu { position: absolute; right: 4px; bottom: 4px; }
+.pj-card-menu .ds-menu-trigger { color: var(--fg-secondary); }

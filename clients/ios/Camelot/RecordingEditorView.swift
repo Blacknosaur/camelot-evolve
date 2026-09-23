@@ -352,10 +352,13 @@ struct RecordingEditorView: View {
     private var bottomActions: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 6) {
-                Button { openAnalysis(.video) } label: { Label("Analyse", systemImage: "scope") }
-                    .accessibilityIdentifier("open-video-analysis")
-                Button { openAnalysis(.freezeFrame) } label: { Label("Freeze & analyse", systemImage: "pause.rectangle") }
-                    .accessibilityIdentifier("open-freeze-analysis")
+                Menu {
+                    Button("Live video", systemImage: "play.rectangle") { openAnalysis(.video) }
+                        .accessibilityIdentifier("open-video-analysis")
+                    Button("Freeze frame", systemImage: "pause.rectangle") { openAnalysis(.freezeFrame) }
+                        .accessibilityIdentifier("open-freeze-analysis")
+                } label: { Label("Analyse", systemImage: "scope") }
+                    .accessibilityIdentifier("open-analysis")
                 Divider().frame(height: 24).overlay(.white.opacity(0.12))
                 Button { beginClipTrim() } label: { Label("Trim", systemImage: "scissors") }
                     .disabled(selectedClip?.freezeDuration != nil)
@@ -1247,7 +1250,7 @@ final class EditorPlayback {
     private var lastPreviewAt = 0.0
     private var lastPreviewSeconds = -1.0
     private var seekGeneration = 0
-    private var isSeeking = false
+    private(set) var isSeeking = false
     private var pendingSeek: (seconds: Double, tolerance: Double)?
     private var resumeAfterSeek = false
     var errorMessage: String?
@@ -1510,10 +1513,4 @@ private struct EventEditorSheet: View {
         }
         dismiss()
     }
-}
-
-
-func timecode(_ seconds: Double) -> String {
-    let total = max(0, Int(seconds.isFinite ? seconds : 0))
-    return "\(total / 60):\(String(format: "%02d", total % 60))"
 }

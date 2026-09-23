@@ -19,6 +19,9 @@ struct GroundCalibration: Codable, Equatable, Sendable {
     var imageAspectRatio: Double
     var fixedCamera: Bool = false
     var cameraMotion: AnnotationCameraMotion? = nil
+    var fieldReference: GroundFieldReference? = nil
+    var lineReferences: [GroundLineObservation]? = nil
+    var circleReference: GroundCircleReference? = nil
 
     init(mode: Mode, points: [CGPoint], lengthMeters: Double, widthMeters: Double = 0,
          referenceTime: Double, imageAspectRatio: Double, fixedCamera: Bool = false,
@@ -40,6 +43,9 @@ struct GroundCalibration: Codable, Equatable, Sendable {
         imageAspectRatio = try c.decodeIfPresent(Double.self, forKey: .imageAspectRatio) ?? 1
         fixedCamera = try c.decodeIfPresent(Bool.self, forKey: .fixedCamera) ?? false
         cameraMotion = try c.decodeIfPresent(AnnotationCameraMotion.self, forKey: .cameraMotion)
+        fieldReference = try c.decodeIfPresent(GroundFieldReference.self, forKey: .fieldReference)
+        lineReferences = try c.decodeIfPresent([GroundLineObservation].self, forKey: .lineReferences)
+        circleReference = try c.decodeIfPresent(GroundCircleReference.self, forKey: .circleReference)
     }
 
     var valid: Bool {
@@ -66,6 +72,11 @@ struct GroundCalibration: Codable, Equatable, Sendable {
         guard mapped.count == points.count else { return nil }
         var result = self
         result.points = mapped; result.referenceTime = time
+        result.circleReference = circleReference?.transformed(by: camera)
+        if let lines = lineReferences {
+            let moved = lines.map { GroundLineObservation(kind: $0.kind, points: $0.points.compactMap { camera.point($0) }) }
+            result.lineReferences = moved.allSatisfy { $0.points.count == 2 } ? moved : nil
+        }
         result.fixedCamera = true; result.cameraMotion = nil
         return result.valid ? result : nil
     }
@@ -113,7 +124,7 @@ struct GroundCalibration: Codable, Equatable, Sendable {
     }
 
     func speed(of motion: PlayerMotion, at time: Double) -> Double? {
-        guard valid, time.isFinite else { return nil }
+        guard valid, time.isFinite, !motion.isMissing(at: time) else { return nil }
         let samples = motion.samples
         guard !samples.isEmpty else { return nil }
         func lowerBound(_ value: Double) -> Int {
@@ -144,7 +155,11 @@ struct GroundCalibration: Codable, Equatable, Sendable {
         let count = min(21, max(2, Int(ceil((upper - lower) / 0.03)) + 1))
         for index in 0..<count {
             let sampleTime = lower + (upper - lower) * Double(index) / Double(count - 1)
-            guard let box = motion.box(at: sampleTime), let world = worldPoint(CGPoint(x: box.midX, y: box.maxY), at: sampleTime) else { return nil }
+            // A cropped box ends at the image edge, not at the player's feet.
+            // Full-body display estimates cannot be reported as measured speed.
+            guard !motion.isMissing(at: sampleTime), let box = motion.box(at: sampleTime),
+                  !PlayerPresence.leftFrame(box),
+                  let world = worldPoint(CGPoint(x: box.midX, y: box.maxY), at: sampleTime) else { return nil }
             values.append((sampleTime, world))
         }
         guard values.count >= 2 else { return nil }
@@ -182,17 +197,14 @@ struct GroundCalibration: Codable, Equatable, Sendable {
         return finite(CGPoint(x: CGFloat(mapped.x / mapped.z), y: CGFloat(mapped.y / mapped.z)))
     }
 
-    private func cameraTransform(at time: Double) -> CameraTransform? {
+    func cameraTransform(at time: Double) -> CameraTransform? {
         guard time.isFinite else { return nil }
         if fixedCamera { return .identity }
         guard var motion = cameraMotion else {
             return abs(time - referenceTime) <= 0.12 ? .identity : nil
         }
-        guard let first = motion.samples.first, let last = motion.samples.last,
-              time >= first.time, time <= last.time,
-              referenceTime >= first.time, referenceTime <= last.time,
-              motion.lostAt.map({ referenceTime < $0 }) ?? true,
-              motion.lostAt.map({ time < $0 }) ?? true else { return nil }
+        // Use the same source-frame boundary tolerance and failure rules as
+        // drawings; a field reference may be authored anywhere within the clip.
         motion.referenceTime = referenceTime
         return motion.transform(at: time)
     }

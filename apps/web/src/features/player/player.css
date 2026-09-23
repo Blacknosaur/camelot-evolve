@@ -1,0 +1,26 @@
+/* Recording and composition players. Always dark. */
+.pl-root { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--ink); color: var(--fg); overflow: hidden; }
+.pl-header { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 6px; border-bottom: 1px solid var(--ink-stroke); flex: none; }
+.pl-header h1 { flex: 1; margin: 0; font-size: 15px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.pl-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pl-body[data-landscape] { flex-direction: row; }
+.pl-stage { position: relative; background: #000; flex: 1; min-height: 0; min-width: 0; }
+.pl-body:not([data-landscape]) .pl-stage { flex: none; aspect-ratio: var(--stage-ratio, 16 / 9); max-height: 60%; }
+.pl-panel { display: flex; flex-direction: column; gap: 12px; padding: 12px 16px 24px; overflow-y: auto; min-height: 0; flex: 1; }
+.pl-body[data-landscape] .pl-panel { flex: none; width: 340px; border-left: 1px solid var(--ink-stroke); }
+.pl-scrub { display: flex; align-items: center; gap: 10px; }
+.pl-scrub input[type="range"] { flex: 1; accent-color: var(--signal); }
+.pl-events { display: flex; flex-direction: column; gap: 8px; }
+.pl-events-bar { position: relative; height: 14px; border-radius: 7px; background: rgb(255 255 255 / 0.08); overflow: hidden; }
+.pl-events-bar span { position: absolute; top: 2px; bottom: 2px; border-radius: 4px; background: var(--tint); opacity: 0.75; }
+.pl-events-bar i { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--signal); }
+.pl-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.pl-chips::-webkit-scrollbar { display: none; }
+.pl-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid color-mix(in srgb, var(--tint) 40%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--tint) 12%, transparent); color: #fff; font-size: 13px; white-space: nowrap; flex: none; }
+.pl-chip[data-active] { background: var(--tint); color: #000; }
+.pl-chip svg { width: 14px; height: 14px; color: var(--tint); }
+.pl-chip[data-active] svg { color: #000; }
+.pl-stats { display: flex; gap: 8px; }
+.pl-actions { display: flex; flex-direction: column; gap: 8px; }
+.pl-footnote { margin: 0; font-size: 13px; color: var(--fg-secondary); }
+.pl-empty { flex: 1; display: flex; align-items: center; justify-content: center; }

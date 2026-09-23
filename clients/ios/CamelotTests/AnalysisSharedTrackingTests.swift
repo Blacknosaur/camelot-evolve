@@ -131,6 +131,26 @@ final class AnalysisSharedTrackingTests: XCTestCase {
         XCTAssertEqual(clip.trackingLibrary?.players.count, 2)
     }
 
+    /// New effects cover the whole clip, not a window from the playhead.
+    /// Extending every effect by hand was the common case; trimming one that
+    /// runs long is the easier edit, and an effect is hidden anyway wherever
+    /// its player is not tracked.
+    func testNewPlayerEffectsCoverTheWholeClip() throws {
+        let source = motion(), box = try XCTUnwrap(source.box(at: 1))
+        var clip = CompositionClip(recordingID: UUID(), startSeconds: 0, endSeconds: 4)
+        clip.storePlayerTrack(source)
+        var options = AnalysisPlayerEffects(name: "Player 1")
+        options.spotlight = true; options.label = true
+        // Added from the middle of the clip: the effect must still start at the
+        // beginning and run to the end.
+        _ = clip.applyPlayerEffects(options, replacing: [], box: box, motion: source, at: 2)
+        XCTAssertFalse(clip.annotations.isEmpty)
+        for mark in clip.annotations {
+            XCTAssertEqual(mark.start, clip.startSeconds, accuracy: 0.001, "\(mark.tool) should start at the clip start")
+            XCTAssertEqual(mark.end, clip.annotationEnd, accuracy: 0.001, "\(mark.tool) should run to the clip end")
+        }
+    }
+
     func testUnifiedPlayerOptionsReuseMotionAndPreserveLayerEdits() throws {
         let source = motion(), box = try XCTUnwrap(source.box(at: 1))
         var clip = CompositionClip(recordingID: UUID(), startSeconds: 0, endSeconds: 4)

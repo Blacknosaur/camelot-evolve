@@ -9,15 +9,19 @@ struct MainTabView: View {
         TabView {
             ProjectsView(appState: appState)
                 .tabItem { Label("Projects", systemImage: "rectangle.stack.fill") }
+            TacticalBoardsView()
+                .tabItem { Label("Boards", systemImage: "sportscourt.fill") }
+            SquadView()
+                .tabItem { Label("Squad", systemImage: "person.3.fill") }
             SettingsView(appState: appState)
                 .tabItem { Label("Account", systemImage: "person.crop.circle") }
         }
         .tint(Theme.brand)
         .task(id: appState.organizationID) {
-            #if DEBUG
             // Hosted unit tests own their fixtures. Do not recover or sync those
             // transient files into the user's library while tests are running.
             if NSClassFromString("XCTestCase") != nil { return }
+            #if DEBUG
             await DebugSeeding.seedIfRequested(modelContext: modelContext)
             #endif
             await RecordingRecovery.recover(modelContext: modelContext)

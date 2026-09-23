@@ -1,6 +1,16 @@
 import SwiftUI
 
-/// One shared time axis, with a fixed name column and a separate track for every
+struct AnalysisTimelineViewport {
+    static func visibleStart(time: Double, bounds: ClosedRange<Double>, span: Double) -> Double {
+        let duration = max(0, bounds.upperBound - bounds.lowerBound)
+        let visibleSpan = min(duration, max(0, span))
+        let latestStart = max(bounds.lowerBound, bounds.upperBound - visibleSpan)
+        return min(latestStart, max(bounds.lowerBound, time - visibleSpan / 2))
+    }
+}
+
+
+/// One shared time axis, with a separate track for every
 /// drawing. The horizontal viewport belongs to the whole stack, never each row.
 struct AnalysisLayerTimeline: View {
     let annotations: [AnalysisAnnotation]
@@ -17,7 +27,11 @@ struct AnalysisLayerTimeline: View {
     let toggleHidden: (UUID) -> Void
     let toggleLocked: (UUID) -> Void
     let reorder: (UUID, Int) -> Void
-    @State private var zoom: CGFloat = 1
+    var videoURL: URL? = nil
+    var freezeTime: Double? = nil
+    var undo: (() -> Void)? = nil
+    var redo: (() -> Void)? = nil
+    @Binding var zoom: CGFloat
     @State private var panStart: Double?
     @State private var pinchStart: Double?
     @GestureState private var isMagnifying = false
@@ -35,8 +49,6 @@ struct AnalysisLayerTimeline: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                Text("LAYERS").font(.caption2.bold()).tracking(1.4)
-                Text("\(annotations.count)").font(.caption2).foregroundStyle(.secondary)
                 Spacer()
                 Text("\(Double(zoom).formatted(.number.precision(.fractionLength(1))))×").font(.caption2.monospacedDigit())
                     .accessibilityIdentifier("analysis-timeline-scale")
@@ -46,15 +58,9 @@ struct AnalysisLayerTimeline: View {
                 Button("Zoom in timeline", systemImage: "plus.magnifyingglass") { setZoom(zoom * 2) }.disabled(zoom >= maxZoom).accessibilityIdentifier("analysis-timeline-zoom-in")
             }.labelStyle(.iconOnly).buttonStyle(AnalysisControlStyle()).padding(.horizontal, 8).padding(.vertical, 4)
             GeometryReader { geometry in
-                let names = min(108.0, geometry.size.width * 0.27)
-                let viewport = max(64, geometry.size.width - names - edgeInset * 2)
+                let viewport = max(64, geometry.size.width - edgeInset * 2)
                 let scale = viewport / max(0.01, span)
                 ScrollView(.vertical) {
-                    HStack(alignment: .top, spacing: 0) {
-                        VStack(spacing: 0) {
-                            Text("DRAWING").font(.system(size: 9, weight: .medium)).foregroundStyle(.secondary).frame(height: 30)
-                            ForEach(rows) { mark in nameCell(mark).frame(height: 48) }
-                        }.frame(width: names).background(Color.white.opacity(0.025))
                         VStack(spacing: 0) {
                             ruler(width: viewport, scale: scale)
                             ForEach(rows) { mark in
@@ -64,6 +70,12 @@ struct AnalysisLayerTimeline: View {
                                                    dragging: { rowDragging = $0 },
                                                    pan: { delta, finished in panTimeline(delta / scale, finished: finished) })
                                     .frame(height: 48)
+                                    .contextMenu {
+                                        Button(mark.isHidden == true ? "Show layer" : "Hide layer", systemImage: "eye") { toggleHidden(mark.id) }
+                                        Button(mark.isLocked == true ? "Unlock layer" : "Lock layer", systemImage: "lock") { toggleLocked(mark.id) }
+                                        Button("Bring forward", systemImage: "arrow.up") { reorder(mark.id, 1) }
+                                        Button("Send backward", systemImage: "arrow.down") { reorder(mark.id, -1) }
+                                    }
                             }
                             Color.clear.frame(height: max(44, geometry.size.height - 30 - CGFloat(rows.count * 48)))
                                 .contentShape(.rect)
@@ -82,9 +94,8 @@ struct AnalysisLayerTimeline: View {
                                     .allowsHitTesting(false)
                                     .accessibilityLabel("Playhead").accessibilityIdentifier("analysis-playhead")
                             }
-                            .padding(.horizontal, edgeInset)
                             .clipped()
-                    }
+                            .padding(.horizontal, edgeInset)
                 }.scrollDisabled(rowDragging || panStart != nil || rulerStart != nil)
             }
         }.background(Theme.inkTimeline)
@@ -123,27 +134,6 @@ struct AnalysisLayerTimeline: View {
             seek(next)
             panStart = nil
         }
-    }
-
-    private func nameCell(_ mark: AnalysisAnnotation) -> some View {
-        HStack(spacing: 6) {
-            Button { select(mark.id, nil) } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: mark.isLocked == true ? "lock.fill" : mark.tool.symbol).font(.caption2)
-                    Text(mark.title).font(.caption2).lineLimit(1)
-                }.frame(maxWidth: .infinity, alignment: .leading).contentShape(.rect)
-            }.buttonStyle(.plain).accessibilityIdentifier("analysis-layer-\(mark.id)")
-            Button(mark.isHidden == true ? "Show layer" : "Hide layer", systemImage: mark.isHidden == true ? "eye.slash" : "eye") { toggleHidden(mark.id) }
-                .labelStyle(.iconOnly).font(.system(size: 11)).buttonStyle(.plain)
-        }.padding(.horizontal, 8).frame(maxHeight: .infinity)
-            .foregroundStyle(mark.id == selectedID ? Theme.signal : .white.opacity(mark.isHidden == true ? 0.35 : 0.8))
-            .background(mark.id == selectedID ? Theme.signal.opacity(0.08) : .clear)
-            .overlay(alignment: .bottom) { Color.white.opacity(0.07).frame(height: 1) }
-            .contextMenu {
-                Button(mark.isLocked == true ? "Unlock layer" : "Lock layer", systemImage: "lock") { toggleLocked(mark.id) }
-                Button("Bring forward", systemImage: "arrow.up") { reorder(mark.id, 1) }
-                Button("Send backward", systemImage: "arrow.down") { reorder(mark.id, -1) }
-            }
     }
 
     private func ruler(width: CGFloat, scale: CGFloat) -> some View {
@@ -192,7 +182,7 @@ struct AnalysisLayerTimeline: View {
     }
 }
 
-private struct AnalysisLayerTrack: View {
+struct AnalysisLayerTrack: View {
     let mark: AnalysisAnnotation
     let bounds: ClosedRange<Double>
     let visibleStart: Double
@@ -213,14 +203,21 @@ private struct AnalysisLayerTrack: View {
     private enum DragTarget { case layer, start, end, keyframe(UUID), pan }
 
     private var tint: Color { Color(red: mark.color.red, green: mark.color.green, blue: mark.color.blue) }
-    private var frames: [AnnotationKeyframe] { mark.keyframes.filter { $0.time >= mark.start && $0.time <= mark.end } }
+    private var frames: [AnnotationKeyframe] {
+        mark.keyframes.filter { $0.time >= max(mark.start, bounds.lowerBound) && $0.time <= min(mark.end, bounds.upperBound) }
+    }
 
     var body: some View {
-        let x = (mark.start - visibleStart) * scale
-        let width = max(3, (min(bounds.upperBound, mark.end) - max(bounds.lowerBound, mark.start)) * scale)
-        ZStack(alignment: .leading) {
-            Color.white.opacity(selected ? 0.055 : 0.018)
-                .onTapGesture { location in select(mark.id, visibleStart + location.x / scale) }
+        let clippedStart = max(bounds.lowerBound, min(bounds.upperBound, mark.start))
+        let clippedEnd = max(clippedStart, min(bounds.upperBound, mark.end))
+        let x = (clippedStart - visibleStart) * scale
+        let width = max(3, (clippedEnd - clippedStart) * scale)
+        // The row owns layout. A zoomed bar can be wider than the viewport;
+        // keeping it in an overlay prevents it from shifting the row's origin.
+        Color.white.opacity(selected ? 0.055 : 0.018)
+            .onTapGesture { location in select(mark.id, visibleStart + location.x / scale) }
+            .overlay(alignment: .leading) {
+            ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 5).fill(tint.opacity(mark.isHidden == true ? 0.10 : selected ? 0.36 : 0.18))
                 .overlay { RoundedRectangle(cornerRadius: 5).strokeBorder(tint.opacity(selected ? 1 : 0.4), lineWidth: selected ? 1.5 : 1) }
                 .overlay(alignment: .topLeading) {
@@ -235,18 +232,18 @@ private struct AnalysisLayerTrack: View {
                 .accessibilityIdentifier("analysis-layer-bar-\(mark.id)")
             if mark.motionMode == .player || mark.motionMode == .camera {
                 Canvas { context, size in
-                    let start = mark.trackedSpan?.lowerBound ?? mark.start
-                    let end = mark.trackedSpan?.upperBound ?? mark.start
+                    let start = max(clippedStart, min(clippedEnd, mark.trackedSpan?.lowerBound ?? clippedStart))
+                    let end = max(start, min(clippedEnd, mark.trackedSpan?.upperBound ?? clippedStart))
                     let rect = CGRect(x: (start - visibleStart) * scale, y: 32, width: max(0, (end - start) * scale), height: 3)
                     context.fill(Path(rect), with: .color(.cyan))
-                    if start > mark.start + 0.05 {
-                        context.fill(Path(CGRect(x: (mark.start - visibleStart) * scale, y: 32, width: (min(mark.end, start) - mark.start) * scale, height: 3)), with: .color(.orange))
+                    if start > clippedStart + 0.05 {
+                        context.fill(Path(CGRect(x: (clippedStart - visibleStart) * scale, y: 32, width: (start - clippedStart) * scale, height: 3)), with: .color(.orange))
                     }
-                    if end < mark.end - 0.12 {
-                        context.fill(Path(CGRect(x: (end - visibleStart) * scale, y: 32, width: (mark.end - end) * scale, height: 3)), with: .color(.orange))
+                    if end < clippedEnd - 0.12 {
+                        context.fill(Path(CGRect(x: (end - visibleStart) * scale, y: 32, width: (clippedEnd - end) * scale, height: 3)), with: .color(.orange))
                     }
                     for gap in mark.trackingGaps {
-                        let lower = max(mark.start, gap.lowerBound), upper = min(mark.end, gap.upperBound)
+                        let lower = max(clippedStart, gap.lowerBound), upper = min(clippedEnd, gap.upperBound)
                         if upper > lower {
                             context.fill(Path(CGRect(x: (lower - visibleStart) * scale, y: 32, width: (upper - lower) * scale, height: 3)), with: .color(.orange))
                         }
@@ -267,6 +264,7 @@ private struct AnalysisLayerTrack: View {
             if selected && mark.isLocked != true {
                 handle(leading: true).offset(x: x - 22)
                 handle(leading: false).offset(x: x + width - 22)
+            }
             }
         }.contentShape(.rect)
             .simultaneousGesture(timelineDrag)
@@ -319,7 +317,9 @@ private struct AnalysisLayerTrack: View {
 
     private func target(at point: CGPoint) -> DragTarget {
         guard selected, mark.isLocked != true else { return .pan }
-        let start = (mark.start - visibleStart) * scale, end = (mark.end - visibleStart) * scale
+        let startTime = max(bounds.lowerBound, min(bounds.upperBound, mark.start))
+        let endTime = max(startTime, min(bounds.upperBound, mark.end))
+        let start = (startTime - visibleStart) * scale, end = (endTime - visibleStart) * scale
         if point.y >= 24, let frame = frames.min(by: { abs(($0.time - visibleStart) * scale - point.x) < abs(($1.time - visibleStart) * scale - point.x) }),
            abs((frame.time - visibleStart) * scale - point.x) <= 14 { return .keyframe(frame.id) }
         if min(abs(point.x - start), abs(point.x - end)) <= 22 {

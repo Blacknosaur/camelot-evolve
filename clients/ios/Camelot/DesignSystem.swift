@@ -117,6 +117,22 @@ struct OrientationStack<Content: View>: View {
 
 // MARK: - Components
 
+/// Compact dark action button for the editor, camera dock and multi-cam screens.
+struct EditorActionStyle: ButtonStyle {
+    var prominent = false
+    @Environment(\.isEnabled) private var isEnabled
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .padding(.horizontal, 10).frame(minHeight: 34)
+            .foregroundStyle(prominent ? Color.black : Color.white)
+            .background(prominent ? Theme.signal : .white.opacity(configuration.isPressed ? 0.20 : 0.08), in: RoundedRectangle(cornerRadius: 10))
+            .opacity(isEnabled ? (configuration.isPressed ? 0.7 : 1) : 0.32)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+
 /// Small coloured status capsule ("Synced", "Uploading 42%").
 struct StatusPill: View {
     let text: String
@@ -129,7 +145,7 @@ struct StatusPill: View {
             Text(text).font(.caption2.bold())
         }
         .padding(.horizontal, 8).padding(.vertical, 4)
-        .background(tint.opacity(0.14), in: .capsule)
+        .background(tint.opacity(0.14), in: Capsule())
         .foregroundStyle(tint)
         .lineLimit(1)
     }
@@ -165,7 +181,7 @@ struct GlassIconButton: View {
                 .font(.headline)
                 .foregroundStyle(isActive ? .black : tint)
                 .frame(width: size, height: size)
-                .background(isActive ? AnyShapeStyle(Theme.signal) : AnyShapeStyle(.black.opacity(0.5)), in: .circle)
+                .background(isActive ? AnyShapeStyle(Theme.signal) : AnyShapeStyle(.black.opacity(0.5)), in: Circle())
                 .overlay(Circle().stroke(.white.opacity(0.12)))
         }
         .buttonStyle(.plain)
@@ -188,7 +204,7 @@ struct StatTile: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Theme.Space.md)
-        .background(.fill.tertiary, in: .rect(cornerRadius: Theme.Radius.medium))
+        .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: Theme.Radius.medium))
     }
 }
 
@@ -201,7 +217,7 @@ struct PrimaryButtonStyle: ButtonStyle {
         configuration.label
             .font(.headline)
             .frame(maxWidth: .infinity, minHeight: 50)
-            .background(tint, in: .rect(cornerRadius: Theme.Radius.medium))
+            .background(tint, in: RoundedRectangle(cornerRadius: Theme.Radius.medium))
             .foregroundStyle(foreground)
             .opacity(configuration.isPressed ? 0.8 : 1)
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
@@ -217,7 +233,7 @@ struct SecondaryButtonStyle: ButtonStyle {
         configuration.label
             .font(.headline)
             .frame(maxWidth: .infinity, minHeight: 50)
-            .background(tint.opacity(0.12), in: .rect(cornerRadius: Theme.Radius.medium))
+            .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: Theme.Radius.medium))
             .foregroundStyle(tint)
             .opacity(configuration.isPressed ? 0.7 : 1)
             .animation(.snappy(duration: 0.15), value: configuration.isPressed)
@@ -233,7 +249,7 @@ struct DarkPillButtonStyle: ButtonStyle {
             .font(.subheadline.weight(.semibold))
             .padding(.horizontal, 14)
             .frame(minHeight: 40)
-            .background(isProminent ? AnyShapeStyle(Theme.signal) : AnyShapeStyle(.white.opacity(0.1)), in: .capsule)
+            .background(isProminent ? AnyShapeStyle(Theme.signal) : AnyShapeStyle(.white.opacity(0.1)), in: Capsule())
             .foregroundStyle(isProminent ? .black : .white)
             .opacity(configuration.isPressed ? 0.75 : 1)
             .animation(.snappy(duration: 0.15), value: configuration.isPressed)
@@ -252,8 +268,8 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
 struct CardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .background(.background, in: .rect(cornerRadius: Theme.Radius.large))
-            .overlay(RoundedRectangle(cornerRadius: Theme.Radius.large).stroke(.separator.opacity(0.6)))
+            .background(.background, in: RoundedRectangle(cornerRadius: Theme.Radius.large))
+            .overlay(RoundedRectangle(cornerRadius: Theme.Radius.large).stroke(Color(.separator).opacity(0.6)))
             .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
     }
 }
@@ -287,37 +303,6 @@ struct SectionTitle<Accessory: View>: View {
     }
 }
 
-/// Connection status chip shared between onboarding and account.
-struct ConnectionBadge: View {
-    let state: AppState.ConnectionState
-
-    var body: some View {
-        StatusPill(text: title, tint: tint, symbol: symbol)
-            .accessibilityLabel(title)
-    }
-
-    private var title: String {
-        switch state {
-        case .checking: "Checking server"
-        case .online: "Connected"
-        case .offline: "Offline"
-        }
-    }
-    private var symbol: String {
-        switch state {
-        case .checking: "arrow.triangle.2.circlepath"
-        case .online: "checkmark.circle.fill"
-        case .offline: "wifi.slash"
-        }
-    }
-    private var tint: Color {
-        switch state {
-        case .checking: .secondary
-        case .online: .green
-        case .offline: .orange
-        }
-    }
-}
 
 // MARK: - Formatting helpers
 
@@ -348,20 +333,9 @@ func friendlyDate(_ date: Date) -> String {
     return date.formatted(date: .abbreviated, time: .shortened)
 }
 
-/// An empty color preserves the event type's default, including older synced events.
-enum EventColor: String, CaseIterable, Identifiable {
-    case automatic = "", red = "FF6B6B", orange = "FFAA55", yellow = "F5D76E"
-    case green = "B6F36A", blue = "6AB7FF", purple = "B89AFF", pink = "FF8CCD"
-    var id: String { rawValue }
-    var title: String { self == .automatic ? "Auto" : String(describing: self).capitalized }
 
-    static func tint(hex: String, kind: String) -> Color {
-        guard hex.count == 6, let rgb = UInt32(hex, radix: 16) else { return EventKind.tint(for: kind) }
-        return Color(red: Double((rgb >> 16) & 255) / 255,
-            green: Double((rgb >> 8) & 255) / 255, blue: Double(rgb & 255) / 255)
-    }
-}
-
-extension MatchEvent {
-    var tint: Color { EventColor.tint(hex: colorHex, kind: kind) }
+/// "m:ss" for durations and timers.
+func timecode(_ seconds: Double) -> String {
+    let total = max(0, Int(seconds.isFinite ? seconds : 0))
+    return "\(total / 60):\(String(format: "%02d", total % 60))"
 }

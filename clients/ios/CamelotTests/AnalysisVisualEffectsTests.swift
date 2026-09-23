@@ -4,10 +4,86 @@ import UIKit
 import XCTest
 @testable import Camelot
 
-/// Visual-effect coverage uses a real user recording as pixels, but all motion
-/// is synthetic and authored from known source-frame foot positions. It does
-/// not invoke Vision tracking or write a project/SwiftData record.
+/// Real-footage and explicitly labelled synthetic-motion checks. These never
+/// write a project or SwiftData record.
 final class AnalysisVisualEffectsTests: XCTestCase {
+    @MainActor
+    func testDistantPlayerTrackingOnStressFootage() async throws {
+        let url = URL.documentsDirectory.appending(path: "Recordings/EBB12192-62DB-495B-A6CE-218F0C420A74.mov")
+        try XCTSkipIf(!FileManager.default.fileExists(atPath: url.path), "Run on fixture phone")
+        let detections = try await AnalysisEngine.analyze(url: url, range: 3...3.1) { _ in }
+        for point in [CGPoint(x: 0.148, y: 0.46), CGPoint(x: 0.497, y: 0.448)] {
+            let seed = try XCTUnwrap(detections.frames.first?.detections.first { $0.rect.contains(point) }?.rect)
+            let motion = try await SelectedPlayerTracking.track(url: url, seed: seed, from: 3, to: 14) { _ in }
+            print("DISTANT_PLAYER seed=\(seed) last=\(String(describing: motion.samples.last?.time)) lost=\(String(describing: motion.lostAt)) gaps=\(motion.gaps ?? []) confirmed=\(motion.jerseyProfile?.isConfirmed == true)")
+            for time in [3.0, 5, 7, 9, 12.6, 13.5] { print("DISTANT_POSITION seedX=\(point.x) t=\(time) box=\(String(describing: motion.box(at: time)))") }
+            XCTAssertNil(motion.lostAt)
+            XCTAssertGreaterThan(try XCTUnwrap(motion.samples.last?.time), 13.9)
+            let returned = try XCTUnwrap(motion.box(at: 12.6))
+            XCTAssertEqual(returned.midX, point.x < 0.2 ? 0.335 : 0.647, accuracy: 0.02)
+            XCTAssertEqual(returned.maxY, point.x < 0.2 ? 0.465 : 0.52, accuracy: 0.015)
+            XCTAssertEqual(try XCTUnwrap(motion.box(at: 13.5)).midX, point.x < 0.2 ? 0.214 : 0.553, accuracy: 0.02)
+            XCTAssertNil(motion.box(at: 9.8), "Blur/absence remains hidden, not a predicted ring")
+            if point.x > 0.2 { XCTAssertNil(motion.box(at: 10.8), "Defender is outside the camera here") }
+            var ring = AnalysisAnnotation(tool: .player, points: [seed.origin, .init(x: seed.maxX, y: seed.maxY)], start: 3, end: 14)
+            ring.playerMotion = motion.bound(at: 3); ring.effect = .neon
+            let generator = AVAssetImageGenerator(asset: AVURLAsset(url: url)); generator.appliesPreferredTrackTransform = true
+            generator.requestedTimeToleranceBefore = .zero; generator.requestedTimeToleranceAfter = .zero
+            for time in [9.0, 10.8, 12.6, 13.5] {
+                let source = try await generator.image(at: CMTime(seconds: time, preferredTimescale: 600)).image
+                let size = CGSize(width: source.width, height: source.height), frame = CGRect(x: 0, y: 0, width: source.width, height: source.height)
+                let rendered = UIGraphicsImageRenderer(size: size).image { renderer in
+                    UIImage(cgImage: source).draw(in: frame)
+                    AnnotationRenderer.draw([ring], time: time, in: renderer.cgContext, frame: frame)
+                }
+                let attachment = XCTAttachment(image: rendered); attachment.name = "Distant player \(point.x) before and after pan at \(time)s"
+                attachment.lifetime = .keepAlways; add(attachment)
+            }
+        }
+    }
+
+    @MainActor
+    func testTwoActualPlayerTracksStayConnectedAcrossControlledThirdPlayerLoss() async throws {
+        let url = URL.documentsDirectory.appending(path: "Recordings/EBB12192-62DB-495B-A6CE-218F0C420A74.mov")
+        try XCTSkipIf(!FileManager.default.fileExists(atPath: url.path), "Run on fixture phone")
+        let detections = try await AnalysisEngine.analyze(url: url, range: 3...3.1) { _ in }
+        var tracks: [PlayerMotion] = []
+        for point in [CGPoint(x: 0.394, y: 0.586), CGPoint(x: 0.685, y: 0.53)] {
+            let seed = try XCTUnwrap(detections.frames.first?.detections.first { $0.rect.contains(point) }?.rect)
+            var motion = try await SelectedPlayerTracking.track(url: url, seed: seed, from: 3, to: 5.2) { _ in }
+            motion.trackID = UUID(); tracks.append(motion)
+        }
+        // Controlled missing endpoint, not a claim of automatic occlusion
+        // detection. Both surviving endpoints use actual independently tracked footage.
+        let missingBox = CGRect(x: 0.8, y: 0.4, width: 0.04, height: 0.1)
+        let missing = PlayerMotion(samples: [.init(time: 3, box: missingBox), .init(time: 5.2, box: missingBox)],
+                                   gaps: [3.5...4.5], trackID: UUID())
+        let endpoints = [tracks[0], missing, tracks[1]]
+        var line = AnalysisAnnotation(tool: .connection,
+            points: endpoints.map { .init(x: $0.reference!.midX, y: $0.reference!.maxY) }, start: 3, end: 5.2)
+        line.linkedPlayers = endpoints
+        let generator = AVAssetImageGenerator(asset: AVURLAsset(url: url)); generator.appliesPreferredTrackTransform = true
+        generator.requestedTimeToleranceBefore = .zero; generator.requestedTimeToleranceAfter = .zero
+        for time in [3.25, 4.0, 5.0] {
+            XCTAssertTrue(line.hasMotion(at: time))
+            let points = line.renderedPoints(at: time)
+            XCTAssertEqual(points.count, time == 4 ? 2 : 3)
+            XCTAssertEqual(points.first!.x, try XCTUnwrap(tracks[0].box(at: time)).midX, accuracy: 0.001)
+            XCTAssertEqual(points.last!.x, try XCTUnwrap(tracks[1].box(at: time)).midX, accuracy: 0.001)
+            let source = try await generator.image(at: CMTime(seconds: time, preferredTimescale: 600)).image
+            let size = CGSize(width: source.width, height: source.height)
+            let rendered = UIGraphicsImageRenderer(size: size).image { renderer in
+                let frame = CGRect(origin: .zero, size: size)
+                UIImage(cgImage: source).draw(in: frame)
+                AnnotationRenderer.draw([line], time: time, in: renderer.cgContext, frame: frame)
+            }
+            let attachment = XCTAttachment(image: rendered)
+            attachment.name = "Actual surviving players with controlled third-player gap at \(time)s"
+            attachment.lifetime = .keepAlways; add(attachment)
+        }
+        XCTAssertEqual(line.linkedPlayers, endpoints)
+    }
+
     @MainActor
     func testLoupeFollowsActualTrackedPlayerWithoutRetrackingForAnotherEffect() async throws {
         let url = URL.documentsDirectory.appending(path: "Recordings/EBB12192-62DB-495B-A6CE-218F0C420A74.mov")

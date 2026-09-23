@@ -20,7 +20,7 @@ struct EventTagStrip: View {
                                 Text("\(count)").font(.system(size: 9, design: .monospaced)).lineLimit(1)
                             }
                         }
-                        Text(kind.rawValue).font(.system(size: 11, weight: .medium)).lineLimit(1)
+                        Text(kind.rawValue).font(.system(size: 11, weight: .medium, design: .rounded)).lineLimit(1)
                     }.frame(maxWidth: .infinity).frame(height: 46)
                 }
                 .buttonStyle(EditorActionStyle(prominent: lastTag == kind))
@@ -30,6 +30,6 @@ struct EventTagStrip: View {
                 .accessibilityIdentifier("\(accessibilityPrefix)-tag-\(kind.rawValue.lowercased())")
             }
         }
-        .background(.black.opacity(0.5), in: .rect(cornerRadius: 10))
+        .background(.black.opacity(0.4), in: RoundedRectangle(cornerRadius: Theme.Radius.small))
     }
 }

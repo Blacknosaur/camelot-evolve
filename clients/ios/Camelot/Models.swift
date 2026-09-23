@@ -74,6 +74,14 @@ final class Recording {
     var recordedAt: Date = Date()
     var timezoneIdentifier: String = TimeZone.current.identifier
     var utcOffsetSeconds: Int = TimeZone.current.secondsFromGMT()
+    /// Multi-cam: the session this video belongs to, the phone that shot it, and where it starts
+    /// relative to the host's own recording (`multiCamOffsetSeconds`, positive = started later).
+    var multiCamSessionID: UUID?
+    var multiCamRole: String = ""
+    var multiCamDeviceName: String = ""
+    var multiCamOffsetSeconds: Double = 0
+    /// Switcher program only: JSON `MultiCamSwitchTimeline`.
+    var multiCamSwitches: String = ""
 
     var fileURL: URL {
         let filename = localPath.isEmpty ? "" : URL(filePath: localPath).lastPathComponent
@@ -109,6 +117,26 @@ final class Recording {
     }
 }
 
+/// Values for `Recording.multiCamRole`.
+enum MultiCamRecordingRole: String {
+    /// The host's own full-quality video; other videos of the session are aligned to it.
+    case primary
+    /// A camera phone's full-quality video, pulled over after the session.
+    case camera
+    /// The switcher's live cut.
+    case program
+    /// The wide view built from the primary and a camera video.
+    case stitched
+}
+
+extension Recording {
+    var multiCamRecordingRole: MultiCamRecordingRole? { MultiCamRecordingRole(rawValue: multiCamRole) }
+    var switchTimeline: MultiCamSwitchTimeline? {
+        guard !multiCamSwitches.isEmpty, let data = multiCamSwitches.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(MultiCamSwitchTimeline.self, from: data)
+    }
+}
+
 @Model
 final class VideoComposition {
     @Attribute(.unique) var id: UUID
@@ -141,6 +169,12 @@ final class VideoComposition {
 }
 
 extension VideoComposition {
+    /// Library rows need only source ranges, never per-frame tracking or effects.
+    @MainActor
+    var libraryClips: [CompositionClipSummary]? {
+        CompositionSummaryCache.shared.clips(id: id, manifest: clipManifest)
+    }
+
     var decodedClips: [CompositionClip]? {
         clipManifest.data(using: .utf8).flatMap { try? JSONDecoder().decode([CompositionClip].self, from: $0) }
     }
@@ -173,6 +207,55 @@ extension VideoComposition {
         clipManifest = manifest; self.aspectRatio = aspectRatio; self.name = name
         needsSync = true; mutationID = UUID()
         try context.save()
+    }
+}
+
+/// Decode only the fields needed for duration, events, source availability and
+/// thumbnails. Large annotation and tracking payloads stay unopened until editing.
+struct CompositionClipSummary: Decodable, Equatable, Sendable {
+    let recordingID: UUID
+    let startSeconds: Double
+    let endSeconds: Double
+    var rate: Double = 1
+    var freezeDuration: Double?
+
+    var playbackDuration: Double { freezeDuration ?? max(0, endSeconds - startSeconds) / max(0.25, min(4, rate)) }
+
+    private enum CodingKeys: String, CodingKey { case recordingID, startSeconds, endSeconds, rate, freezeDuration }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        recordingID = try values.decode(UUID.self, forKey: .recordingID)
+        startSeconds = try values.decode(Double.self, forKey: .startSeconds)
+        endSeconds = try values.decode(Double.self, forKey: .endSeconds)
+        rate = try values.decodeIfPresent(Double.self, forKey: .rate) ?? 1
+        freezeDuration = try values.decodeIfPresent(Double.self, forKey: .freezeDuration)
+    }
+}
+
+@MainActor
+private final class CompositionSummaryCache {
+    private final class Entry {
+        let manifest: String
+        let clips: [CompositionClipSummary]?
+        init(manifest: String) {
+            self.manifest = manifest
+            clips = manifest.data(using: .utf8).flatMap { try? JSONDecoder().decode([CompositionClipSummary].self, from: $0) }
+        }
+    }
+    static let shared = CompositionSummaryCache()
+    private let entries = NSCache<NSUUID, Entry>()
+
+    private init() {
+        entries.countLimit = 64
+        entries.totalCostLimit = 32 * 1_024 * 1_024
+    }
+
+    func clips(id: UUID, manifest: String) -> [CompositionClipSummary]? {
+        if let entry = entries.object(forKey: id as NSUUID), entry.manifest == manifest { return entry.clips }
+        let entry = Entry(manifest: manifest)
+        entries.setObject(entry, forKey: id as NSUUID, cost: manifest.utf8.count)
+        return entry.clips
     }
 }
 
@@ -213,27 +296,4 @@ struct CompositionClip: Codable, Identifiable, Equatable {
         trackingLibrary = try values.decodeIfPresent(AnalysisTrackingLibrary.self, forKey: .trackingLibrary)
         groundCalibration = try values.decodeIfPresent(GroundCalibration.self, forKey: .groundCalibration)
     }
-}
-
-enum EventKind: String, CaseIterable, Identifiable {
-    case goal = "Goal"
-    case shot = "Shot"
-    case save = "Save"
-    case foul = "Foul"
-    case card = "Card"
-    case note = "Note"
-
-    var id: String { rawValue }
-    var symbol: String {
-        switch self {
-        case .goal: "soccerball"
-        case .shot: "scope"
-        case .save: "hand.raised"
-        case .foul: "exclamationmark.triangle"
-        case .card: "rectangle.portrait"
-        case .note: "text.bubble"
-        }
-    }
-    var defaultPreRoll: Double { self == .goal ? 15 : 10 }
-    var defaultPostRoll: Double { self == .goal ? 5 : 10 }
 }

@@ -9,12 +9,17 @@ import UIKit
 struct CameraCaptureView: View {
     let project: Project
     let appState: AppState
+    /// Event-remote sessions: this phone records as usual while other phones tag events.
+    var multiCamMode: MultiCamMode?
+    @State private var multiCam: MultiCamSession?
+    @State private var remoteEventCount = 0
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
     @State private var recorder = CameraRecorder()
     @State private var eventCapture = CameraEventCapture()
+    @State private var interaction = CameraInteractionState()
     @State private var showingStopConfirmation = false
     @State private var taggedEvents: [EventKind] = []
     @State private var tagFeedback: EventKind?
@@ -47,6 +52,7 @@ struct CameraCaptureView: View {
                 }
             }
             .background(Color.black.ignoresSafeArea())
+            .simultaneousGesture(swipeToClose)
         }
         .preferredColorScheme(.dark)
         .tint(.white)
@@ -62,11 +68,14 @@ struct CameraCaptureView: View {
                 try? await Task.sleep(for: .milliseconds(100))
             }
         }
+        .task { await hostEventRemotes() }
         .onDisappear {
             appState.isCapturing = false
             UIApplication.shared.isIdleTimerDisabled = false
             recorder.shutdown()
+            multiCam?.end()
         }
+        .onChange(of: recorder.isReady) { _, isReady in if !isReady { interaction.unlock() } }
         .onChange(of: recorder.quality) { captureQualityRaw = recorder.quality.rawValue }
         .onChange(of: recorder.isRecording) { _, isRecording in
             appState.isCapturing = isRecording
@@ -101,38 +110,49 @@ struct CameraCaptureView: View {
         } message: { Text("The completed part was saved safely. You can continue in a new segment and join them later.") }
     }
 
+    /// A clear downward swipe closes the camera when nothing is being recorded, like a sheet.
+    private var swipeToClose: some Gesture {
+        DragGesture(minimumDistance: 48, coordinateSpace: .global)
+            .onEnded { gesture in
+                guard !recorder.isRecording, !recorder.isFinishing, gesture.translation.height > 110,
+                      gesture.translation.height > abs(gesture.translation.width) * 1.8,
+                      gesture.predictedEndTranslation.height > 160, interaction.reticle == nil else { return }
+                dismiss()
+            }
+    }
+
     private func cameraHeader(landscape: Bool) -> some View {
-        HStack(spacing: 8) {
-            Button { dismiss() } label: { Image(systemName: "chevron.left").frame(width: 18) }
+        HStack(spacing: Theme.Space.sm) {
+            Button { dismiss() } label: { Image(systemName: "chevron.down").frame(width: 20) }
+                .buttonStyle(CameraChromeButtonStyle())
                 .accessibilityLabel("Close camera")
                 .disabled(recorder.isRecording || recorder.isFinishing)
             if showsRecordingChrome {
-                HStack(spacing: 6) {
-                    Circle().fill(recorder.isPaused ? .orange : .red).frame(width: 7, height: 7)
-                    Text(recorder.elapsed.formatted(.time(pattern: .minuteSecond)))
-                        .font(.system(size: 15, weight: .semibold, design: .monospaced))
-                }.accessibilityLabel("Recording duration").accessibilityIdentifier("camera-recording-time")
+                CameraTimerCapsule(elapsed: recorder.elapsed, isPaused: recorder.isPaused)
             } else {
                 Text(project.name).font(.system(size: 14, weight: .semibold)).lineLimit(1)
+                    .padding(.horizontal, 10).frame(height: 34)
+                    .background(.black.opacity(0.35), in: .capsule)
             }
             Spacer(minLength: 0)
+            if let multiCam { RemotesChip(session: multiCam, eventCount: remoteEventCount) }
             qualityMenu
             if landscape {
-                Button { showsGrid.toggle() } label: { Image(systemName: "grid").frame(width: 18) }
-                    .buttonStyle(EditorActionStyle(prominent: showsGrid))
+                Button { showsGrid.toggle() } label: { Image(systemName: "grid").frame(width: 20) }
+                    .buttonStyle(CameraChromeButtonStyle(isActive: showsGrid))
                     .accessibilityLabel("Framing grid").accessibilityValue(showsGrid ? "On" : "Off")
                 if recorder.hasTorch {
-                    Button { recorder.toggleTorch() } label: { Image(systemName: recorder.isTorchOn ? "bolt.fill" : "bolt.slash").frame(width: 18) }
-                        .buttonStyle(EditorActionStyle(prominent: recorder.isTorchOn))
+                    Button { recorder.toggleTorch() } label: { Image(systemName: recorder.isTorchOn ? "bolt.fill" : "bolt.slash").frame(width: 20) }
+                        .buttonStyle(CameraChromeButtonStyle(isActive: recorder.isTorchOn))
                         .disabled(!recorder.isReady || recorder.isFinishing)
                         .accessibilityLabel("Camera light").accessibilityValue(recorder.isTorchOn ? "On" : "Off")
                 }
             }
             cameraOptions
         }
-        .buttonStyle(EditorActionStyle()).foregroundStyle(.white)
-        .padding(.horizontal, 12).frame(height: 44)
-        .background { LinearGradient(colors: [.black.opacity(0.8), .clear], startPoint: .top, endPoint: .bottom).ignoresSafeArea(edges: .top) }
+        .buttonStyle(CameraChromeButtonStyle()).foregroundStyle(.white)
+        .padding(.horizontal, Theme.Space.md).frame(height: 48)
+        .background { LinearGradient(colors: [.black.opacity(0.55), .clear], startPoint: .top, endPoint: .bottom).ignoresSafeArea(edges: .top) }
     }
 
     private var cameraOptions: some View {
@@ -146,14 +166,16 @@ struct CameraCaptureView: View {
                     Label("Camera light", systemImage: "bolt")
                 }.disabled(!recorder.isReady || recorder.isFinishing)
             }
-        } label: { Image(systemName: "slider.horizontal.3").frame(width: 18) }
+        } label: { Image(systemName: "slider.horizontal.3").frame(width: 20) }
             .accessibilityLabel("Camera options").accessibilityValue(captureMode.shortTitle)
     }
 
     private func viewfinder(landscape: Bool) -> some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            CameraPreview(recorder: recorder, showsGrid: showsGrid)
+            CameraPreview(recorder: recorder, interaction: interaction, showsGrid: showsGrid)
+                .ignoresSafeArea()
+            CameraFocusOverlay(state: interaction, exposureBias: recorder.exposureBias, exposureRange: recorder.exposureBiasRange, setExposureBias: recorder.setExposureBias)
                 .ignoresSafeArea()
             if !recorder.isReady {
                 VStack(spacing: 12) {
@@ -167,28 +189,39 @@ struct CameraCaptureView: View {
                     } else if !recorder.isConfiguring {
                         Button("Try again") { Task { await recorder.prepare(quality: selectedQuality) } }
                     }
-                }.buttonStyle(EditorActionStyle()).padding(20).background(.black.opacity(0.8), in: .rect(cornerRadius: 12)).padding(20)
+                }.buttonStyle(EditorActionStyle()).padding(20).background(.black.opacity(0.8), in: .rect(cornerRadius: Theme.Radius.medium)).padding(20)
             }
-            VStack(spacing: 8) {
+            VStack(spacing: Theme.Space.sm) {
+                if interaction.isLocked { CameraLockBadge() }
+                if let factor = interaction.zoomHUDFactor { CameraZoomHUD(factor: factor) }
                 CameraEventCountdown(capture: eventCapture, canEnd: recorder.canMarkEvent, end: endEventNow, isPaused: recorder.isPaused)
+                if let multiCam, multiCam.peers.isEmpty, let address = multiCam.manualAddress {
+                    Text("Remote can't find this phone? Enter \(address)")
+                        .font(.system(size: 11)).foregroundStyle(.white.opacity(0.75)).lineLimit(1)
+                        .padding(.horizontal, 10).padding(.vertical, 6)
+                        .background(.black.opacity(0.6), in: .capsule)
+                        .accessibilityIdentifier("camera-manual-address")
+                }
                 if recorder.isReady, let message = recorder.statusMessage {
                     HStack(spacing: 8) {
                         Text(message).font(.system(size: 12)).frame(maxWidth: .infinity, alignment: .leading)
                         Button { recorder.statusMessage = nil } label: { Image(systemName: "xmark").frame(width: 30, height: 30) }
                             .buttonStyle(.plain).accessibilityLabel("Dismiss camera message")
-                    }.padding(.leading, 12).padding(.trailing, 4).background(.black.opacity(0.75), in: .rect(cornerRadius: 10))
+                    }.padding(.leading, 12).padding(.trailing, 4).background(.black.opacity(0.75), in: .rect(cornerRadius: Theme.Radius.small))
                 }
                 Spacer(minLength: 0)
                 if recorder.isReady {
-                    CameraZoomDial(value: recorder.zoomFactor, minimum: recorder.minimumZoomFactor,
-                        maximum: recorder.maximumZoomFactor) { value, smooth in
+                    CameraZoomControl(value: recorder.zoomFactor, minimum: recorder.minimumZoomFactor,
+                        maximum: recorder.maximumZoomFactor, lensFactors: recorder.lensFactors) { value, smooth in
                         recorder.setZoom(value, publishesValue: false, smoothly: smooth)
                     }
                     .disabled(recorder.isFinishing)
-
                 }
-            }.padding(.horizontal, 12).padding(.top, 54)
-                .padding(.bottom, landscape ? 96 : 142)
+            }
+            .animation(.easeOut(duration: 0.2), value: interaction.isLocked)
+            .animation(.easeOut(duration: 0.2), value: interaction.zoomHUDFactor == nil)
+            .padding(.horizontal, Theme.Space.md).padding(.top, 58)
+            .padding(.bottom, landscape ? 92 : 138)
         }.foregroundStyle(.white).accessibilityElement(children: .contain).accessibilityIdentifier("camera-viewfinder")
     }
 
@@ -219,6 +252,52 @@ struct CameraCaptureView: View {
         }
         .disabled(!recorder.isReady || recorder.isRecording || recorder.isConfiguring || recorder.isFinishing)
         .accessibilityLabel("Recording quality").accessibilityValue("\(recorder.quality.title), \(recorder.framesPerSecond) fps")
+    }
+
+    // MARK: Event remotes
+
+    /// Hosts the session for `.eventRemote`: answers clock pings, tells remotes whether we are
+    /// recording, and turns their taps into events on the active segment.
+    private func hostEventRemotes() async {
+        guard let multiCamMode, multiCam == nil else { return }
+        let session = MultiCamSession(role: .host, displayName: MultiCamLibrary.displayName(for: appState), deviceID: appState.deviceID)
+        session.onMessage = { message, _ in
+            guard case let .event(kind, hostTime) = message, let kind = EventKind(rawValue: kind) else { return }
+            // The tap happened `hostNow - hostTime` seconds ago on the shared clock.
+            addEvent(kind, secondsAgo: max(0, session.hostNow() - hostTime))
+        }
+        session.startHosting(mode: multiCamMode, projectID: project.id, projectName: project.name)
+        multiCam = session
+        while !Task.isCancelled {
+            session.send(.hostStatus(isRecording: recorder.canMarkEvent, elapsedSeconds: recorder.elapsed.totalSeconds))
+            try? await Task.sleep(for: .seconds(1))
+        }
+    }
+
+    private func addEvent(_ kind: EventKind, secondsAgo: Double) {
+        guard recorder.canMarkEvent, let recordingID = recorder.activeSegmentID else { return }
+        let event = MatchEvent(projectID: project.id, recordingID: recordingID, kind: kind.rawValue)
+        event.offsetSeconds = max(0, recorder.currentOffset - secondsAgo)
+        event.preRollSeconds = captureMode.bufferSeconds.map { min(kind.defaultPreRoll, $0) } ?? kind.defaultPreRoll
+        event.postRollSeconds = kind.defaultPostRoll
+        eventCapture.add(event)
+        let bufferedIDs = captureMode.isRolling
+            ? recorder.promoteRollingBuffer(until: eventCapture.endOffset(for: recordingID) ?? event.offsetSeconds + event.postRollSeconds)
+            : []
+        event.contextRecordingIDs = (try? String(data: JSONEncoder().encode(bufferedIDs), encoding: .utf8)) ?? "[]"
+        modelContext.insert(event)
+        try? modelContext.save()
+        taggedEvents.append(kind)
+        remoteEventCount += 1
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        let token = UUID()
+        tagFeedbackToken = token
+        withAnimation(.snappy(duration: 0.18)) { tagFeedback = kind }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(900))
+            guard tagFeedbackToken == token else { return }
+            withAnimation(.easeOut(duration: 0.18)) { tagFeedback = nil }
+        }
     }
 
     // MARK: Actions
@@ -333,15 +412,6 @@ struct CameraCaptureView: View {
 
 // MARK: - Controls
 
-enum CaptureQuality: String, CaseIterable, Identifiable, Sendable {
-    case efficient = "720p", hd = "1080p", ultraHD = "4k"
-    var id: Self { self }
-    var title: String { switch self { case .efficient: "720p · smaller files"; case .hd: "1080p HD"; case .ultraHD: "4K Ultra HD" } }
-    var shortTitle: String { switch self { case .efficient: "720p"; case .hd: "HD"; case .ultraHD: "4K" } }
-    var preset: AVCaptureSession.Preset { switch self { case .efficient: .hd1280x720; case .hd: .hd1920x1080; case .ultraHD: .hd4K3840x2160 } }
-    static func actual(for preset: AVCaptureSession.Preset) -> Self? { allCases.first { $0.preset == preset } }
-}
-
 struct CompletedSegment: Sendable {
     let id: UUID; let temporaryURL: URL; let duration: Double; let reason: String; let startedAt: Date; let timezoneIdentifier: String
 }
@@ -356,6 +426,7 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
     private var rotationCoordinator: AVCaptureDevice.RotationCoordinator?
     private var rotationObservations: [NSKeyValueObservation] = []
     private var pressureObservation: NSKeyValueObservation?
+    private var zoomObservation: NSKeyValueObservation?
     private var activeID: UUID?
     private var activeJournal: CaptureJournal?
     private var activeProjectID: UUID?
@@ -369,6 +440,8 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
     private var zoomUpdateTask: Task<Void, Never>?
     private var pendingZoomFactor: CGFloat?
     private var pendingZoomShouldRamp = false
+    /// Display factor a ramp is heading to; KVO publishes live values until it arrives.
+    private var rampTarget: CGFloat?
     private var displayZoomMultiplier: CGFloat = 1
     private var lastZoomUpdateAt = 0.0
     private var storageCheckTick = 0
@@ -389,6 +462,10 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
     var zoomFactor: CGFloat = 1
     var minimumZoomFactor: CGFloat = 1
     var maximumZoomFactor: CGFloat = 1
+    /// Lens switch-over factors in display units; the pills above the shutter.
+    var lensFactors: [CGFloat] = []
+    var exposureBias: Float = 0
+    var exposureBiasRange: ClosedRange<Float> = -2...2
     var quality: CaptureQuality = .hd
     var availableQualities: [CaptureQuality] = []
     var isConfiguring = false
@@ -559,8 +636,32 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         displayZoomMultiplier = Self.zoomDisplayMultiplier(for: camera)
         minimumZoomFactor = camera.minAvailableVideoZoomFactor * displayZoomMultiplier
         maximumZoomFactor = min(camera.maxAvailableVideoZoomFactor * displayZoomMultiplier, 6)
+        lensFactors = CameraZoomStops.lensFactors(
+            switchOverFactors: camera.virtualDeviceSwitchOverVideoZoomFactors.map(\.doubleValue),
+            displayMultiplier: displayZoomMultiplier
+        ).filter { $0 >= minimumZoomFactor && $0 <= maximumZoomFactor }
+        let minBias = camera.minExposureTargetBias, maxBias = camera.maxExposureTargetBias
+        exposureBiasRange = max(minBias, -3)...min(maxBias, 3)
         zoomFactor = min(max(zoomFactor, minimumZoomFactor), maximumZoomFactor)
         setZoom(zoomFactor)
+        observeZoom(on: camera)
+    }
+
+    /// Publishes the hardware factor while a ramp is in flight so the pills and HUD read live.
+    private func observeZoom(on camera: AVCaptureDevice) {
+        zoomObservation?.invalidate()
+        zoomObservation = camera.observe(\.videoZoomFactor, options: [.new]) { [weak self] camera, change in
+            guard let factor = change.newValue else { return }
+            let ramping = camera.isRampingVideoZoom
+            Task { @MainActor [weak self] in
+                guard let self, self.pendingZoomFactor == nil, self.cameraDevice === camera,
+                      let target = self.rampTarget else { return }
+                let live = min(max(factor * self.displayZoomMultiplier, self.minimumZoomFactor), self.maximumZoomFactor)
+                // Settle exactly on the requested stop when the ramp ends (hardware lands at 1.9999).
+                if !ramping || abs(live - target) / target < 0.01 { self.zoomFactor = target; self.rampTarget = nil }
+                else { self.zoomFactor = live }
+            }
+        }
     }
 
     func attachPreviewLayer(_ layer: AVCaptureVideoPreviewLayer) {
@@ -575,11 +676,14 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         isConfiguring = false
         setTorch(false)
         timerTask?.cancel(); timerTask = nil
-        zoomUpdateTask?.cancel(); zoomUpdateTask = nil; pendingZoomFactor = nil
+        zoomUpdateTask?.cancel(); zoomUpdateTask = nil; pendingZoomFactor = nil; rampTarget = nil
         NotificationCenter.default.removeObserver(self)
         rotationObservations.removeAll()
         pressureObservation?.invalidate(); pressureObservation = nil
+        zoomObservation?.invalidate(); zoomObservation = nil
         rotationCoordinator = nil
+        applyFocus(at: CGPoint(x: 0.5, y: 0.5), locked: false)
+        exposureBias = 0
         isReady = false
         captureQueue.async { [session] in
             if session.isRunning { session.stopRunning() }
@@ -648,6 +752,8 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         isFinishing = true
         if output.isRecording { output.stopRecording() }
     }
+    /// `smoothly` ramps at a Camera.app-like pace (about 0.3 s per doubling); otherwise the factor
+    /// is applied directly, throttled to the preview frame rate.
     func setZoom(_ factor: CGFloat, publishesValue: Bool = true, smoothly: Bool = false) {
         guard cameraDevice != nil else { return }
         let value = max(minimumZoomFactor, min(factor, maximumZoomFactor))
@@ -655,6 +761,11 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         pendingZoomFactor = value
         pendingZoomShouldRamp = smoothly
         scheduleZoomUpdate()
+    }
+
+    /// Display-unit stops that trigger a haptic while pinching or sliding.
+    var hapticZoomStops: [CGFloat] {
+        CameraZoomStops.pills(lensFactors: lensFactors, minimum: minimumZoomFactor, maximum: maximumZoomFactor)
     }
 
     var requestedZoomFactor: CGFloat { pendingZoomFactor ?? zoomFactor }
@@ -691,7 +802,7 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
             let shouldRamp = self.pendingZoomShouldRamp
             self.pendingZoomShouldRamp = false
             self.lastZoomUpdateAt = Date.timeIntervalSinceReferenceDate
-            self.zoomFactor = value
+            if shouldRamp { self.rampTarget = value } else { self.rampTarget = nil; self.zoomFactor = value }
             let displayMultiplier = self.displayZoomMultiplier
             self.captureQueue.async { [weak self] in
                 do {
@@ -702,7 +813,7 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
                         min(hardwareFactor, cameraDevice.maxAvailableVideoZoomFactor)
                     )
                     if shouldRamp {
-                        cameraDevice.ramp(toVideoZoomFactor: target, withRate: 8)
+                        cameraDevice.ramp(toVideoZoomFactor: target, withRate: 3.5)
                     } else {
                         cameraDevice.cancelVideoZoomRamp()
                         cameraDevice.videoZoomFactor = target
@@ -716,24 +827,49 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
             if self.pendingZoomFactor != nil { self.scheduleZoomUpdate() }
         }
     }
+    /// Tap to focus: point of interest with continuous modes, so the scene keeps tracking after the
+    /// initial adjustment. Resets any exposure bias and releases an AE/AF lock.
     func focus(at point: CGPoint) {
+        exposureBias = 0
+        applyFocus(at: point, locked: false)
+    }
+
+    /// Long press: one-shot focus and exposure at the point, which then hold until the next tap.
+    func lockFocusAndExposure(at point: CGPoint) {
+        applyFocus(at: point, locked: true)
+    }
+
+    func setExposureBias(_ bias: Float) {
+        guard let cameraDevice else { return }
+        let value = min(exposureBiasRange.upperBound, max(exposureBiasRange.lowerBound, bias))
+        let isEdge = value == exposureBiasRange.lowerBound || value == exposureBiasRange.upperBound || value == 0
+        guard abs(value - exposureBias) >= 0.03 || (isEdge && value != exposureBias) else { return }
+        exposureBias = value
+        captureQueue.async { [weak self] in
+            do {
+                try cameraDevice.lockForConfiguration()
+                defer { cameraDevice.unlockForConfiguration() }
+                cameraDevice.setExposureTargetBias(value, completionHandler: nil)
+            } catch {
+                Task { @MainActor in self?.statusMessage = "Could not change exposure." }
+            }
+        }
+    }
+
+    private func applyFocus(at point: CGPoint, locked: Bool) {
         guard let cameraDevice else { return }
         captureQueue.async { [weak self] in
             do {
                 try cameraDevice.lockForConfiguration()
                 defer { cameraDevice.unlockForConfiguration() }
-                if cameraDevice.isFocusPointOfInterestSupported {
-                    cameraDevice.focusPointOfInterest = point
-                    if cameraDevice.isFocusModeSupported(.autoFocus) {
-                        cameraDevice.focusMode = .autoFocus
-                    } else if cameraDevice.isFocusModeSupported(.continuousAutoFocus) {
-                        cameraDevice.focusMode = .continuousAutoFocus
-                    }
-                }
-                if cameraDevice.isExposurePointOfInterestSupported {
-                    cameraDevice.exposurePointOfInterest = point
-                    if cameraDevice.isExposureModeSupported(.continuousAutoExposure) { cameraDevice.exposureMode = .continuousAutoExposure }
-                }
+                if cameraDevice.isFocusPointOfInterestSupported { cameraDevice.focusPointOfInterest = point }
+                let focusMode: AVCaptureDevice.FocusMode = locked ? .autoFocus : .continuousAutoFocus
+                if cameraDevice.isFocusModeSupported(focusMode) { cameraDevice.focusMode = focusMode }
+                else if cameraDevice.isFocusModeSupported(.autoFocus) { cameraDevice.focusMode = .autoFocus }
+                if cameraDevice.isExposurePointOfInterestSupported { cameraDevice.exposurePointOfInterest = point }
+                let exposureMode: AVCaptureDevice.ExposureMode = locked ? .autoExpose : .continuousAutoExposure
+                if cameraDevice.isExposureModeSupported(exposureMode) { cameraDevice.exposureMode = exposureMode }
+                if !locked { cameraDevice.setExposureTargetBias(0, completionHandler: nil) }
             } catch {
                 Task { @MainActor in self?.statusMessage = "Could not focus the camera." }
             }
@@ -915,42 +1051,91 @@ final class CameraRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
 
 private struct CameraPreview: UIViewRepresentable {
     let recorder: CameraRecorder
+    let interaction: CameraInteractionState
     let showsGrid: Bool
-    func makeCoordinator() -> Coordinator { Coordinator(recorder: recorder) }
+    func makeCoordinator() -> Coordinator { Coordinator(recorder: recorder, interaction: interaction) }
     func makeUIView(context: Context) -> PreviewView {
         let view = PreviewView(); view.layerView.session = recorder.session
         recorder.attachPreviewLayer(view.layerView)
-        view.addGestureRecognizer(UIPinchGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.pinched(_:))))
-        view.addGestureRecognizer(UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.tapped(_:))))
+        let coordinator = context.coordinator
+        let pinch = UIPinchGestureRecognizer(target: coordinator, action: #selector(Coordinator.pinched(_:)))
+        let doubleTap = UITapGestureRecognizer(target: coordinator, action: #selector(Coordinator.doubleTapped(_:)))
+        doubleTap.numberOfTapsRequired = 2
+        let tap = UITapGestureRecognizer(target: coordinator, action: #selector(Coordinator.tapped(_:)))
+        tap.require(toFail: doubleTap)
+        let hold = UILongPressGestureRecognizer(target: coordinator, action: #selector(Coordinator.held(_:)))
+        hold.minimumPressDuration = 0.5
+        for recognizer in [pinch, doubleTap, tap, hold] {
+            recognizer.delegate = coordinator
+            view.addGestureRecognizer(recognizer)
+        }
         return view
     }
     func updateUIView(_ uiView: PreviewView, context: Context) {
         uiView.showsGrid = showsGrid
     }
 
-    @MainActor final class Coordinator: NSObject {
+    @MainActor final class Coordinator: NSObject, UIGestureRecognizerDelegate {
         let recorder: CameraRecorder
+        let interaction: CameraInteractionState
         private var startingZoom: CGFloat = 1
-        init(recorder: CameraRecorder) { self.recorder = recorder }
+        private var lastHapticStop: CGFloat?
+        init(recorder: CameraRecorder, interaction: CameraInteractionState) {
+            self.recorder = recorder; self.interaction = interaction
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+            gestureRecognizer is UIPinchGestureRecognizer || other is UIPinchGestureRecognizer
+        }
+
         @objc func pinched(_ gesture: UIPinchGestureRecognizer) {
-            if gesture.state == .began { startingZoom = recorder.requestedZoomFactor }
-            if gesture.state == .changed {
-                recorder.setZoom(startingZoom * gesture.scale, publishesValue: false)
-            } else if gesture.state == .ended || gesture.state == .cancelled {
-                recorder.setZoom(startingZoom * gesture.scale, smoothly: false)
+            switch gesture.state {
+            case .began:
+                startingZoom = recorder.requestedZoomFactor; lastHapticStop = nil
+                interaction.showZoomHUD(startingZoom)
+            case .changed:
+                let previous = recorder.requestedZoomFactor
+                let target = max(recorder.minimumZoomFactor, min(startingZoom * gesture.scale, recorder.maximumZoomFactor))
+                recorder.setZoom(target, publishesValue: false)
+                interaction.showZoomHUD(target)
+                if let stop = CameraZoomRuler.crossedStop(from: previous, to: target, stops: recorder.hapticZoomStops), stop != lastHapticStop {
+                    UISelectionFeedbackGenerator().selectionChanged(); lastHapticStop = stop
+                }
+            case .ended, .cancelled, .failed:
+                let target = CameraZoomRuler.snapped(startingZoom * gesture.scale, to: recorder.hapticZoomStops)
+                recorder.setZoom(target)
+                interaction.showZoomHUD(recorder.requestedZoomFactor)
+                interaction.endZoomHUD()
+            default: break
             }
         }
+
         @objc func tapped(_ gesture: UITapGestureRecognizer) {
             guard let view = gesture.view as? PreviewView else { return }
             let location = gesture.location(in: view)
+            if interaction.isLocked { interaction.unlock() }
             recorder.focus(at: view.layerView.captureDevicePointConverted(fromLayerPoint: location))
-            view.showFocus(at: location)
+            interaction.showFocus(at: location)
+        }
+
+        @objc func doubleTapped(_ gesture: UITapGestureRecognizer) {
+            guard recorder.isReady else { return }
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            recorder.setZoom(1, smoothly: true)
+            interaction.showZoomHUD(1); interaction.endZoomHUD()
+        }
+
+        @objc func held(_ gesture: UILongPressGestureRecognizer) {
+            guard gesture.state == .began, let view = gesture.view as? PreviewView, recorder.isReady else { return }
+            let location = gesture.location(in: view)
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            recorder.lockFocusAndExposure(at: view.layerView.captureDevicePointConverted(fromLayerPoint: location))
+            interaction.lock(at: location)
         }
     }
 }
 
 private final class PreviewView: UIView {
-    private let focusRing = UIView()
     private let gridLayer = CAShapeLayer()
     var showsGrid = false { didSet { if showsGrid != oldValue { setNeedsLayout() } } }
     override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
@@ -962,14 +1147,6 @@ private final class PreviewView: UIView {
         gridLayer.lineWidth = 0.7
         gridLayer.fillColor = nil
         layer.addSublayer(gridLayer)
-        focusRing.bounds.size = CGSize(width: 72, height: 72)
-        focusRing.layer.borderWidth = 1.5
-        focusRing.layer.borderColor = UIColor(Theme.signal).cgColor
-        focusRing.isUserInteractionEnabled = false
-        focusRing.accessibilityIdentifier = "camera-focus-indicator"
-        focusRing.layer.cornerRadius = 8
-        focusRing.alpha = 0
-        addSubview(focusRing)
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     override func layoutSubviews() {
@@ -992,13 +1169,21 @@ private final class PreviewView: UIView {
         }
         CATransaction.commit()
     }
-    func showFocus(at point: CGPoint) {
-        focusRing.layer.removeAllAnimations()
-        focusRing.center = point
-        focusRing.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
-        focusRing.alpha = 1
-        UIView.animate(withDuration: 0.18, animations: { self.focusRing.transform = .identity }) { _ in
-            UIView.animate(withDuration: 0.25, delay: 0.55, options: .curveEaseOut) { self.focusRing.alpha = 0 }
-        }
+}
+
+/// Top-right of the camera: how many remotes are tagging; lime once the first one joins.
+private struct RemotesChip: View {
+    @ObservedObject var session: MultiCamSession
+    let eventCount: Int
+
+    var body: some View {
+        let count = session.peers.count
+        Label(count == 0 ? "Waiting for remotes" : "\(count) remote\(count == 1 ? "" : "s")", systemImage: "dot.radiowaves.left.and.right")
+            .font(.system(size: 13, weight: .semibold)).lineLimit(1)
+            .padding(.horizontal, 10).frame(height: 34)
+            .foregroundStyle(count > 0 ? Color.black : .white)
+            .background(count > 0 ? AnyShapeStyle(Theme.signal) : AnyShapeStyle(.black.opacity(0.35)), in: .capsule)
+            .accessibilityIdentifier("camera-remotes")
+            .accessibilityValue(eventCount == 0 ? "" : "\(eventCount) events from remotes")
     }
 }

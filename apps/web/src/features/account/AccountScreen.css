@@ -1,0 +1,10 @@
+.ac { min-height: 100%; padding-bottom: var(--space-xxl); }
+.ac-body { display: flex; flex-direction: column; gap: var(--space-xl); max-width: calc(var(--readable-width) + 200px); margin: 0 auto; padding: var(--space-sm) var(--space-lg); }
+.ac-profile { display: flex; align-items: center; gap: var(--space-lg); width: 100%; padding: 4px 0; }
+.ac-avatar { display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 85%, #fff), var(--brand)); color: #fff; font-size: 22px; font-weight: 700; flex: none; }
+.ac-profile-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ac-name { font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ac-org { font-size: 15px; color: var(--fg-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ac-status { max-width: 60vw; white-space: normal; text-align: right; font-size: 15px; }
+.ac-issue { font-size: 13px; color: var(--fg-secondary); }
+.ac .ds-row .ds-segmented { width: 100%; }

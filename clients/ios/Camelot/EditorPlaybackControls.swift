@@ -1,6 +1,28 @@
 import SwiftUI
 import UIKit
 
+/// Shared timeline actions keep analysis and the main editor visually identical.
+struct EditorTimelineZoomControls: View {
+    let canZoomOut: Bool
+    let canZoomIn: Bool
+    let zoomOut: () -> Void
+    let fit: () -> Void
+    let zoomIn: () -> Void
+    var fitLabel = "Fit timeline"
+    var identifierPrefix = "editor-timeline"
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: zoomOut) { Image(systemName: "minus.magnifyingglass").frame(width: 44, height: 44) }
+                .disabled(!canZoomOut).accessibilityLabel("Zoom out timeline").accessibilityIdentifier("\(identifierPrefix)-zoom-out")
+            Button(action: fit) { Image(systemName: "arrow.left.and.right.righttriangle.left.righttriangle.right").frame(width: 44, height: 44) }
+                .accessibilityLabel(fitLabel).accessibilityIdentifier("\(identifierPrefix)-fit")
+            Button(action: zoomIn) { Image(systemName: "plus.magnifyingglass").frame(width: 44, height: 44) }
+                .disabled(!canZoomIn).accessibilityLabel("Zoom in timeline").accessibilityIdentifier("\(identifierPrefix)-zoom-in")
+        }.font(.system(size: 14, weight: .medium)).buttonStyle(.plain)
+    }
+}
+
 struct EditorPlaybackControls: View {
     let playback: EditorPlayback
     let feedback: EditorTimelineFeedback
@@ -30,18 +52,13 @@ struct EditorPlaybackControls: View {
             }
             Spacer(minLength: 0)
             if showsZoom {
-                Button { zoom = max(1, zoom / 2); feedback.visibleSeconds = nil } label: {
-                    Image(systemName: "minus.magnifyingglass").frame(width: 32, height: 40)
-                }.disabled(zoom <= 1).accessibilityLabel("Zoom out timeline")
-                Button {
-                    if let fit { fit() }
-                    else { zoom = 1; feedback.visibleSeconds = nil; playback.commitSeek(playback.duration / 2) }
-                } label: {
-                    Image(systemName: "arrow.left.and.right.righttriangle.left.righttriangle.right").frame(width: 32, height: 40)
-                }.accessibilityLabel(fit == nil ? "Fit entire video" : fitLabel)
-                Button { zoom = min(maxZoom, zoom * 2); feedback.visibleSeconds = nil } label: {
-                    Image(systemName: "plus.magnifyingglass").frame(width: 32, height: 40)
-                }.disabled(zoom >= maxZoom).accessibilityLabel("Zoom in timeline")
+                EditorTimelineZoomControls(canZoomOut: zoom > 1, canZoomIn: zoom < maxZoom,
+                    zoomOut: { zoom = max(1, zoom / 2); feedback.visibleSeconds = nil },
+                    fit: {
+                        if let fit { fit() }
+                        else { zoom = 1; feedback.visibleSeconds = nil; playback.commitSeek(playback.duration / 2) }
+                    }, zoomIn: { zoom = min(maxZoom, zoom * 2); feedback.visibleSeconds = nil },
+                    fitLabel: fit == nil ? "Fit entire video" : fitLabel)
             }
         }.buttonStyle(.plain).padding(.horizontal, 10).frame(height: 44)
     }
@@ -94,9 +111,20 @@ struct EditorPreviewControls: View {
     let isPreparing: Bool
     let isEnabled: Bool
     let play: () -> Void
+    var currentTime: Double? = nil
+    var totalTime: Double? = nil
+    var timeIdentifier = "timeline-current-time"
+    var playIdentifier = "editor-play-pause"
+    var previousFrame: (() -> Void)? = nil
+    var nextFrame: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 12) {
+            if let previousFrame {
+                Button("Previous frame", systemImage: "backward.frame.fill", action: previousFrame)
+                    .labelStyle(.iconOnly).buttonStyle(AnalysisTransportStyle()).disabled(!isEnabled)
+                    .accessibilityIdentifier("analysis-previous-frame")
+            }
             Button(action: play) {
                 ZStack {
                     if isPreparing {
@@ -109,12 +137,18 @@ struct EditorPreviewControls: View {
             }.buttonStyle(EditorActionStyle())
                 .disabled(!isEnabled)
                 .accessibilityLabel(isPreparing ? "Preparing preview" : playback.isPlaying ? "Pause" : "Play")
+                .accessibilityIdentifier(playIdentifier)
+            if let nextFrame {
+                Button("Next frame", systemImage: "forward.frame.fill", action: nextFrame)
+                    .labelStyle(.iconOnly).buttonStyle(AnalysisTransportStyle()).disabled(!isEnabled)
+                    .accessibilityIdentifier("analysis-next-frame")
+            }
             Spacer(minLength: 8)
             HStack(alignment: .firstTextBaseline, spacing: 5) {
-                Text(timelineTimecode(playback.currentSeconds, includesTenths: true))
-                    .foregroundStyle(.white).accessibilityIdentifier("timeline-current-time")
+                Text(timelineTimecode(currentTime ?? playback.currentSeconds, includesTenths: true))
+                    .foregroundStyle(.white).accessibilityIdentifier(timeIdentifier)
                 Text("/").foregroundStyle(.white.opacity(0.4))
-                Text(timelineTimecode(playback.duration, includesTenths: true))
+                Text(timelineTimecode(totalTime ?? playback.duration, includesTenths: true))
                     .foregroundStyle(.white.opacity(0.7))
             }.font(.system(size: 11, weight: .medium, design: .monospaced))
                 .lineLimit(1).minimumScaleFactor(0.85)

@@ -32,7 +32,9 @@ Check `http://localhost:3000/api/health`. MinIO is available at `http://localhos
 - `packages/db`: PostgreSQL schema and migrations
 - `packages/sync-contract`: runtime-validated sync wire contract
 - `crates/camelot-sync-core`: future portable Rust sync state machine
-- `clients/ios`, `clients/android`, `apps/web`: client implementation boundaries
+- `apps/web`: browser SPA with the same features as the iOS app (React, IndexedDB/OPFS, mediabunny + WebCodecs, WASM workers); see `apps/web/README.md`
+- `crates/camelot-vision`: image-processing kernels compiled to WASM for the web client
+- `clients/ios`, `clients/android`: native client implementation boundaries
 - `docs`: architecture decisions and delivery plan
 
 ## Commands

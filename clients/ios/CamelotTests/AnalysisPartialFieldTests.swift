@@ -4,6 +4,36 @@ import Vision
 @testable import Camelot
 
 final class AnalysisPartialFieldTests: XCTestCase {
+    func testConnectionKeepsConfirmedPlayersDuringLossAndRestoresRecoveredEndpoint() throws {
+        func track(_ x: Double) -> PlayerMotion {
+            .init(samples: [0.0, 1, 2, 3, 4].map {
+                .init(time: $0, box: .init(x: x + $0 * 0.02, y: 0.4, width: 0.04, height: 0.1))
+            }, smoothing: 0, trackID: UUID())
+        }
+        let first = track(0.1), third = track(0.7)
+        var missing = track(0.4); missing.gaps = [1.5...2.5]
+        var mark = AnalysisAnnotation(tool: .connection,
+            points: [first, missing, third].map { .init(x: $0.reference!.midX, y: $0.reference!.maxY) }, start: 0, end: 4)
+        mark.linkedPlayers = [first, missing, third]
+        XCTAssertEqual(mark.renderedPoints(at: 1).count, 3)
+        XCTAssertTrue(mark.hasMotion(at: 2))
+        XCTAssertGreaterThan(mark.opacity(at: 2), 0)
+        XCTAssertEqual(mark.renderedPoints(at: 2).count, 2)
+        XCTAssertEqual(mark.renderedPoints(at: 2)[0].x, first.box(at: 2)!.midX, accuracy: 0.0001)
+        XCTAssertEqual(mark.renderedPoints(at: 2)[1].x, third.box(at: 2)!.midX, accuracy: 0.0001)
+        mark.showsDistance = true
+        let distances = AnnotationMeasurements.distances(for: mark, at: 2, ground: nil)
+        XCTAssertEqual(distances.count, 1, "Only the surviving segment may get a distance label")
+        XCTAssertEqual(distances.first!.point.x, 0.46, accuracy: 0.0001)
+        XCTAssertEqual(mark.renderedPoints(at: 3).count, 3)
+        XCTAssertEqual(mark.linkedPlayers, [first, missing, third], "Rendering must not mutate reusable identities")
+        mark.tool = .zone
+        XCTAssertFalse(mark.hasMotion(at: 2), "Do not invent a new polygon when a vertex disappears")
+        mark.tool = .connection
+        mark.linkedPlayers?[2].gaps = [1.5...2.5]
+        XCTAssertFalse(mark.hasMotion(at: 2), "One confirmed player cannot form a connection")
+    }
+
     func testVisibleReferenceLayoutsStayInsideTheirFourHandlesAndRoundTrip() throws {
         let corners: [CGPoint] = [.zero, .init(x: 1, y: 0), .init(x: 1, y: 1), .init(x: 0, y: 1)]
         for region in AnalysisFieldLayout.Region.allCases {

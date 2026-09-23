@@ -1,0 +1,4 @@
+.pf { display: flex; flex-direction: column; gap: var(--space-xl); padding-top: var(--space-sm); }
+.pf .ds-row { padding-top: 0; padding-bottom: 0; }
+.pf-input { background: none; padding: 0; min-height: 44px; }
+.pf-date { width: auto; min-height: 36px; padding: 0 8px; background: var(--fill-tertiary); font-size: 15px; color: var(--fg); }

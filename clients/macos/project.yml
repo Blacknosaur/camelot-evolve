@@ -1,0 +1,52 @@
+name: CamelotMac
+options:
+  bundleIdPrefix: com.camelot
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: 83ZRPDHF3Y
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_ENTITLEMENTS: CamelotMac/CamelotMac.entitlements
+targets:
+  CamelotMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: CamelotMac
+      - path: CamelotShared
+      - path: ../ios/Camelot/Resources/Models/BasketballDetector.mlpackage
+        buildPhase: sources
+      - path: ../ios/Camelot/Resources/Models/MODEL_NOTICE.md
+        buildPhase: resources
+      - path: ../ios/Camelot/Assets.xcassets
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.camelot.evolve.mac
+        PRODUCT_NAME: Camelot
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: CamelotMac/Info.plist
+        API_HOST: 192.168.1.203
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
+  CamelotMacTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - CamelotMacTests
+    dependencies:
+      - target: CamelotMac
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Camelot.app/Contents/MacOS/Camelot"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  CamelotMac:
+    build:
+      targets:
+        CamelotMac: all
+    test:
+      targets:
+        - CamelotMacTests

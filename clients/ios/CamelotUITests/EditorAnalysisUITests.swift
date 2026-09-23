@@ -1,6 +1,100 @@
 import XCTest
+import UIKit
 
 final class EditorAnalysisUITests: XCTestCase {
+    @MainActor
+    func testSimplifiedTrackingSheetOnPhone() throws {
+        let app = try openAnalysisForMeasurements()
+        let ruler = app.descendants(matching: .any).matching(identifier: "analysis-time-ruler").firstMatch
+        seekAnalysis(to: 3, ruler: ruler, app: app)
+        let candidates = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "analysis-detected-player-"))
+        XCTAssertTrue(candidates.firstMatch.waitForExistence(timeout: 20))
+        let frame = app.otherElements["analysis-preview-touch-surface"].frame
+        let height = min(frame.height, frame.width * 9 / 16)
+        let target = CGPoint(x: frame.midX + height * 16 / 9 * (0.394 - 0.5), y: frame.midY + height * (0.586 - 0.5))
+        let player = try XCTUnwrap(candidates.allElementsBoundByIndex.min {
+            hypot($0.frame.midX - target.x, $0.frame.midY - target.y) < hypot($1.frame.midX - target.x, $1.frame.midY - target.y)
+        })
+        player.tap()
+        app.buttons["analysis-player-effects"].tap()
+        XCTAssertTrue(app.buttons["analysis-apply-player-effects"].waitForExistence(timeout: 5))
+        app.buttons["analysis-apply-player-effects"].tap()
+        XCTAssertTrue(app.buttons["save-analysis-workspace"].wait(for: \.isEnabled, toEqual: true, timeout: 90))
+        if app.alerts["Analysis"].exists { app.alerts["Analysis"].buttons["OK"].tap() }
+        seekAnalysis(to: 3, ruler: ruler, app: app)
+        let tracking = app.buttons["analysis-player-tracking"]
+        XCTAssertTrue(tracking.waitForExistence(timeout: 10)); tracking.tap()
+        XCTAssertFalse(app.segmentedControls["analysis-tracking-engine"].exists)
+        XCTAssertFalse(app.buttons["analysis-track-selected-player-v2"].exists)
+        for identifier in ["analysis-track-player", "analysis-track-player-forward",
+                           "analysis-track-player-backward", "analysis-fill-player-gap"] {
+            XCTAssertTrue(app.buttons[identifier].waitForExistence(timeout: 5), "Missing simplified tracking action: \(identifier)")
+        }
+        XCTAssertFalse(app.buttons["analysis-next-gap"].exists)
+        XCTAssertFalse(app.buttons["analysis-correct-selected-player"].exists)
+        XCTAssertFalse(app.buttons["analysis-review-player-frames"].exists)
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 5))
+            let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            shot.name = "Tracking and repair controls \(orientation.rawValue)"; shot.lifetime = .keepAlways; add(shot)
+        }
+        XCUIDevice.shared.orientation = .portrait
+    }
+
+    @MainActor
+    func testForwardRetrackKeepsLaterEffectsOnPhone() throws {
+        let app = try openAnalysisForMeasurements()
+        let canvas = app.otherElements.matching(identifier: "analysis-workspace-canvas").firstMatch
+        let ruler = app.descendants(matching: .any).matching(identifier: "analysis-time-ruler").firstMatch
+        let candidates = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "analysis-detected-player-"))
+        func pick(_ x: Double, _ y: Double) throws {
+            XCTAssertTrue(candidates.firstMatch.waitForExistence(timeout: 20))
+            let detected = candidates.allElementsBoundByIndex.map { ($0, $0.frame) }
+            // The accessibility container is the union of clipped children and
+            // the hint. The actual gesture surface has the full preview bounds.
+            let frame = app.otherElements["analysis-preview-touch-surface"].frame
+            let height = min(frame.height, frame.width * 9 / 16)
+            let target = CGPoint(x: frame.midX + height * 16 / 9 * (x - 0.5), y: frame.midY + height * (y - 0.5))
+            let player = try XCTUnwrap(detected.min {
+                hypot($0.1.midX - target.x, $0.1.midY - target.y) < hypot($1.1.midX - target.x, $1.1.midY - target.y)
+            }?.0)
+            print("REPAIR_UI_PICK canvas=\(frame) target=\(target) player=\(player.identifier) box=\(player.frame)")
+            let selection = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); selection.name = "Player correction selection at \(x),\(y)"; selection.lifetime = .keepAlways; add(selection)
+            player.tap()
+        }
+        func waitForTracking() {
+            XCTAssertTrue(app.buttons["save-analysis-workspace"].wait(for: \.isEnabled, toEqual: true, timeout: 90))
+            if app.alerts["Analysis"].exists { app.alerts["Analysis"].buttons["OK"].tap() }
+        }
+        seekAnalysis(to: 3, ruler: ruler, app: app)
+        try pick(0.394, 0.586)
+        app.buttons["analysis-player-effects"].tap()
+        app.switches["analysis-player-spotlight"].coordinate(withNormalizedOffset: .init(dx: 0.9, dy: 0.5)).tap()
+        app.buttons["analysis-apply-player-effects"].tap()
+        waitForTracking()
+        seekAnalysis(to: 6, ruler: ruler, app: app)
+        let before = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); before.name = "Grounded shared halo and spotlight before forward retrack"; before.lifetime = .keepAlways; add(before)
+        let bars = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "analysis-layer-bar-"))
+        XCTAssertEqual(bars.count, 2)
+        seekAnalysis(to: 4, ruler: ruler, app: app)
+        app.buttons["analysis-clip-tracks"].tap()
+        app.buttons["analysis-manage-player-tracks"].tap()
+        let savedPlayer = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "analysis-use-player-")).firstMatch
+        XCTAssertTrue(savedPlayer.waitForExistence(timeout: 5)); savedPlayer.tap()
+        XCTAssertTrue(app.buttons["analysis-player-tracking"].waitForExistence(timeout: 5))
+        app.buttons["analysis-player-tracking"].tap()
+        XCTAssertTrue(app.buttons["analysis-track-player-forward"].waitForExistence(timeout: 5))
+        app.buttons["analysis-track-player-forward"].tap()
+        waitForTracking()
+        seekAnalysis(to: 6, ruler: ruler, app: app)
+        XCTAssertEqual(bars.count, 2)
+        XCTAssertEqual(app.staticTexts["analysis-active-player-track"].label, "Player 1")
+        XCTAssertFalse(app.buttons["analysis-resume-player"].exists, "Later saved motion is still available after an earlier correction")
+        let after = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); after.name = "Later grounded effects preserved after forward retrack"; after.lifetime = .keepAlways; add(after)
+        app.buttons["cancel-analysis-workspace"].tap()
+    }
+
     private var analysisRecordingID: String { ProcessInfo.processInfo.environment["CAMELOT_ANALYSIS_RECORDING_ID"] ?? "EBB12192-62DB-495B-A6CE-218F0C420A74" }
 
     @MainActor
@@ -31,8 +125,13 @@ final class EditorAnalysisUITests: XCTestCase {
         let project = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Editor stress test,")).firstMatch
         XCTAssertTrue(project.waitForExistence(timeout: 10)); project.tap()
         let source = app.buttons["source-\(analysisRecordingID)"]
-        XCTAssertTrue(source.waitForExistence(timeout: 10)); source.tap()
-        XCTAssertTrue(app.buttons["open-video-analysis"].waitForExistence(timeout: 10)); app.buttons["open-video-analysis"].tap()
+        // Project rows are lazy. Reveal the existing recording before querying it.
+        for _ in 0..<8 {
+            if source.exists && source.isHittable { break }
+            app.scrollViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(source.waitForExistence(timeout: 3)); source.tap()
+        XCTAssertTrue(app.buttons["open-analysis"].waitForExistence(timeout: 10)); app.buttons["open-analysis"].tap(); app.buttons["open-video-analysis"].tap()
         XCTAssertTrue(app.otherElements["analysis-workspace-canvas"].waitForExistence(timeout: 10))
         if app.alerts["Analysis"].waitForExistence(timeout: 5) { app.alerts["Analysis"].buttons["OK"].tap() }
         return app
@@ -41,10 +140,12 @@ final class EditorAnalysisUITests: XCTestCase {
     @MainActor
     func testMeasurementsTwoPointKnownLengthFixedCameraApplyDoesNotCreateDrawingLayer() throws {
         let app = try openAnalysisForMeasurements()
-        app.scrollViews["analysis-drawing-tools"].swipeLeft()
+        app.buttons["analysis-tools"].tap()
         app.buttons["analysis-tool-measure"].tap()
         let preview = app.otherElements["ground-preview"]
         XCTAssertTrue(preview.waitForExistence(timeout: 10))
+        app.buttons["ground-landmark-picker"].tap(); app.buttons["Custom distance / rectangle"].tap()
+        app.buttons["ground-settings"].tap()
         XCTAssertTrue(app.segmentedControls["ground-reference-mode"].buttons["2 points · local"].isSelected)
         let fixed = app.switches["Camera stays fixed"]
         XCTAssertTrue(fixed.waitForExistence(timeout: 5))
@@ -54,7 +155,7 @@ final class EditorAnalysisUITests: XCTestCase {
         app.buttons["Done"].tap()
         preview.coordinate(withNormalizedOffset: .init(dx: 0.25, dy: 0.42)).tap()
         preview.coordinate(withNormalizedOffset: .init(dx: 0.75, dy: 0.58)).tap()
-        XCTAssertEqual(preview.value as? String, "2 points")
+        XCTAssertTrue((preview.value as? String ?? "").contains("2 points"))
         let apply = app.buttons["ground-apply"]
         XCTAssertTrue(apply.wait(for: \.isEnabled, toEqual: true, timeout: 5))
         apply.tap()
@@ -66,27 +167,33 @@ final class EditorAnalysisUITests: XCTestCase {
     @MainActor
     func testMeasurementsFourPointEditSupportsPinchAndCornerDragThenCancel() throws {
         let app = try openAnalysisForMeasurements()
-        app.scrollViews["analysis-drawing-tools"].swipeLeft()
+        app.buttons["analysis-tools"].tap()
         app.buttons["analysis-tool-measure"].tap()
         let preview = app.otherElements["ground-preview"]
         XCTAssertTrue(preview.waitForExistence(timeout: 10))
+        app.buttons["ground-landmark-picker"].tap(); app.buttons["Custom distance / rectangle"].tap()
+        app.buttons["ground-settings"].tap()
         app.segmentedControls["ground-reference-mode"].buttons["4 points · ground"].tap()
+        // Toggle before typing: the decimal keyboard would otherwise cover the switch.
+        let fixed = app.switches["Camera stays fixed"]
+        XCTAssertTrue(fixed.waitForExistence(timeout: 5))
+        if (fixed.value as? String) != "1" { fixed.coordinate(withNormalizedOffset: .init(dx: 0.9, dy: 0.5)).tap() }
+        XCTAssertTrue(NSPredicate(format: "value == %@", "1").evaluate(with: fixed) || XCTWaiter.wait(for: [expectation(for: NSPredicate(format: "value == %@", "1"), evaluatedWith: fixed)], timeout: 3) == .completed)
         app.textFields["ground-length"].tap(); app.textFields["ground-length"].typeText("20")
         app.textFields["ground-width"].tap(); app.textFields["ground-width"].typeText("10")
         app.buttons["Done"].tap()
-        let fixed = app.switches["Camera stays fixed"]
-        XCTAssertTrue(fixed.waitForExistence(timeout: 5))
-        if (fixed.value as? String) != "1" { fixed.tap() }
-        for point in [CGPoint(x: 0.22, y: 0.35), .init(x: 0.78, y: 0.35), .init(x: 0.80, y: 0.78), .init(x: 0.20, y: 0.78)] {
+        for (index, point) in [CGPoint(x: 0.22, y: 0.35), .init(x: 0.78, y: 0.35), .init(x: 0.80, y: 0.78), .init(x: 0.20, y: 0.78)].enumerated() {
+            app.buttons["ground-point-\(index)"].tap()
             preview.coordinate(withNormalizedOffset: .init(dx: point.x, dy: point.y)).tap()
         }
-        XCTAssertEqual(preview.value as? String, "4 points")
+        XCTAssertTrue((preview.value as? String ?? "").contains("4 points"))
         let apply = app.buttons["ground-apply"]
         XCTAssertTrue(apply.wait(for: \.isEnabled, toEqual: true, timeout: 5)); apply.tap()
-        app.scrollViews["analysis-drawing-tools"].swipeLeft()
-        app.buttons["analysis-tool-measure"].tap()
-        XCTAssertTrue(preview.waitForExistence(timeout: 5))
-        XCTAssertEqual(preview.value as? String, "4 points")
+        XCTAssertTrue(app.otherElements["analysis-workspace-canvas"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["analysis-clip-tracks"].wait(for: \.isEnabled, toEqual: true, timeout: 90))
+        app.buttons["analysis-clip-tracks"].tap(); app.buttons["Measurements & ground"].tap()
+        XCTAssertTrue(preview.waitForExistence(timeout: 10))
+        XCTAssertTrue((preview.value as? String ?? "").contains("4 points"))
         app.buttons["ground-point-2"].tap()
         let point = preview.coordinate(withNormalizedOffset: .init(dx: 0.78, dy: 0.35))
         point.press(forDuration: 0.2, thenDragTo: point.withOffset(.init(dx: 18, dy: 12)))
@@ -111,7 +218,7 @@ final class EditorAnalysisUITests: XCTestCase {
         XCTAssertTrue(project.waitForExistence(timeout: 10)); project.tap()
         let source = app.buttons["source-\(analysisRecordingID)"]
         XCTAssertTrue(source.waitForExistence(timeout: 10)); source.tap()
-        XCTAssertTrue(app.buttons["open-video-analysis"].waitForExistence(timeout: 10)); app.buttons["open-video-analysis"].tap()
+        XCTAssertTrue(app.buttons["open-analysis"].waitForExistence(timeout: 10)); app.buttons["open-analysis"].tap(); app.buttons["open-video-analysis"].tap()
         let canvas = app.otherElements.matching(identifier: "analysis-workspace-canvas").firstMatch
         XCTAssertTrue(canvas.waitForExistence(timeout: 10))
         let initialRuler = app.descendants(matching: .any).matching(identifier: "analysis-time-ruler").firstMatch
@@ -129,7 +236,7 @@ final class EditorAnalysisUITests: XCTestCase {
         XCTAssertTrue(app.buttons["analysis-inspect-fit"].waitForExistence(timeout: 5))
         app.buttons["analysis-inspect-fit"].tap()
         XCTAssertEqual(canvas.value as? String, canvasBeforePinch)
-        app.buttons["analysis-tool-arrow"].tap()
+        app.buttons["analysis-tools"].tap(); app.buttons["analysis-tool-arrow"].tap()
         point(0.25, 0.5).press(forDuration: 0.1, thenDragTo: point(0.7, 0.7))
         let bar = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "analysis-layer-bar-")).firstMatch
         XCTAssertTrue(bar.waitForExistence(timeout: 5))
@@ -183,15 +290,15 @@ final class EditorAnalysisUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Drag handles to reshape · drag inside to move"].exists)
         capture("Arrow layer and inset timeline trim handles")
         app.buttons["Layer actions"].tap()
-        app.buttons["Track camera (beta)"].tap()
+        app.buttons["Follow clip camera"].tap()
         XCTAssertTrue(app.buttons["save-analysis-workspace"].wait(for: \.isEnabled, toEqual: true, timeout: 90))
         if app.alerts["Analysis"].exists { app.alerts["Analysis"].buttons["OK"].tap() }
-        XCTAssertTrue(app.otherElements["analysis-motion-mode"].buttons["Camera"].isSelected)
+        XCTAssertEqual(app.buttons["analysis-motion-mode"].value as? String, "Follow camera")
         seekAnalysis(to: 1, ruler: ruler, app: app)
-        app.buttons["analysis-tool-arrow"].tap()
+        app.buttons["analysis-tools"].tap(); app.buttons["analysis-tool-arrow"].tap()
         point(0.55, 0.45).press(forDuration: 0.1, thenDragTo: point(0.78, 0.62))
         XCTAssertTrue(app.buttons["save-analysis-workspace"].isEnabled)
-        XCTAssertTrue(app.otherElements["analysis-motion-mode"].buttons["Camera"].isSelected, "The second arrow reuses the camera track immediately")
+        XCTAssertEqual(app.buttons["analysis-motion-mode"].value as? String, "Follow camera", "The second arrow reuses the camera track immediately")
         capture("Second arrow reuses the saved camera track")
         app.buttons["cancel-analysis-workspace"].tap()
     }
@@ -205,7 +312,7 @@ final class EditorAnalysisUITests: XCTestCase {
         XCTAssertTrue(project.waitForExistence(timeout: 10)); project.tap()
         let source = app.buttons["source-\(analysisRecordingID)"]
         XCTAssertTrue(source.waitForExistence(timeout: 10)); source.tap()
-        XCTAssertTrue(app.buttons["open-video-analysis"].waitForExistence(timeout: 10)); app.buttons["open-video-analysis"].tap()
+        XCTAssertTrue(app.buttons["open-analysis"].waitForExistence(timeout: 10)); app.buttons["open-analysis"].tap(); app.buttons["open-video-analysis"].tap()
         let canvas = app.otherElements.matching(identifier: "analysis-workspace-canvas").firstMatch
         XCTAssertTrue(canvas.waitForExistence(timeout: 10))
         func point(_ x: Double, _ y: Double) -> XCUICoordinate {
@@ -213,8 +320,7 @@ final class EditorAnalysisUITests: XCTestCase {
             let height = min(frame.height, frame.width * 9 / 16), width = height * 16 / 9
             return canvas.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: (frame.width - width) / 2 + width * x, dy: (frame.height - height) / 2 + height * y))
         }
-        let tools = app.scrollViews["analysis-drawing-tools"]
-        tools.swipeLeft()
+        app.buttons["analysis-tools"].tap()
         XCTAssertEqual(app.buttons["analysis-tool-zone"].label, "Polygon")
         app.buttons["analysis-tool-zone"].tap()
         for corner in [CGPoint(x: 0.15, y: 0.4), .init(x: 0.7, y: 0.4), .init(x: 0.75, y: 0.85), .init(x: 0.2, y: 0.85)] { point(corner.x, corner.y).tap() }
@@ -226,13 +332,13 @@ final class EditorAnalysisUITests: XCTestCase {
         app.buttons["Remove corner"].tap()
         XCTAssertFalse(app.buttons["Remove corner"].isEnabled)
         point(0.15, 0.4).press(forDuration: 0.1, thenDragTo: point(0.25, 0.5))
-        app.otherElements["analysis-motion-mode"].buttons["Keyframes"].tap()
+        app.buttons["analysis-motion-mode"].tap(); app.buttons["Keyframes"].tap()
         let ruler = app.descendants(matching: .any).matching(identifier: "analysis-time-ruler").firstMatch
         seekAnalysis(to: 2, ruler: ruler, app: app)
         point(0.25, 0.5).press(forDuration: 0.1, thenDragTo: point(0.3, 0.6))
         XCTAssertGreaterThanOrEqual(app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "analysis-keyframe-")).count, 2)
         let shape = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); shape.name = "Editable polygon with animated corners"; shape.lifetime = .keepAlways; add(shape)
-        tools.swipeLeft(); app.buttons["analysis-tool-zoom"].tap()
+        app.buttons["analysis-tools"].tap(); app.buttons["analysis-tool-zoom"].tap()
         point(0.65, 0.6).tap()
         XCTAssertTrue(app.sliders["analysis-zoom-amount"].waitForExistence(timeout: 5))
         app.sliders["analysis-zoom-amount"].adjust(toNormalizedSliderPosition: 0.5)
@@ -261,6 +367,7 @@ final class EditorAnalysisUITests: XCTestCase {
         end.press(forDuration: 0.1, thenDragTo: end.withOffset(.init(dx: 20, dy: 0)))
         XCTAssertNotEqual(zoomBar.value as? String, timing)
         let zoom = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); zoom.name = "Timed zoom focus and zoomable layer timeline"; zoom.lifetime = .keepAlways; add(zoom)
+        app.buttons["analysis-clip-tracks"].tap()
         app.buttons["Preview effect"].tap()
         XCTAssertTrue(app.buttons["Pause"].waitForExistence(timeout: 5))
         let playing = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); playing.name = "Timed zoom playing on stress video"; playing.lifetime = .keepAlways; add(playing)
@@ -277,7 +384,7 @@ final class EditorAnalysisUITests: XCTestCase {
         XCTAssertTrue(project.waitForExistence(timeout: 10)); project.tap()
         let source = app.buttons["source-\(analysisRecordingID)"]
         XCTAssertTrue(source.waitForExistence(timeout: 10)); source.tap()
-        XCTAssertTrue(app.buttons["open-video-analysis"].waitForExistence(timeout: 10)); app.buttons["open-video-analysis"].tap()
+        XCTAssertTrue(app.buttons["open-analysis"].waitForExistence(timeout: 10)); app.buttons["open-analysis"].tap(); app.buttons["open-video-analysis"].tap()
         let canvas = app.otherElements.matching(identifier: "analysis-workspace-canvas").firstMatch
         XCTAssertTrue(canvas.waitForExistence(timeout: 10))
         func point(_ x: Double, _ y: Double) -> XCUICoordinate {
@@ -287,7 +394,7 @@ final class EditorAnalysisUITests: XCTestCase {
         }
         func choose(_ name: String) {
             let button = app.buttons["analysis-tool-\(name)"]
-            app.scrollViews["analysis-drawing-tools"].swipeLeft()
+            app.buttons["analysis-tools"].tap()
             button.tap()
         }
         let ruler = app.descendants(matching: .any).matching(identifier: "analysis-time-ruler").firstMatch
@@ -305,7 +412,7 @@ final class EditorAnalysisUITests: XCTestCase {
         app.buttons["analysis-finish-construction"].tap()
         XCTAssertTrue(app.buttons["save-analysis-workspace"].wait(for: \.isEnabled, toEqual: true, timeout: 45))
         if app.alerts["Analysis"].exists { app.alerts["Analysis"].buttons["OK"].tap() }
-        XCTAssertTrue(app.otherElements["analysis-motion-mode"].buttons["Follow player"].isSelected)
+        XCTAssertEqual(app.buttons["analysis-motion-mode"].value as? String, "Follow player")
         app.buttons["Drawing style"].tap()
         app.segmentedControls["analysis-effect-style"].buttons["Wall"].tap()
         XCTAssertTrue(app.sliders["analysis-wall-height"].exists)
@@ -313,8 +420,11 @@ final class EditorAnalysisUITests: XCTestCase {
         app.buttons["Done"].tap()
         seekAnalysis(to: 4, ruler: ruler, app: app)
         let linked = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); linked.name = "Animated connection attached to two players"; linked.lifetime = .keepAlways; add(linked)
-        app.buttons["analysis-correct-connection"].tap()
+        if app.buttons["Cancel pick"].exists { app.buttons["Cancel pick"].tap() }
         XCTAssertTrue(app.buttons["analysis-correct-anchor-0"].exists)
+        XCTAssertGreaterThanOrEqual(app.buttons["analysis-correct-anchor-0"].frame.height, 44)
+        let playerCards = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        playerCards.name = "Direct numbered player correction cards"; playerCards.lifetime = .keepAlways; add(playerCards)
         app.buttons["analysis-correct-anchor-1"].tap()
         XCTAssertTrue(app.otherElements["analysis-connection-correction"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Reselect 2 ·")).firstMatch.exists)
@@ -329,10 +439,10 @@ final class EditorAnalysisUITests: XCTestCase {
         // Reshape only the first vertex, keeping the other area corners fixed.
         point(0.1, 0.6).press(forDuration: 0.1, thenDragTo: point(0.15, 0.65))
         app.buttons["Layer actions"].tap()
-        app.buttons["Track camera (beta)"].tap()
+        app.buttons["Follow clip camera"].tap()
         XCTAssertTrue(app.buttons["save-analysis-workspace"].wait(for: \.isEnabled, toEqual: true, timeout: 30))
         if app.alerts["Analysis"].exists { app.alerts["Analysis"].buttons["OK"].tap() }
-        XCTAssertTrue(app.otherElements["analysis-motion-mode"].buttons["Camera"].isSelected)
+        XCTAssertEqual(app.buttons["analysis-motion-mode"].value as? String, "Follow camera")
         app.buttons["Drawing style"].tap()
         XCTAssertTrue(app.segmentedControls["analysis-effect-style"].waitForExistence(timeout: 5))
         app.segmentedControls["analysis-effect-style"].buttons["Wall"].tap()
@@ -359,8 +469,8 @@ final class EditorAnalysisUITests: XCTestCase {
         XCTAssertTrue(project.waitForExistence(timeout: 10)); project.tap()
         let source = app.buttons["source-\(analysisRecordingID)"]
         XCTAssertTrue(source.waitForExistence(timeout: 10)); source.tap()
-        let open = app.buttons["open-video-analysis"]
-        XCTAssertTrue(open.waitForExistence(timeout: 10)); open.tap()
+        let open = app.buttons["open-analysis"]
+        XCTAssertTrue(open.waitForExistence(timeout: 10)); open.tap(); app.buttons["open-video-analysis"].tap()
         let canvas = app.otherElements.matching(identifier: "analysis-workspace-canvas").firstMatch
         XCTAssertTrue(canvas.waitForExistence(timeout: 10))
         let ruler = app.descendants(matching: .any).matching(identifier: "analysis-time-ruler").firstMatch
@@ -377,9 +487,9 @@ final class EditorAnalysisUITests: XCTestCase {
         XCTAssertTrue(effects.waitForExistence(timeout: 5)); effects.tap()
         XCTAssertTrue(app.switches["analysis-player-ring"].waitForExistence(timeout: 5))
         app.buttons["analysis-apply-player-effects"].tap()
-        let preview = app.buttons["Preview effect"]
-        XCTAssertTrue(preview.waitForExistence(timeout: 25))
-        XCTAssertTrue(preview.wait(for: \.isEnabled, toEqual: true, timeout: 90))
+        let tracks = app.buttons["analysis-clip-tracks"]
+        XCTAssertTrue(tracks.waitForExistence(timeout: 25))
+        XCTAssertTrue(tracks.wait(for: \.isEnabled, toEqual: true, timeout: 90))
         if app.alerts["Analysis"].exists {
             app.alerts["Analysis"].buttons["OK"].tap()
             XCTAssertNotEqual(app.staticTexts["analysis-current-time"].label, "0:03.0", "Failure must seek to the last tracked frame")
@@ -397,7 +507,8 @@ final class EditorAnalysisUITests: XCTestCase {
         trackedIn.press(forDuration: 0.1, thenDragTo: trackedIn.withOffset(.init(dx: -15, dy: 0)))
         XCTAssertNotEqual(trackedBar.value as? String, trackedTiming, "A tracked layer can extend earlier than its first tracking sample")
         let selected = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); selected.name = "Selected player with automatically tracked ring"; selected.lifetime = .keepAlways; add(selected)
-        preview.tap()
+        app.buttons["analysis-clip-tracks"].tap()
+        app.buttons["Preview effect"].tap()
         let pause = app.buttons["Pause"]
         XCTAssertTrue(pause.waitForExistence(timeout: 5))
         XCTAssertTrue(pause.waitForNonExistence(timeout: 12))
@@ -485,18 +596,18 @@ final class EditorAnalysisUITests: XCTestCase {
         XCTAssertTrue(project.waitForExistence(timeout: 10)); project.tap()
         let source = app.buttons["source-\(analysisRecordingID)"]
         XCTAssertTrue(source.waitForExistence(timeout: 10)); source.tap()
-        XCTAssertTrue(app.buttons["open-video-analysis"].waitForExistence(timeout: 10)); app.buttons["open-video-analysis"].tap()
+        XCTAssertTrue(app.buttons["open-analysis"].waitForExistence(timeout: 10)); app.buttons["open-analysis"].tap(); app.buttons["open-video-analysis"].tap()
         let canvas = app.otherElements.matching(identifier: "analysis-workspace-canvas").firstMatch
         XCTAssertTrue(canvas.waitForExistence(timeout: 10))
-        app.buttons["analysis-tool-arrow"].tap()
+        app.buttons["analysis-tools"].tap(); app.buttons["analysis-tool-arrow"].tap()
         func point(_ x: Double, _ y: Double) -> XCUICoordinate {
             let frame = canvas.frame
             let height = min(frame.height, frame.width * 9 / 16), width = height * 16 / 9
             return canvas.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: (frame.width - width) / 2 + width * x, dy: (frame.height - height) / 2 + height * y))
         }
         point(0.3, 0.5).press(forDuration: 0.1, thenDragTo: point(0.6, 0.6))
-        let modes = app.otherElements["analysis-motion-mode"]
-        XCTAssertTrue(modes.waitForExistence(timeout: 5)); modes.buttons["Keyframes"].tap()
+        let modes = app.buttons["analysis-motion-mode"]
+        XCTAssertTrue(modes.waitForExistence(timeout: 5)); modes.tap(); app.buttons["Keyframes"].tap()
         let ruler = app.descendants(matching: .any).matching(identifier: "analysis-time-ruler").firstMatch
         seekAnalysis(to: 2, ruler: ruler, app: app)
         app.buttons["analysis-add-keyframe"].tap()
@@ -524,7 +635,7 @@ final class EditorAnalysisUITests: XCTestCase {
         let handle = app.descendants(matching: .any).matching(identifier: "analysis-layer-end").firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         handle.press(forDuration: 0.1, thenDragTo: handle.withOffset(CGVector(dx: 20, dy: 0)))
         XCTAssertNotEqual(bar.value as? String, beforeTrim)
-        app.buttons["analysis-tool-ellipse"].tap()
+        app.buttons["analysis-tools"].tap(); app.buttons["analysis-tool-ellipse"].tap()
         point(0.65, 0.45).press(forDuration: 0.1, thenDragTo: point(0.78, 0.7))
         XCTAssertEqual(app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "analysis-layer-bar-")).count, 2)
         app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "analysis-layer-", "Arrow")).firstMatch.tap()
@@ -550,18 +661,24 @@ final class EditorAnalysisUITests: XCTestCase {
         video.tap()
         XCTAssertTrue(app.navigationBars["Untitled video"].waitForExistence(timeout: 10))
 
+        XCTAssertTrue(app.buttons["open-analysis"].waitForExistence(timeout: 5)); app.buttons["open-analysis"].tap()
         let videoAnalysis = app.buttons["open-video-analysis"]
         XCTAssertTrue(videoAnalysis.waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["open-freeze-analysis"].exists)
         videoAnalysis.tap()
         XCTAssertTrue(app.otherElements["analysis-workspace-canvas"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["analysis-tool-arrow"].exists)
+        app.buttons["analysis-tools"].tap()
+        XCTAssertTrue(app.buttons["analysis-tool-arrow"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["analysis-tool-pen"].exists)
         XCTAssertTrue(app.buttons["analysis-tool-select"].exists)
+        app.buttons["analysis-tool-select"].tap()
+        let dismissed = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.buttons["analysis-tool-arrow"])
+        wait(for: [dismissed], timeout: 5)
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         attachment.name = "Video analysis workspace"; attachment.lifetime = .keepAlways
         add(attachment)
         app.buttons["cancel-analysis-workspace"].tap()
+        XCTAssertTrue(app.buttons["open-analysis"].waitForExistence(timeout: 5)); app.buttons["open-analysis"].tap()
         XCTAssertTrue(app.buttons["open-freeze-analysis"].waitForExistence(timeout: 5))
         app.buttons["open-freeze-analysis"].tap()
         XCTAssertTrue(app.otherElements["analysis-workspace-canvas"].waitForExistence(timeout: 5))

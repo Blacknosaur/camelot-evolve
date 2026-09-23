@@ -2,6 +2,20 @@ import XCTest
 @testable import Camelot
 
 final class FieldPlacementInteractionTests: XCTestCase {
+    func testNudgesUseSourcePixelsInLandscapePortraitAndOffscreen() {
+        for size in [CGSize(width: 1920, height: 1080), .init(width: 3840, height: 2160), .init(width: 1080, height: 1920)] {
+            for point in [CGPoint(x: 0.4, y: 0.6), .init(x: -0.2, y: 1.3)] {
+                let moved = FieldPointNudge.move(point, dx: 1, dy: -1, sourceSize: size)
+                XCTAssertEqual((moved.x - point.x) * size.width, 1, accuracy: 0.00001)
+                XCTAssertEqual((moved.y - point.y) * size.height, -1, accuracy: 0.00001)
+                let restored = FieldPointNudge.move(moved, dx: -1, dy: 1, sourceSize: size)
+                XCTAssertEqual(restored.x, point.x, accuracy: 0.00001)
+                XCTAssertEqual(restored.y, point.y, accuracy: 0.00001)
+            }
+        }
+        XCTAssertEqual(FieldPointNudge.move(.zero, dx: 1, dy: 1, sourceSize: .zero), .zero)
+    }
+
     func testInspectionPanAndPinchRemainAnchoredOutsideAuthoredZoom() {
         let fitted = CGRect(x: 0, y: 90, width: 390, height: 220)
         var mark = AnalysisAnnotation(tool: .zoom, points: [.init(x: 0.8, y: 0.6)], start: 0, end: 8)

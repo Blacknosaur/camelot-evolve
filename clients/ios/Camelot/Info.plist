@@ -18,7 +18,9 @@
     <dict><key>NSAllowsArbitraryLoads</key><true/><key>NSAllowsLocalNetworking</key><true/></dict>
     <key>NSCameraUsageDescription</key><string>Camelot records matches and training sessions.</string>
     <key>NSMicrophoneUsageDescription</key><string>Camelot records audio with match videos.</string>
-    <key>NSLocalNetworkUsageDescription</key><string>Camelot connects to the development API on your local network.</string>
+    <key>NSLocalNetworkUsageDescription</key><string>Camelot connects nearby phones for multi-camera recording and event remotes, and reaches the development API on your local network.</string>
+    <key>NSBonjourServices</key>
+    <array><string>_camelot-cam._tcp</string><string>_camelot-cam._udp</string><string>_camelot-sock._tcp</string></array>
     <key>UILaunchScreen</key><dict/>
     <key>UISupportedInterfaceOrientations</key>
     <array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>

@@ -46,6 +46,10 @@ struct AnalysisEffectControls: View {
     let fill: (Double) -> Void
     var wallHeight: (Double) -> Void = { _ in }
     var wallOpacity: (Double) -> Void = { _ in }
+    var hasGround = false
+    var groundAvailable = false
+    var grounding: (Bool) -> Void = { _ in }
+    var metricHeight: (Double) -> Void = { _ in }
     let beginEdit: () -> Void
     private var effects: [AnnotationEffect] {
         if mark.tool == .player { return AnnotationEffect.playerStyles }
@@ -60,11 +64,27 @@ struct AnalysisEffectControls: View {
             Picker("Effect", selection: Binding(get: { mark.effect ?? .clean }, set: { effect($0) })) {
                 ForEach(effects) { value in Text(value.title).tag(value) }
             }.pickerStyle(.segmented).accessibilityIdentifier("analysis-effect-style")
+            if mark.supportsGrounding {
+                Toggle("Ground to field", isOn: Binding(get: { mark.isGrounded(hasField: hasGround) }, set: grounding))
+                    .disabled(!hasGround && !mark.isGrounded(hasField: false)).accessibilityIdentifier("analysis-ground-effect")
+                if !hasGround {
+                    Text("Set a four-point field reference in Measure to enable perspective.").font(.caption).foregroundStyle(.secondary)
+                } else if mark.isGrounded(hasField: hasGround) {
+                    Text(groundAvailable ? "Uses field perspective and saved camera motion. Height is an estimate." : "No field tracking at this time. Grounded effects stay hidden.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
             if mark.effect == .wall || mark.effect == .aerial {
                 Text(mark.effect == .aerial ? "Raise the tactical roof above the ground area." : "Project a light wall above the boundary.").font(.caption).foregroundStyle(.secondary)
-                Text(mark.effect == .aerial ? "Height" : "Wall height")
-                Slider(value: Binding(get: { mark.wallHeight ?? 0.18 }, set: wallHeight), in: 0.03...0.45,
-                       onEditingChanged: { if $0 { beginEdit() } }).accessibilityIdentifier("analysis-wall-height")
+                if mark.isGrounded(hasField: hasGround) {
+                    Text("Height · \((mark.wallHeightMeters ?? 2).formatted(.number.precision(.fractionLength(1)))) m")
+                    Slider(value: Binding(get: { mark.wallHeightMeters ?? 2 }, set: metricHeight), in: 0.2...8,
+                           onEditingChanged: { if $0 { beginEdit() } }).accessibilityIdentifier("analysis-wall-height-meters")
+                } else {
+                    Text(mark.effect == .aerial ? "Height" : "Wall height")
+                    Slider(value: Binding(get: { mark.wallHeight ?? 0.18 }, set: wallHeight), in: 0.03...0.45,
+                           onEditingChanged: { if $0 { beginEdit() } }).accessibilityIdentifier("analysis-wall-height")
+                }
                 Text("Light intensity")
                 Slider(value: Binding(get: { mark.wallOpacity ?? 0.32 }, set: wallOpacity), in: 0.05...0.7,
                        onEditingChanged: { if $0 { beginEdit() } }).accessibilityIdentifier("analysis-wall-intensity")
@@ -97,6 +117,33 @@ struct AnalysisZoomControls: View {
             Slider(value: Binding(get: { mark.zoomRamp ?? 0.35 }, set: { ramp($0) }), in: 0...1.5,
                    onEditingChanged: { if $0 { beginEdit() } }).accessibilityLabel("Zoom ease in and out")
             Text("Drag the focus on the video. Set its duration in Timing, then use Preview effect.")
+                .font(.footnote).foregroundStyle(.secondary)
+        }.disabled(mark.isLocked == true)
+    }
+}
+
+/// How long an effect keeps following a player whose tracking is missing.
+/// Positions come from the confirmed neighbours (camera-aware with a clip
+/// camera track); raw gaps stay marked on the timeline either way.
+struct AnalysisTrackingBridgeControls: View {
+    let mark: AnalysisAnnotation
+    let amount: (Double) -> Void
+    let beginEdit: () -> Void
+
+    private var current: Double {
+        (mark.playerMotion ?? mark.linkedPlayers?.first)?.bridgeHorizon ?? 0.4
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Estimate missing positions")
+                Spacer()
+                Text(current < 0.05 ? "Off" : String(format: "%.1f s", current)).font(.footnote.monospacedDigit()).foregroundStyle(.secondary)
+            }
+            Slider(value: Binding(get: { current }, set: { amount(($0 * 10).rounded() / 10) }), in: 0...PlayerMotion.maximumBridgeHorizon,
+                   onEditingChanged: { if $0 { beginEdit() } }).accessibilityIdentifier("analysis-tracking-bridge")
+            Text("Off hides uncertain tracking. Increasing this draws estimated positions, which can cross other players. Use frame review to confirm positions by hand.")
                 .font(.footnote).foregroundStyle(.secondary)
         }.disabled(mark.isLocked == true)
     }

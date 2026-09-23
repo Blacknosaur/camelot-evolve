@@ -1,7 +1,85 @@
 import XCTest
+import SwiftUI
 @testable import Camelot
 
 final class AnalysisLayerTimelineTests: XCTestCase {
+    @MainActor
+    func testInterpolatedGapIsCoveredInTheRenderedTimeline() throws {
+        let box = CGRect(x: 0.3, y: 0.4, width: 0.05, height: 0.15)
+        var motion = PlayerMotion(samples: [0.0, 1, 1.4, 2, 3.2, 4].map { .init(time: $0, box: box) }, smoothing: 0)
+        motion.gaps = [(1.0).nextUp...(1.4).nextDown, (2.0).nextUp...(3.2).nextDown]
+        motion.hidesUncertainPositions = true; motion.automaticallyInterpolatesTinyGaps = true
+        var mark = AnalysisAnnotation(tool: .player, points: [box.origin, .init(x: box.maxX, y: box.maxY)], start: 0, end: 4)
+        mark.playerMotion = motion
+        XCTAssertEqual(mark.trackingGaps, [motion.gaps![1]])
+        XCTAssertEqual(mark.playerMotion?.gaps?.count, 2, "Keep raw missing measurements intact")
+        let view = AnalysisLayerTrack(mark: mark, bounds: 0...4, visibleStart: 0,
+            scale: 100, selected: true, selectedKeyframe: nil, gestureDisabled: false,
+            select: { _, _ in }, beginEdit: {}, edit: { _, _ in }, selectKeyframe: { _, _, _ in },
+            dragging: { _ in }, pan: { _, _ in }).frame(width: 400, height: 48).background(Color.black)
+        let renderer = ImageRenderer(content: view); renderer.scale = 1
+        let rendered = try XCTUnwrap(renderer.uiImage)
+        let attachment = XCTAttachment(image: rendered)
+        attachment.name = "Short gap covered, long gap orange"; attachment.lifetime = .keepAlways; add(attachment)
+        var pixels = [UInt8](repeating: 0, count: 400 * 48 * 4)
+        let context = try XCTUnwrap(CGContext(data: &pixels, width: 400, height: 48, bitsPerComponent: 8,
+            bytesPerRow: 400 * 4, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        context.draw(try XCTUnwrap(rendered.cgImage), in: CGRect(x: 0, y: 0, width: 400, height: 48))
+        XCTAssertTrue((0..<48).contains { y in
+            let i = (y * 400 + 120) * 4
+            return pixels[i] < 100 && pixels[i + 1] > 150 && pixels[i + 2] > 150
+        }, "The interpolated interval must render cyan")
+        XCTAssertTrue((0..<48).contains { y in
+            let i = (y * 400 + 250) * 4
+            return pixels[i] > 200 && pixels[i + 1] > 60 && pixels[i + 2] < 100
+        }, "A real missing interval must remain orange")
+    }
+
+    @MainActor
+    func testZoomedLayerStartsAtTheRulerOriginInRenderedView() throws {
+        let mark = AnalysisAnnotation(tool: .rectangle, points: [.zero, .init(x: 1, y: 1)], start: 0, end: 33)
+        for zoom: CGFloat in [1, 1.7, 4] {
+            let span = 33 / zoom
+            let view = AnalysisLayerTrack(mark: mark, bounds: 0...33, visibleStart: -span / 2,
+                scale: 390 / span, selected: true, selectedKeyframe: nil, gestureDisabled: false,
+                select: { _, _ in }, beginEdit: {}, edit: { _, _ in }, selectKeyframe: { _, _, _ in },
+                dragging: { _ in }, pan: { _, _ in })
+                .frame(width: 390, height: 48).background(Color.black)
+            let renderer = ImageRenderer(content: view); renderer.scale = 1
+            let rendered = try XCTUnwrap(renderer.uiImage)
+            let attachment = XCTAttachment(image: rendered)
+            attachment.name = "Timeline origin at zoom \(zoom)"; attachment.lifetime = .keepAlways; add(attachment)
+            let cg = try XCTUnwrap(rendered.cgImage)
+            var pixels = [UInt8](repeating: 0, count: 390 * 48 * 4)
+            let context = try XCTUnwrap(CGContext(data: &pixels, width: 390, height: 48, bitsPerComponent: 8,
+                bytesPerRow: 390 * 4, space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+            context.draw(cg, in: CGRect(x: 0, y: 0, width: 390, height: 48))
+            XCTAssertNotEqual(pixels[(24 * 390 + 240) * 4], pixels[(24 * 390 + 30) * 4],
+                              "A visible bar must actually be rendered")
+            for channel in 0..<3 {
+                XCTAssertGreaterThan(pixels[(24 * 390 + 191) * 4 + channel], 220,
+                                     "The white start handle must remain centred on x=195")
+            }
+            // Before the 0:00 point (x=195), the entire row must have the same
+            // background as its far-left margin at every zoom level.
+            for y in 15..<30 {
+                for channel in 0..<3 {
+                    XCTAssertEqual(pixels[(y * 390 + 160) * 4 + channel],
+                                   pixels[(y * 390 + 30) * 4 + channel], accuracy: 2,
+                                   "Zoom must not shift a long bar left of 0:00")
+                }
+            }
+        }
+    }
+    func testAnalysisTimelineViewportNeverCreatesTimeOutsideClipAtZoomedEdges() {
+        let bounds = 10.0...20.0
+        XCTAssertEqual(AnalysisTimelineViewport.visibleStart(time: 10, bounds: bounds, span: 4), 10)
+        XCTAssertEqual(AnalysisTimelineViewport.visibleStart(time: 20, bounds: bounds, span: 4), 16)
+        XCTAssertEqual(AnalysisTimelineViewport.visibleStart(time: 15, bounds: bounds, span: 4), 13)
+        XCTAssertEqual(AnalysisTimelineViewport.visibleStart(time: 15, bounds: bounds, span: 40), 10)
+    }
+
     func testShapeHandlesResizeCornersAndEndpointsAtCurrentKeyframe() {
         for tool in [AnalysisDrawingTool.rectangle, .ellipse, .spotlight, .player] {
             var mark = AnalysisAnnotation(tool: tool, points: [.init(x: 0.2, y: 0.3), .init(x: 0.6, y: 0.7)], start: 0, end: 4)

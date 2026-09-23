@@ -36,20 +36,6 @@ struct EditorPanelDivider: View {
     }
 }
 
-struct EditorActionStyle: ButtonStyle {
-    var prominent = false
-    @Environment(\.isEnabled) private var isEnabled
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 14, weight: .medium))
-            .padding(.horizontal, 10).frame(minHeight: 34)
-            .foregroundStyle(prominent ? Color.black : Color.white)
-            .background(prominent ? Theme.signal : .white.opacity(configuration.isPressed ? 0.20 : 0.08), in: .rect(cornerRadius: 10))
-            .opacity(isEnabled ? (configuration.isPressed ? 0.7 : 1) : 0.32)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-    }
-}
-
 struct EditorRangeDraft: Equatable {
     let eventID: TimelineEventID?
     let start: Double
