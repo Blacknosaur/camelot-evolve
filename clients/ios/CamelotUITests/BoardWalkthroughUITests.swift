@@ -39,74 +39,52 @@ final class BoardWalkthroughUITests: XCTestCase {
         XCTAssertTrue(element("board-starter").waitForExistence(timeout: 4), "An empty board offers a way to start")
         capture("02-empty-board")
 
-        // Players: the palette opens with Home ready; each tap adds one until Done.
+        // Home stays armed, with a banner, until Done.
         tapAny("board-start-players")
-        XCTAssertTrue(element("board-palette").waitForExistence(timeout: 3))
+        XCTAssertTrue(element("board-mode-banner").waitForExistence(timeout: 3))
         for (x, y) in [(0.3, 0.35), (0.3, 0.65), (0.45, 0.5)] { point(x, y).tap() }
         capture("03-home-placed")
         tapAny("board-item-away")
         for (x, y) in [(0.62, 0.4), (0.62, 0.6)] { point(x, y).tap() }
-        tapAny("board-item-ball")
-        point(0.47, 0.53).tap()
-        capture("04-players-and-ball")
+        capture("04-away-armed")
         tapAny("board-disarm")
-        // A tap that lands on an existing player selects it; clear that first.
-        if element("deselect").exists { element("deselect").tap() }
-        XCTAssertTrue(element("board-toolbar").waitForExistence(timeout: 3), "Done returns to the task tiles")
-        capture("05-tasks")
 
-        // Equipment
-        tapAny("board-palette-equipment")
+        // Drag a ball straight from the bar onto the pitch.
+        element("board-item-ball").coordinate(withNormalizedOffset: .init(dx: 0.5, dy: 0.5)).press(forDuration: 0.1, thenDragTo: point(0.5, 0.56))
+        tapAny("board-item-cone")
         for (x, y) in [(0.2, 0.25), (0.2, 0.75)] { point(x, y).tap() }
-        capture("06-equipment")
         tapAny("board-disarm")
+        capture("05-drill")
 
-        // Selecting shows plain actions in the bar; Edit opens the details.
+        // Selecting shows the card straight away.
         point(0.45, 0.5).tap()
-        XCTAssertTrue(element("board-selection").waitForExistence(timeout: 3))
-        capture("07-player-selected")
-        tapAny("board-selection-edit")
-        capture("08-player-details")
-        tapAny("board-selection-edit")
-        tapAny("board-selection-name")
-        capture("09-player-name")
-        if app.alerts.firstMatch.exists { app.alerts.firstMatch.buttons["Cancel"].tap() }
-        tapAny("deselect")
+        XCTAssertTrue(element("board-inspector").waitForExistence(timeout: 3))
+        capture("06-player-card")
+        tapAny("board-card-close")
 
-        // Draw: a pass and a run, then the palette stays until Done.
+        // Draw: line types in the banner, several lines until Done.
         tapAny("board-draw")
+        capture("07-draw")
         point(0.3, 0.35).press(forDuration: 0.1, thenDragTo: point(0.45, 0.5))
-        tapAny("board-item-line-run")
+        tapAny("board-draw-run")
         point(0.3, 0.65).press(forDuration: 0.1, thenDragTo: point(0.55, 0.75))
-        capture("10-draw")
+        capture("08-drawn")
         tapAny("board-disarm")
         point(0.42, 0.72).tap()
-        capture("11-line-selected")
-        tapAny("deselect")
+        capture("09-line-card")
+        tapAny("board-card-close")
 
-        tapAny("board-view")
-        capture("12-view-menu")
-        app.buttons["Top"].firstMatch.tap()
-
-        // Animate: steps, move a player in step 2, play.
         tapAny("board-animate")
         XCTAssertTrue(element("board-transport").waitForExistence(timeout: 3))
-        capture("13-animate")
         tapAny("board-stage-add")
         point(0.45, 0.5).press(forDuration: 0.1, thenDragTo: point(0.62, 0.3))
-        capture("14-step-2")
-        tapAny("deselect")
+        capture("10-step-2")
+        if element("board-card-close").exists { element("board-card-close").tap() }
         tapAny("board-animation-done")
-
-        tapAny("board-export")
-        capture("15-export")
-        if app.buttons["Done"].exists { app.buttons["Done"].tap() } else { app.swipeDown() }
 
         XCUIDevice.shared.orientation = .landscapeLeft
         sleep(1)
-        capture("16-landscape")
-        point(0.45, 0.5).tap()
-        capture("17-landscape-selected")
+        capture("11-landscape")
         XCUIDevice.shared.orientation = .portrait
         tapAny("board-close")
     }
