@@ -1,5 +1,25 @@
 # Annotation and on-device analysis
 
+## Board bottom bar and hand pitch placement — 24 September 2026
+
+- **Board editor:** the bottom slot shows one thing: the selection's actions
+  (Name, line type, Edit, Delete), the palette being placed from, the animation
+  transport, or task tiles (Players, Equipment, Draw, Animate, More). Palettes
+  replace the per-device recents; the armed item stays highlighted until Done.
+  Draw offers Pass, Run and Dribble directly. The detail card opens only from
+  Edit, so selecting never covers the pitch. Empty boards offer Add a lineup /
+  Add players. Stages are called Steps and onion skin Ghosts.
+  `BoardWalkthroughUITests` screenshots the flow; `TacticalBoardUITests` covers it.
+- **Line up the pitch by hand:** in Adjust by hand, one finger slides the whole
+  pitch, two fingers resize and turn it (`FieldPlacementTouchState` now reports
+  rotation), and the corner dots fix the angle. Every adjustment snaps to the
+  painted lines and keeps the coach's placement when the snap grades poor.
+  "You can see" Box / Centre / Half / Whole picks where the dots sit; Undo and
+  Other end replace numbered handles and nudges (traced lines, circle and
+  custom distances are under More). Adjust by hand cancels a running search.
+  The snap only follows white paint, so pitches with coloured markings are
+  placed by hand.
+
 ## Task-first Analyse workspace — 23 September 2026
 
 The Analyse screen was rebuilt for coaches with little editing experience. The
