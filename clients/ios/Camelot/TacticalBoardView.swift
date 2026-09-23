@@ -2277,6 +2277,8 @@ struct TacticalBoardView: View {
                 }
             }
             .scrollIndicators(.hidden)
+            // Chips scroll under their own edge, never under Done.
+            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
             barSlot(id: "board-disarm", title: "Done", isOn: false, prominent: true, vertical: vertical) {
                 Image(systemName: "checkmark").font(.system(size: 18, weight: .bold))
             } action: { closePalette() }
