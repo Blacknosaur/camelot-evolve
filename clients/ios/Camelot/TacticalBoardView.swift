@@ -442,20 +442,7 @@ struct TacticalBoardView: View {
             .accessibilityIdentifier("board-view")
             barButton("arrow.uturn.backward", label: "Undo", id: "board-undo", disabled: !history.canUndo) { undo() }
             barButton("arrow.uturn.forward", label: "Redo", id: "board-redo", disabled: !history.canRedo) { redo() }
-            if showsFrames {
-                Button { toggleFrames() } label: {
-                    Text("Done").font(.headline).foregroundStyle(.black)
-                        .padding(.horizontal, 16).frame(height: 40)
-                        .background(Theme.signal, in: .capsule)
-                        .frame(height: Theme.tapTarget)
-                        .contentShape(.rect)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Done animating")
-                .accessibilityIdentifier("board-animation-done")
-            } else {
-                barButton("square.and.arrow.up", label: "Export", id: "board-export", prominent: true) { stopPlayback(); showingExport = true }
-            }
+            barButton("square.and.arrow.up", label: "Export", id: "board-export", prominent: true) { stopPlayback(); showingExport = true }
         }
         .foregroundStyle(.white)
         .padding(.horizontal, Theme.Space.md)
@@ -2469,15 +2456,12 @@ struct TacticalBoardView: View {
             } action: {
                 togglePlayback()
             }
-            barSlot(id: "board-loop", title: "Loop", isOn: loopsPlayback, vertical: vertical) {
-                Image(systemName: "repeat").font(.system(size: 17, weight: .semibold))
-            } action: {
-                loopsPlayback.toggle()
-            }
             Menu {
                 Picker("Speed", selection: $playbackSpeed) {
                     ForEach([0.5, 1.0, 2.0], id: \.self) { speed in Text(Self.speedTitle(speed)).tag(speed) }
                 }
+                Toggle("Loop", systemImage: "repeat", isOn: $loopsPlayback)
+                    .accessibilityIdentifier("board-loop")
             } label: {
                 slotLabel(title: "Speed", isOn: playbackSpeed != 1, prominent: false, armed: false, vertical: vertical) {
                     Text(Self.speedTitle(playbackSpeed)).font(.subheadline.weight(.bold).monospacedDigit())
@@ -2505,6 +2489,13 @@ struct TacticalBoardView: View {
             } action: {
                 showingLibrary = true
             }
+            // Leaving animation sits with the transport, next to Play, not in the top bar.
+            barSlot(id: "board-animation-done", title: "Done", isOn: true, vertical: vertical) {
+                Image(systemName: "checkmark").font(.system(size: 18, weight: .bold))
+            } action: {
+                toggleFrames()
+            }
+            .accessibilityLabel("Done animating")
         }
         .padding(5)
         .glassPanel(cornerRadius: 22)
