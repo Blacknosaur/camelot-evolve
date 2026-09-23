@@ -238,7 +238,7 @@ struct Board3DQuality: Sendable, Equatable {
     static let high = Board3DQuality(antialiasing: .multisampling4X, shadowMapSize: CGSize(width: 2048, height: 2048), shadowSampleCount: 8,
                                      shadowRadius: 2.5, groundTextureLimit: 4096, maxAnisotropy: 8, propsCastShadows: true)
     static let phone = Board3DQuality(antialiasing: .multisampling2X, shadowMapSize: CGSize(width: 1024, height: 1024), shadowSampleCount: 4,
-                                      shadowRadius: 1.8, groundTextureLimit: 2048, maxAnisotropy: 4, propsCastShadows: false)
+                                      shadowRadius: 1.8, groundTextureLimit: 4096, maxAnisotropy: 8, propsCastShadows: false)
 
     #if targetEnvironment(simulator)
     static let automatic = Board3DQuality.high
@@ -583,15 +583,19 @@ final class TacticalBoard3DScene {
 
         let tone = textures.surfaceTone(field: field, style: style)
         let ink = UIColor(red: 0.043, green: 0.046, blue: 0.054, alpha: 1)
-        backdrop = ink.blended(with: tone.scaled(0.25), 0.1)
-        // Albedos: lighting roughly doubles them, so keep the surround close to ink.
-        let surroundInner = style == .court ? ink.scaled(0.6) : ink.scaled(0.95).blended(with: tone.scaled(0.45), 0.1)
-        let surroundOuter = ink.scaled(0.5)
+        // Grass pitches sit on darker grass that fades into the distance, like a real ground; a
+        // near-black floor made the pitch float and turned its soft edge into a green halo.
+        let grass = style != .court
+        backdrop = grass ? ink.blended(with: tone.scaled(0.4), 0.5) : ink.blended(with: tone.scaled(0.25), 0.1)
+        // The surround continues the pitch's own grass tone, so the edge disappears into one lawn.
+        let surroundInner = grass ? tone.scaled(0.92) : ink.scaled(0.6)
+        let surroundOuter = grass ? tone.scaled(0.5).blended(with: ink, 0.35) : ink.scaled(0.5)
 
         // Ground: the shared 2D surface texture with a feathered edge.
         let quality = Board3DQuality.current
         let apron = max(2, 0.06 * size)
-        let feather = 0.06 * size
+        // A narrow blend: enough to hide the texture edge, not a visible haze.
+        let feather = 0.02 * size
         let pixelsPerMeter = min(28, quality.groundTextureLimit / CGFloat(size + 2 * (apron + feather)))
         let ground = SCNNode(geometry: SCNPlane(width: CGFloat(length + 2 * (apron + feather)), height: CGFloat(width + 2 * (apron + feather))))
         ground.name = "ground"

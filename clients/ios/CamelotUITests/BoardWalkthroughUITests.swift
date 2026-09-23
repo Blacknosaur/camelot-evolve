@@ -113,6 +113,37 @@ final class BoardWalkthroughUITests: XCTestCase {
         tapAny("board-close")
     }
 
+    /// A bent, selected line and the 3D views, for visual review.
+    @MainActor
+    func testCurvedLineAnd3DViews() throws {
+        app.tabBars.buttons["Boards"].tap()
+        let canvas = app.openNewBoard("Full pitch")
+        func point(_ x: Double, _ y: Double) -> XCUICoordinate { canvas.coordinate(withNormalizedOffset: .init(dx: x, dy: y)) }
+        tapAny("board-start-players")
+        for (x, y) in [(0.3, 0.3), (0.6, 0.45), (0.4, 0.6)] { point(x, y).tap() }
+        tapAny("board-item-away")
+        for (x, y) in [(0.5, 0.35), (0.7, 0.6)] { point(x, y).tap() }
+        tapAny("board-disarm")
+        tapAny("board-draw")
+        point(0.3, 0.3).press(forDuration: 0.1, thenDragTo: point(0.6, 0.45))
+        tapAny("board-disarm")
+        // Select the line and bend it from its middle handle.
+        point(0.45, 0.375).tap()
+        sleep(1)
+        point(0.45, 0.375).press(forDuration: 0.2, thenDragTo: point(0.33, 0.47))
+        sleep(1)
+        capture("40-curved-selected")
+        if element("board-card-close").exists { element("board-card-close").tap() }
+        for view in ["Tilted", "Broadcast"] {
+            tapAny("board-view")
+            let item = app.buttons[view].firstMatch
+            if item.waitForExistence(timeout: 3) { item.tap() }
+            sleep(4)
+            capture("41-\(view.lowercased())")
+        }
+        tapAny("board-close")
+    }
+
     @MainActor
     private func element(_ id: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: id).firstMatch

@@ -1030,9 +1030,16 @@ struct BoardRenderer {
             }
             cg.strokePath()
         } else if element.isLineLike {
+            // A glow along the line itself. Outlining the stroked shape of a sampled curve folds
+            // over on its inner side and shows spikes at every joint; a wide round stroke cannot.
             let samples = lineSamples(element, all: all, projection: projection)
-            cg.setLineDash(phase: 0, lengths: [5 * chrome, 4 * chrome])
-            cg.addPath(smoothPath(samples).copy(strokingWithWidth: strokeWidth(element.resolvedLineStyle, projection: projection) + 9 * chrome, lineCap: .round, lineJoin: .round, miterLimit: 1))
+            let path = smoothPath(samples)
+            let width = strokeWidth(element.resolvedLineStyle, projection: projection)
+            cg.setShadow(offset: .zero, blur: 0, color: nil)
+            cg.setLineCap(.round); cg.setLineJoin(.round)
+            cg.addPath(path)
+            cg.setStrokeColor(lime.withAlphaComponent(0.32).cgColor)
+            cg.setLineWidth(width + 12 * chrome)
             cg.strokePath()
         } else {
             let outline = areaOutline(element, projection: projection)

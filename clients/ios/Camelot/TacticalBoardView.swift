@@ -1966,9 +1966,14 @@ struct TacticalBoardView: View {
             covered = point.x > stageSize.width - min(350, stageSize.width * 0.5) - 24
             cardAtTop = false
         } else {
-            cardAtTop = point.y > stageSize.height / 2
-            let reserved = cardHeight + (showsFrames && !cardAtTop ? 118 : 0) + 16
-            covered = cardAtTop ? point.y < reserved : point.y > stageSize.height - reserved
+            let coversTop = point.y < cardHeight + 16
+            let coversBottom = point.y > stageSize.height - (cardHeight + (showsFrames ? 118 : 0) + 16)
+            // Bottom half: card at the top. If that spot would hide the element and the other would not, swap.
+            var atTop = point.y > stageSize.height / 2
+            if atTop, coversTop, !coversBottom { atTop = false }
+            if !atTop, coversBottom, !coversTop { atTop = true }
+            cardAtTop = atTop
+            covered = atTop ? coversTop : coversBottom
         }
         if covered, !inspectorCollapsed {
             inspectorCollapsed = true

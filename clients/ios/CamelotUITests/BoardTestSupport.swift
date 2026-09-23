@@ -9,7 +9,8 @@ extension XCUIApplication {
         let canvas = otherElements["board-canvas"]
         for _ in 0..<3 {
             let menu = buttons["boards-new"].firstMatch
-            guard menu.waitForExistence(timeout: 5) else { break }
+            // The Boards tab can take a while on the first launch after install.
+            guard menu.waitForExistence(timeout: 10) else { break }
             menu.tap()
             let item = buttons[field]
             guard item.waitForExistence(timeout: 3) else { continue }
