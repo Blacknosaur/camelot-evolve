@@ -145,6 +145,17 @@ final class BoardWalkthroughUITests: XCTestCase {
     }
 
     @MainActor
+    func testAssistantSheet() throws {
+        app.tabBars.buttons["Boards"].tap()
+        _ = app.openNewBoard("Full pitch")
+        tapAny("board-start-assistant")
+        XCTAssertTrue(element("board-assistant-request").waitForExistence(timeout: 4))
+        capture("50-assistant")
+        app.buttons["Cancel"].firstMatch.tap()
+        tapAny("board-close")
+    }
+
+    @MainActor
     private func element(_ id: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: id).firstMatch
     }

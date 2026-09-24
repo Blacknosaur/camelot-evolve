@@ -214,6 +214,7 @@ struct TacticalBoardView: View {
     /// Style drawn by the Draw banner's line items (Pass, Run, Dribble).
     @State private var drawLineStyle = BoardLineStyle.pass
     @State private var showingLineup = false
+    @State private var showingAssistant = false
     /// A recents slot being dragged onto the board (location in `editorSpace`).
     @State private var dragPlacement: (tool: BoardTool, location: CGPoint)?
     @State private var canvasFrame: CGRect = .zero
@@ -353,6 +354,14 @@ struct TacticalBoardView: View {
                 pick(.template)
             }, onLineup: { elements, summary in placeLineup(elements, summary: summary) })
         }
+        .sheet(isPresented: $showingAssistant) {
+            BoardAssistantSheet(document: document, frame: showsFrames ? currentFrame : nil) { result, summary in
+                stopPlayback(); disarm(); selectedID = nil
+                if result.keyframes.isEmpty, showsFrames { showsFrames = false; currentFrame = 0 }
+                commit { $0 = result }
+                showToast(summary.isEmpty ? "Board set up" : summary)
+            }
+        }
         .sheet(isPresented: $showingLineup) {
             SquadLineupSheet(document: document) { elements, summary in placeLineup(elements, summary: summary) }
         }
@@ -440,6 +449,7 @@ struct TacticalBoardView: View {
             .accessibilityLabel("Field and view")
             .accessibilityValue(document.viewAngle.is3D ? "\(document.viewAngle.title), \(Self.cameraModeTitle(displayedCamera.resolvedMode))" : document.viewAngle.title)
             .accessibilityIdentifier("board-view")
+            barButton("sparkles", label: "Board assistant", id: "board-assistant") { stopPlayback(); disarm(); showingAssistant = true }
             barButton("arrow.uturn.backward", label: "Undo", id: "board-undo", disabled: !history.canUndo) { undo() }
             barButton("arrow.uturn.forward", label: "Redo", id: "board-redo", disabled: !history.canRedo) { redo() }
             barButton("square.and.arrow.up", label: "Export", id: "board-export", prominent: true) { stopPlayback(); showingExport = true }
@@ -788,6 +798,11 @@ struct TacticalBoardView: View {
                 }
                 .buttonStyle(DarkPillButtonStyle())
                 .accessibilityIdentifier("board-start-players")
+                Button { showingAssistant = true } label: {
+                    Label("Describe it to the assistant", systemImage: "sparkles").frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .buttonStyle(DarkPillButtonStyle())
+                .accessibilityIdentifier("board-start-assistant")
             }
         }
         .foregroundStyle(.white)
