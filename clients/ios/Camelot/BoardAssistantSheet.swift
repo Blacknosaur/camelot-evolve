@@ -14,6 +14,7 @@ struct BoardAssistantSheet: View {
     @State private var failure: String?
     @State private var task: Task<Void, Never>?
     @FocusState private var focused: Bool
+    @State private var dictation = SpeechDictation()
 
     init(document: BoardDocument, frame: Int?, apply: @escaping (BoardDocument, String) -> Void) {
         self.document = document; self.frame = frame; self.apply = apply
@@ -37,12 +38,23 @@ struct BoardAssistantSheet: View {
                             .font(.subheadline).foregroundStyle(.orange)
                             .accessibilityIdentifier("board-assistant-unavailable")
                     }
-                    TextField("Describe the setup, e.g. a 4-4-2 pressing high", text: $request, axis: .vertical)
-                        .lineLimit(3...6)
-                        .focused($focused)
-                        .padding(12)
-                        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: Theme.Radius.medium, style: .continuous))
-                        .accessibilityIdentifier("board-assistant-request")
+                    HStack(alignment: .top, spacing: Theme.Space.sm) {
+                        TextField(dictation.isListening ? "Listening…" : "Describe the setup, e.g. a 4-4-2 pressing high", text: $request, axis: .vertical)
+                            .lineLimit(3...6)
+                            .focused($focused)
+                            .accessibilityIdentifier("board-assistant-request")
+                        voiceButton
+                    }
+                    .padding(12)
+                    .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: Theme.Radius.medium, style: .continuous))
+                    .overlay {
+                        if dictation.isListening {
+                            RoundedRectangle(cornerRadius: Theme.Radius.medium, style: .continuous).strokeBorder(Theme.signal, lineWidth: 2)
+                        }
+                    }
+                    if let message = dictation.message {
+                        Text(message).font(.footnote).foregroundStyle(.orange)
+                    }
                     VStack(alignment: .leading, spacing: Theme.Space.sm) {
                         Text("Try").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                         ForEach(Self.examples, id: \.self) { example in
@@ -76,7 +88,7 @@ struct BoardAssistantSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { task?.cancel(); dismiss() }
+                    Button("Cancel") { dictation.stop(); task?.cancel(); dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if running {
@@ -93,10 +105,30 @@ struct BoardAssistantSheet: View {
         .presentationDragIndicator(.visible)
         .preferredColorScheme(.dark)
         .tint(Theme.signal)
-        .onAppear { focused = true }
+        .onChange(of: dictation.transcript) { _, text in if dictation.isListening || !text.isEmpty { request = text } }
+        .onDisappear { dictation.stop() }
+    }
+
+    /// Speak instead of typing; it stops by itself after a pause.
+    private var voiceButton: some View {
+        Button {
+            focused = false
+            Task { await dictation.toggle(continuing: request) }
+        } label: {
+            Image(systemName: dictation.isListening ? "stop.fill" : "mic.fill")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(dictation.isListening ? Theme.ink : .white)
+                .frame(width: 44, height: 44)
+                .background(dictation.isListening ? AnyShapeStyle(Theme.signal) : AnyShapeStyle(.white.opacity(0.12)), in: .circle)
+                .symbolEffect(.pulse, isActive: dictation.isListening)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(dictation.isListening ? "Stop listening" : "Describe by voice")
+        .accessibilityIdentifier("board-assistant-voice")
     }
 
     private func create() {
+        dictation.stop()
         focused = false
         failure = nil
         running = true

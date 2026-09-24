@@ -68,7 +68,7 @@ extension BoardAssistantDraft {
 
     /// "5v2", "4 v 4", "3 against 2": the numbers the coach typed.
     static func counts(in text: String) -> (Int, Int)? {
-        guard let match = text.lowercased().firstMatch(of: /(\d+)\s*(?:v|vs|versus|against|on)\.?\s*(\d+)/),
+        guard let match = text.lowercased().firstMatch(of: /(\d+)\s*(?:v|vs|versus|against|on|x|contra)\.?\s*(\d+)/),
               let a = Int(match.1), let d = Int(match.2) else { return nil }
         return (a, d)
     }

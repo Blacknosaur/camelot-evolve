@@ -17,7 +17,8 @@
     <key>NSAppTransportSecurity</key>
     <dict><key>NSAllowsArbitraryLoads</key><true/><key>NSAllowsLocalNetworking</key><true/></dict>
     <key>NSCameraUsageDescription</key><string>Camelot records matches and training sessions.</string>
-    <key>NSMicrophoneUsageDescription</key><string>Camelot records audio with match videos.</string>
+    <key>NSMicrophoneUsageDescription</key><string>Camelot records audio with match videos and listens when you describe a board setup by voice.</string>
+    <key>NSSpeechRecognitionUsageDescription</key><string>Camelot turns what you say into a board setup description.</string>
     <key>NSLocalNetworkUsageDescription</key><string>Camelot connects nearby phones for multi-camera recording and event remotes, and reaches the development API on your local network.</string>
     <key>NSBonjourServices</key>
     <array><string>_camelot-cam._tcp</string><string>_camelot-cam._udp</string><string>_camelot-sock._tcp</string></array>

@@ -215,6 +215,8 @@ struct TacticalBoardView: View {
     @State private var drawLineStyle = BoardLineStyle.pass
     @State private var showingLineup = false
     @State private var showingAssistant = false
+    /// The coach chose to start from an empty pitch: don't offer the starter again this session.
+    @State private var keepsBlank = false
     /// A recents slot being dragged onto the board (location in `editorSpace`).
     @State private var dragPlacement: (tool: BoardTool, location: CGPoint)?
     @State private var canvasFrame: CGRect = .zero
@@ -777,7 +779,7 @@ struct TacticalBoardView: View {
 
     /// An empty board offers the two ways coaches start: a team shape or single items.
     private var showsStarter: Bool {
-        document.elements.isEmpty && !showsFrames && tool == .select && pathPoints.isEmpty
+        document.elements.isEmpty && !showsFrames && tool == .select && pathPoints.isEmpty && !keepsBlank
     }
 
     private var starterCard: some View {
@@ -803,6 +805,11 @@ struct TacticalBoardView: View {
                 }
                 .buttonStyle(DarkPillButtonStyle())
                 .accessibilityIdentifier("board-start-assistant")
+                Button("Keep it blank") { withAnimation(.snappy) { keepsBlank = true } }
+                    .font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 44).contentShape(.rect)
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("board-start-blank")
             }
         }
         .foregroundStyle(.white)

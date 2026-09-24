@@ -150,8 +150,12 @@ final class BoardWalkthroughUITests: XCTestCase {
         _ = app.openNewBoard("Full pitch")
         tapAny("board-start-assistant")
         XCTAssertTrue(element("board-assistant-request").waitForExistence(timeout: 4))
+        XCTAssertTrue(element("board-assistant-voice").exists, "The assistant can be described by voice")
         capture("50-assistant")
         app.buttons["Cancel"].firstMatch.tap()
+        tapAny("board-start-blank")
+        XCTAssertTrue(element("board-starter").waitForNonExistence(timeout: 3), "Keep it blank dismisses the starter")
+        capture("51-blank")
         tapAny("board-close")
     }
 

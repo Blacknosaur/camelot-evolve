@@ -209,6 +209,7 @@
 		DA5C78E5B9C8F7A65ECCD60F /* PlayerRoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A6417B637E055CAB88E51A /* PlayerRoster.swift */; };
 		DE177EF88D5DD87ECADABADB /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C3FDCEF7D3F856B07CBF44 /* Models.swift */; };
 		E0D262960E057C6B4D37795A /* SquadBoardIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A629CD3F7F056735593057 /* SquadBoardIntegration.swift */; };
+		E270EDABBF76C589BF3C41AF /* SpeechDictation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46D7014F5BE2A556F684858 /* SpeechDictation.swift */; };
 		E2826286BF02A7F72CAA33E5 /* DebugSeeding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E89D007F2BA10DF564FD0C78 /* DebugSeeding.swift */; };
 		E324CAD555E074DDF1E95FD1 /* BoardTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C10CDB79846F968AAF0B2C0 /* BoardTestSupport.swift */; };
 		E37200225F70C833A03A339C /* PlayerTrackingIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1E169099C0008E1140B75 /* PlayerTrackingIdentity.swift */; };
@@ -432,6 +433,7 @@
 		B86326F64CE4A3C34F4A46FD /* BasketballDetector.mlpackage */ = {isa = PBXFileReference; path = BasketballDetector.mlpackage; sourceTree = "<group>"; };
 		BE99C23BE6BC5AC37F4C0305 /* AnalysisSheetHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisSheetHeader.swift; sourceTree = "<group>"; };
 		BF1B8935B54EE352B95FF630 /* PlayerTrackRepairTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrackRepairTests.swift; sourceTree = "<group>"; };
+		C46D7014F5BE2A556F684858 /* SpeechDictation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechDictation.swift; sourceTree = "<group>"; };
 		C4C3095A7023029D5C7DB1A0 /* PlayerTrajectoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTrajectoryTests.swift; sourceTree = "<group>"; };
 		C5A6417B637E055CAB88E51A /* PlayerRoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRoster.swift; sourceTree = "<group>"; };
 		C957B895D9B428DA2F5146D7 /* TacticalBoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalBoardTests.swift; sourceTree = "<group>"; };
@@ -770,6 +772,7 @@
 				E367E0BD2AB15043CB9E905C /* RecordingRecovery.swift */,
 				CDF615562DC52421903831E2 /* RootView.swift */,
 				9079418E2BABF21C67BA615B /* SelectedPlayerTracking.swift */,
+				C46D7014F5BE2A556F684858 /* SpeechDictation.swift */,
 				D4A629CD3F7F056735593057 /* SquadBoardIntegration.swift */,
 				E0EB9BE49E1146DFF7E94F1A /* SquadDebugSeeding.swift */,
 				925FAA6ADC0B2FB12DFF3B7F /* SquadLineupSheet.swift */,
@@ -1072,6 +1075,7 @@
 				4CE4E6A5D9B18CA13FDEAFCE /* RecordingRecovery.swift in Sources */,
 				17A3643907F10933368C67CB /* RootView.swift in Sources */,
 				4442E889312844BD704EA7A9 /* SelectedPlayerTracking.swift in Sources */,
+				E270EDABBF76C589BF3C41AF /* SpeechDictation.swift in Sources */,
 				E0D262960E057C6B4D37795A /* SquadBoardIntegration.swift in Sources */,
 				4598E29B632AA344AD8B4AD9 /* SquadDebugSeeding.swift in Sources */,
 				A7BCFC44B321F3F8A65B4E32 /* SquadLineupSheet.swift in Sources */,
